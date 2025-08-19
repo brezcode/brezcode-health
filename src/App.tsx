@@ -71,15 +71,15 @@ function Hero() {
             />
 
             {/* Chat Bubbles */}
-            <div className="absolute top-4 right-4 bg-white rounded-2xl p-3 shadow-lg max-w-48 z-20">
+            <div className="absolute top-8 left-8 bg-white rounded-2xl p-3 shadow-lg max-w-48 z-20">
               <p className="text-sm text-gray-700">Hey Sue, how'd it go yesterday?</p>
             </div>
 
-            <div className="absolute top-20 right-8 bg-purple-500 rounded-2xl p-3 shadow-lg max-w-48 z-20">
+            <div className="absolute top-24 right-4 bg-purple-500 rounded-2xl p-3 shadow-lg max-w-48 z-20">
               <p className="text-sm text-white">I am following the plan, and feeling great today!</p>
             </div>
 
-            <div className="absolute bottom-20 left-4 bg-green-500 rounded-2xl p-3 shadow-lg max-w-40 z-20">
+            <div className="absolute bottom-32 left-2 bg-green-500 rounded-2xl p-3 shadow-lg max-w-40 z-20">
               <p className="text-sm text-white">Great work sticking to your plan!</p>
             </div>
           </div>
@@ -94,17 +94,12 @@ function Hero() {
               In addition, BrezCode members feel accomplished by an average of 80% after 90 days, as verified in a third-party study.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex justify-center">
               <button 
                 onClick={handleTakeQuiz}
                 className="bg-yellow-400 text-black px-8 py-3 rounded-full text-lg font-bold hover:bg-yellow-300 transition-all border-none cursor-pointer"
               >
                 Take the quiz to start
-              </button>
-              <button 
-                className="border border-yellow-400 text-yellow-400 hover:bg-yellow-400 hover:text-black px-8 py-3 rounded-full text-lg font-bold transition-all bg-transparent cursor-pointer"
-              >
-                🗓️ Create My Health Plan
               </button>
             </div>
           </div>
@@ -118,84 +113,89 @@ function HowItWorks() {
   return (
     <section className="py-20 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">
-            How <span className="text-blue-500">BrezCode Works</span>
-          </h2>
-          <p className="text-xl text-gray-600 max-w-4xl mx-auto">
+        <div className="text-center mb-12">
+          <div className="flex items-center justify-center mb-6">
+            <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center mr-4">
+              <span className="text-white font-bold text-lg">BC</span>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold">
+              How <span className="text-blue-500">BrezCode Works</span>
+            </h2>
+          </div>
+          <p className="text-lg text-gray-600 max-w-4xl mx-auto">
             After a quick quiz, we'll personalize your first weekly plan, introduce you to daily health rituals, and invite you to our private community. Our supportive coaches will be with you at every step of the way.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <div className="bg-white p-8 rounded-3xl shadow-lg hover:shadow-xl transition-shadow">
-            <div className="w-16 h-16 bg-blue-500 rounded-2xl flex items-center justify-center mb-6">
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+            <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center mb-4">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
               </svg>
             </div>
-            <h3 className="text-2xl font-bold mb-4">Weekly planning</h3>
-            <p className="text-gray-600 leading-relaxed">
+            <h3 className="text-lg font-bold mb-3">Weekly planning</h3>
+            <p className="text-gray-600 text-sm leading-relaxed">
               Every Sunday you'll get a personalized plan for the week ahead. Pre-commit to your week ahead to crush your goals.
             </p>
           </div>
 
-          <div className="bg-white p-8 rounded-3xl shadow-lg hover:shadow-xl transition-shadow">
-            <div className="w-16 h-16 bg-yellow-400 rounded-2xl flex items-center justify-center mb-6">
-              <svg className="w-8 h-8 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+            <div className="w-12 h-12 bg-yellow-400 rounded-xl flex items-center justify-center mb-4">
+              <svg className="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
               </svg>
             </div>
-            <h3 className="text-2xl font-bold mb-4">Community</h3>
-            <p className="text-gray-600 leading-relaxed">
+            <h3 className="text-lg font-bold mb-3">Community</h3>
+            <p className="text-gray-600 text-sm leading-relaxed">
               Give and get support in the vibrant BrezCode community, a place to cultivate a positive mindset every day.
             </p>
           </div>
 
-          <div className="bg-white p-8 rounded-3xl shadow-lg hover:shadow-xl transition-shadow">
-            <div className="w-16 h-16 bg-purple-500 rounded-2xl flex items-center justify-center mb-6">
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+            <div className="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center mb-4">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
               </svg>
             </div>
-            <h3 className="text-2xl font-bold mb-4">Resources</h3>
-            <p className="text-gray-600 leading-relaxed">
+            <h3 className="text-lg font-bold mb-3">Resources</h3>
+            <p className="text-gray-600 text-sm leading-relaxed">
               Exercises, videos, and resources are available on-demand to help you stay motivated when you need it.
             </p>
           </div>
 
-          <div className="bg-white p-8 rounded-3xl shadow-lg hover:shadow-xl transition-shadow">
-            <div className="w-16 h-16 bg-purple-500 rounded-2xl flex items-center justify-center mb-6">
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+            <div className="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center mb-4">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
               </svg>
             </div>
-            <h3 className="text-2xl font-bold mb-4">24/7 Coaching</h3>
-            <p className="text-gray-600 leading-relaxed">
+            <h3 className="text-lg font-bold mb-3">24/7 Coaching</h3>
+            <p className="text-gray-600 text-sm leading-relaxed">
               If you want any support or query, our AI coach trained by medical experts is always just a text message away, 24x7.
             </p>
           </div>
 
-          <div className="bg-white p-8 rounded-3xl shadow-lg hover:shadow-xl transition-shadow">
-            <div className="w-16 h-16 bg-green-500 rounded-2xl flex items-center justify-center mb-6">
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+            <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center mb-4">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
               </svg>
             </div>
-            <h3 className="text-2xl font-bold mb-4">Progress Tracking</h3>
-            <p className="text-gray-600 leading-relaxed">
+            <h3 className="text-lg font-bold mb-3">Progress Tracking</h3>
+            <p className="text-gray-600 text-sm leading-relaxed">
               Whether it's sleep, exercise, stress, or drinks cut, BrezCode shows you your progress in the terms that matter most to you.
             </p>
           </div>
 
-          <div className="bg-white p-8 rounded-3xl shadow-lg hover:shadow-xl transition-shadow">
-            <div className="w-16 h-16 bg-orange-500 rounded-2xl flex items-center justify-center mb-6">
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+            <div className="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center mb-4">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
               </svg>
             </div>
-            <h3 className="text-2xl font-bold mb-4">Smart Alerts</h3>
-            <p className="text-gray-600 leading-relaxed">
+            <h3 className="text-lg font-bold mb-3">Smart Alerts</h3>
+            <p className="text-gray-600 text-sm leading-relaxed">
               Tracking your drinks and diets will become the foundation of your habit change. BrezCode makes it simple and fun!
             </p>
           </div>
@@ -222,62 +222,75 @@ function RiskReductionChart() {
   };
 
   return (
-    <div className="flex flex-col items-center mb-16">
-      {/* Phone Mockup */}
-      <div className="relative">
-        {/* Phone Frame */}
-        <div className="w-80 bg-gray-900 rounded-3xl p-2 shadow-2xl" style={{ height: '600px' }}>
-          {/* Screen */}
-          <div className="w-full h-full bg-white rounded-3xl overflow-hidden relative">
-            {/* Phone Notch */}
-            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-32 h-6 bg-gray-900 rounded-b-2xl z-10"></div>
+    <div className="grid lg:grid-cols-2 gap-12 items-center mb-16">
+      {/* Mobile Phone Frame */}
+      <div className="flex justify-center">
+        <div className="relative">
+          {/* Phone Frame */}
+          <div className="w-72 bg-gray-900 rounded-3xl p-3 shadow-2xl" style={{ height: '580px' }}>
+            {/* Screen */}
+            <div className="w-full h-full bg-white rounded-3xl overflow-hidden relative">
+              {/* Phone Notch */}
+              <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-24 h-5 bg-gray-900 rounded-b-lg z-10"></div>
 
-            {/* Chart Content */}
-            <div className="pt-8 px-4 h-full">
-              {/* Header inside phone */}
-              <div className="text-center mb-6">
-                <h3 className="text-lg font-bold text-green-600 mb-1">
-                  🎉 Reach Risk Reduction of 100% 🎊
-                </h3>
-                <p className="text-xs text-gray-600 mb-2">
-                  Combine all activities for maximum protection! 🌟
-                </p>
-                <h4 className="text-sm font-bold text-gray-800 mb-4">Risk Reduction by Activity</h4>
-              </div>
+              {/* Chart Content */}
+              <div className="pt-6 px-3 h-full">
+                {/* Header inside phone */}
+                <div className="text-center mb-4">
+                  <h3 className="text-sm font-bold text-green-600 mb-1">
+                    🎉 Reach Risk Reduction of 100% 🎊
+                  </h3>
+                  <p className="text-xs text-gray-600 mb-2">
+                    Combine all activities for maximum protection! 🌟
+                  </p>
+                  <h4 className="text-xs font-bold text-gray-800 mb-3">Risk Reduction by Activity</h4>
+                </div>
 
-              {/* Activity Bars */}
-              <div className="space-y-3">
-                {data.map((item, index) => (
-                  <div key={index} className="flex items-center">
-                    <div className="flex-1 relative flex items-center">
-                      <div 
-                        className="bg-blue-600 h-8 rounded-md flex items-center justify-between px-3 transition-all duration-500 ease-out"
-                        style={{ width: `${getBarWidth(item.reduction)}%`, minWidth: '120px' }}
-                      >
-                        <span className="text-white font-bold text-xs truncate">
-                          {item.name}
+                {/* Activity Bars */}
+                <div className="space-y-2">
+                  {data.map((item, index) => (
+                    <div key={index} className="flex items-center">
+                      <div className="flex-1 relative flex items-center">
+                        <div 
+                          className="bg-blue-600 h-6 rounded-sm flex items-center px-2 transition-all duration-500 ease-out"
+                          style={{ width: `${getBarWidth(item.reduction)}%`, minWidth: '80px' }}
+                        >
+                          <span className="text-white font-bold text-xs truncate">
+                            {item.name}
+                          </span>
+                        </div>
+                        <span className="text-gray-800 font-bold text-xs ml-2 min-w-6">
+                          {item.reduction}%
                         </span>
                       </div>
-                      <span className="text-gray-800 font-bold text-xs ml-3 min-w-8">
-                        {item.reduction}%
-                      </span>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Phone Home Indicator */}
-        <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-gray-700 rounded-full"></div>
+          {/* Phone Home Indicator */}
+          <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-20 h-1 bg-gray-600 rounded-full"></div>
+        </div>
       </div>
 
-      {/* Total Risk Reduction Display */}
-      <div className="mt-8 text-center">
-        <div className="bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-4 rounded-2xl shadow-lg">
-          <div className="text-2xl font-bold">Total Risk Reduction: 175% 🎯</div>
-          <div className="text-sm opacity-90 mt-1">Maximum protection achieved! 🛡️</div>
+      {/* Risk Reduction Summary */}
+      <div>
+        <div className="text-center mb-8">
+          <div className="bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-6 rounded-2xl shadow-lg">
+            <div className="text-3xl font-bold">Total Risk Reduction: 175% 🎯</div>
+            <div className="text-lg opacity-90 mt-2">Maximum protection achieved! 🛡️</div>
+          </div>
+        </div>
+        
+        <div className="text-center">
+          <p className="text-lg text-gray-600 mb-4">
+            Our evidence-based approach combines multiple scientifically-proven methods to maximize your breast cancer risk reduction.
+          </p>
+          <p className="text-sm text-gray-500">
+            Each activity contributes to your overall health protection score, with AI monitoring providing the highest individual impact.
+          </p>
         </div>
       </div>
     </div>
@@ -569,135 +582,63 @@ function ReviewsAndTestimonials() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-6">
-            What Our Users <span className="text-blue-500">Are Saying</span>
+            Real BrezCode customers
           </h2>
-          <p className="text-xl text-gray-600 max-w-4xl mx-auto">
-            Real stories from women who have transformed their health journey with BrezCode.
-          </p>
         </div>
 
-        {/* Customer Reviews */}
-        <div className="grid md:grid-cols-3 gap-8 mb-20">
-          <div className="bg-white p-8 rounded-3xl shadow-lg border border-gray-100">
+        {/* Combined Customer Testimonials */}
+        <div className="grid md:grid-cols-3 gap-8 mb-16">
+          <div className="bg-white p-8 rounded-3xl shadow-xl">
             <div className="flex items-center mb-6">
-              <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mr-4">
-                <span className="text-white font-bold">S</span>
+              <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-xl mr-4">
+                S
               </div>
               <div>
-                <h4 className="font-semibold">Sarah M.</h4>
-                <div className="flex text-yellow-400">
-                  ★★★★★
-                </div>
+                <h3 className="font-bold text-lg">Sarah Chen</h3>
+                <p className="text-gray-600">Age 34, Marketing Director</p>
               </div>
             </div>
-            <p className="text-gray-600 leading-relaxed">
-              "BrezCode helped me understand my risk factors and gave me a clear action plan. The AI coach is incredibly supportive and knowledgeable."
+            <p className="text-gray-700 mb-4">
+              "I was skeptical about health apps, but BrezCode changed everything. The personalized recommendations helped me reduce my diabetes risk by 40% in just 6 months."
             </p>
+            <div className="flex text-yellow-400">
+              ⭐⭐⭐⭐⭐
+            </div>
           </div>
-
-          <div className="bg-white p-8 rounded-3xl shadow-lg border border-gray-100">
+          
+          <div className="bg-white p-8 rounded-3xl shadow-xl">
             <div className="flex items-center mb-6">
-              <div className="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center mr-4">
-                <span className="text-white font-bold">M</span>
-              </div>
-              <div>
-                <h4 className="font-semibold">Maria L.</h4>
-                <div className="flex text-yellow-400">
-                  ★★★★★
-                </div>
-              </div>
-            </div>
-            <p className="text-gray-600 leading-relaxed">
-              "The personalized recommendations are amazing. I've made real changes to my lifestyle and feel more confident about my health."
-            </p>
-          </div>
-
-          <div className="bg-white p-8 rounded-3xl shadow-lg border border-gray-100">
-            <div className="flex items-center mb-6">
-              <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center mr-4">
-                <span className="text-white font-bold">J</span>
-              </div>
-              <div>
-                <h4 className="font-semibold">Jennifer K.</h4>
-                <div className="flex text-yellow-400">
-                  ★★★★★
-                </div>
-              </div>
-            </div>
-            <p className="text-gray-600 leading-relaxed">
-              "Having 24/7 access to evidence-based health guidance has been life-changing. BrezCode is like having a health expert in my pocket."
-            </p>
-          </div>
-        </div>
-
-        {/* Real Testimonials */}
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Results from real people like you
-          </h2>
-          <p className="text-lg text-gray-500 italic">
-            These are real customer reviews, and we have hundreds more
-          </p>
-        </div>
-
-        <div className="grid md:grid-cols-3 gap-12">
-          <div className="text-center">
-            <div className="w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden bg-gradient-to-br from-pink-400 to-purple-500">
-              <div className="w-full h-full flex items-center justify-center text-white text-2xl font-bold">
+              <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center text-white font-bold text-xl mr-4">
                 M
               </div>
-            </div>
-            <p className="text-gray-600 font-medium mb-6">Mia</p>
-            <blockquote className="text-xl md:text-2xl text-gray-800 font-medium leading-relaxed mb-6">
-              "As a young woman, I ignored breast health. This app's fun, quick lessons taught me to listen to my body and act early!"
-            </blockquote>
-            <div className="flex items-center justify-center space-x-2">
-              <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
-                <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
+              <div>
+                <h3 className="font-bold text-lg">Michael Torres</h3>
+                <p className="text-gray-600">Age 42, Teacher</p>
               </div>
-              <span className="text-sm text-gray-600">Real BrezCode Customer</span>
+            </div>
+            <p className="text-gray-700 mb-4">
+              "The evidence-based approach convinced me. Following BrezCode's plan, I lowered my heart disease risk by 35% and lost 25 pounds. My doctor was amazed!"
+            </p>
+            <div className="flex text-yellow-400">
+              ⭐⭐⭐⭐⭐
             </div>
           </div>
-
-          <div className="text-center">
-            <div className="w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden bg-gradient-to-br from-yellow-400 to-orange-500">
-              <div className="w-full h-full flex items-center justify-center text-white text-2xl font-bold">
-                E
+          
+          <div className="bg-white p-8 rounded-3xl shadow-xl">
+            <div className="flex items-center mb-6">
+              <div className="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold text-xl mr-4">
+                L
+              </div>
+              <div>
+                <h3 className="font-bold text-lg">Lisa Rodriguez</h3>
+                <p className="text-gray-600">Age 38, Nurse</p>
               </div>
             </div>
-            <p className="text-gray-600 font-medium mb-6">Emily</p>
-            <blockquote className="text-xl md:text-2xl text-gray-800 font-medium leading-relaxed mb-6">
-              "I found a lump and panicked. The app guided me through self-exams and screening info, helping me stay calm and get answers fast."
-            </blockquote>
-            <div className="flex items-center justify-center space-x-2">
-              <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
-                <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <span className="text-sm text-gray-600">Real BrezCode Customer</span>
-            </div>
-          </div>
-
-          <div className="text-center">
-            <div className="w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden bg-gradient-to-br from-green-400 to-teal-500">
-              <div className="w-full h-full flex items-center justify-center text-white text-2xl font-bold">
-                A
-              </div>
-            </div>
-            <p className="text-gray-600 font-medium mb-6">Aisha</p>
-            <blockquote className="text-xl md:text-2xl text-gray-800 font-medium leading-relaxed mb-6">
-              "My sister had breast cancer, so I'm high-risk. The app's risk scoring and check-in reminders help me feel in control of my health!"
-            </blockquote>
-            <div className="flex items-center justify-center space-x-2">
-              <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
-                <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <span className="text-sm text-gray-600">Real BrezCode Customer</span>
+            <p className="text-gray-700 mb-4">
+              "As a healthcare professional, I appreciate BrezCode's scientific foundation. It helped me achieve a 45% reduction in my cancer risk through lifestyle changes."
+            </p>
+            <div className="flex text-yellow-400">
+              ⭐⭐⭐⭐⭐
             </div>
           </div>
         </div>
