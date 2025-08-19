@@ -271,3 +271,49 @@ body {
 .bg-white\/10 { background-color: rgba(255, 255, 255, 0.1); }
 .bg-white\/20 { background-color: rgba(255, 255, 255, 0.2); }
 .text-white\/90 { color: rgba(255, 255, 255, 0.9); }
+
+/* Additional classes for phone frame and activities */
+.min-w-8 { min-width: 2rem; }
+.text-xs { font-size: 0.75rem; }
+.border-2 { border-width: 2px; }
+.border-yellow-200 { border-color: #fef3c7; }
+.bg-yellow-50 { background-color: #fffbeb; }
+.bg-blue-50 { background-color: #eff6ff; }
+.bg-blue-100 { background-color: #dbeafe; }
+
+.transform { transform: var(--tw-transform); }
+.-translate-x-1\/2 { --tw-translate-x: -50%; transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y)); }
+.left-1\/2 { left: 50%; }
+
+.flex-shrink-0 { flex-shrink: 0; }
+.mt-1 { margin-top: 0.25rem; }
+
+.mb-20 { margin-bottom: 5rem; }
+
+.w-3 { width: 0.75rem; }
+.h-3 { height: 0.75rem; }
+
+.truncate { 
+  overflow: hidden; 
+  text-overflow: ellipsis; 
+  white-space: nowrap; 
+}
+
+.duration-500 { transition-duration: 500ms; }
+.ease-out { transition-timing-function: cubic-bezier(0, 0, 0.2, 1); }
+
+/* Additional classes for pricing section */
+.-translate-y-1\/2 { --tw-translate-y: -50%; transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y)); }
+.top-0 { top: 0; }
+.space-x-3 > :not([hidden]) ~ :not([hidden]) { margin-left: 0.75rem; }
+.space-y-3 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.75rem; }
+.w-6 { width: 1.5rem; }
+.h-6 { height: 1.5rem; }
+.text-green-500 { color: #22c55e; }
+.py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+.text-4xl { font-size: 2.25rem; }
+.from-blue-50 { --tw-gradient-from: #eff6ff; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(239, 246, 255, 0)); }
+.to-blue-100 { --tw-gradient-to: #dbeafe; }
+.from-blue-500 { --tw-gradient-from: #3b82f6; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(59, 130, 246, 0)); }
+.to-blue-600 { --tw-gradient-to: #2563eb; }
+.border-blue-500 { border-color: #3b82f6; }
