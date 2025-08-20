@@ -1,5 +1,6 @@
 import './App.css'
 import { useRef, useState } from 'react'
+import Quiz from './components/Quiz'
 
 // Inline Lucide icons since we don't have external dependencies
 const Menu = (props: any) => (
@@ -14,12 +15,8 @@ const X = (props: any) => (
   </svg>
 )
 
-function Navigation() {
+function Navigation({ onTakeQuiz }: { onTakeQuiz: () => void }) {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  
-  const handleTakeQuiz = () => {
-    window.open('/quiz', '_blank');
-  };
 
   return (
     <nav className="fixed top-0 w-full bg-transparent z-40">
@@ -46,7 +43,7 @@ function Navigation() {
                 Sign In
               </button>
               <button 
-                onClick={handleTakeQuiz}
+                onClick={onTakeQuiz}
                 className="bg-white text-blue-600 px-6 py-2 rounded-full hover:bg-gray-100 transition-colors font-semibold"
               >
                 Sign Up
@@ -74,7 +71,7 @@ function Navigation() {
               <a href="#how-it-works" className="block text-yellow-400 hover:text-yellow-300 transition-colors font-medium text-center py-3 px-4 bg-white/5 rounded-lg" onClick={() => setShowMobileMenu(false)}>How it works</a>
               <a href="#features" className="block text-yellow-400 hover:text-yellow-300 transition-colors font-medium text-center py-3 px-4 bg-white/5 rounded-lg" onClick={() => setShowMobileMenu(false)}>Features</a>
               <a href="#pricing" className="block text-yellow-400 hover:text-yellow-300 transition-colors font-medium text-center py-3 px-4 bg-white/5 rounded-lg" onClick={() => setShowMobileMenu(false)}>Pricing</a>
-              <button onClick={() => { handleTakeQuiz(); setShowMobileMenu(false); }} className="block text-yellow-400 hover:text-yellow-300 transition-colors font-medium text-center py-3 px-4 bg-white/5 rounded-lg">Sign Up</button>
+              <button onClick={() => { onTakeQuiz(); setShowMobileMenu(false); }} className="block text-yellow-400 hover:text-yellow-300 transition-colors font-medium text-center py-3 px-4 bg-white/5 rounded-lg">Sign Up</button>
             </div>
           </div>
         </div>
@@ -83,10 +80,7 @@ function Navigation() {
   );
 }
 
-function Hero() {
-  const handleTakeQuiz = () => {
-    window.open('/quiz', '_blank');
-  };
+function Hero({ onTakeQuiz }: { onTakeQuiz: () => void }) {
 
   return (
     <section className="min-h-screen bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 relative overflow-hidden">
@@ -112,7 +106,7 @@ function Hero() {
 
           <div className="flex justify-center mb-8">
             <button 
-              onClick={handleTakeQuiz}
+              onClick={onTakeQuiz}
               className="bg-yellow-400 text-black px-10 py-4 rounded-full text-lg font-bold hover:bg-yellow-300 hover:shadow-lg transition-all border-none cursor-pointer"
             >
               Start Your Free Assessment
@@ -173,7 +167,7 @@ function Hero() {
 
             <div className="flex justify-center lg:justify-start">
               <button 
-                onClick={handleTakeQuiz}
+                onClick={onTakeQuiz}
                 className="bg-yellow-400 text-black px-8 py-3 rounded-full text-lg font-bold hover:bg-yellow-300 transition-all border-none cursor-pointer"
               >
                 Get Started Now
@@ -374,10 +368,7 @@ function RiskReductionChart() {
   );
 }
 
-function Features() {
-  const handleTakeQuiz = () => {
-    window.open('/quiz', '_blank');
-  };
+function Features({ onTakeQuiz }: { onTakeQuiz: () => void }) {
 
   const activities = [
     {
@@ -532,7 +523,7 @@ function Features() {
 
               <div className="mt-8">
                 <button 
-                  onClick={handleTakeQuiz}
+                  onClick={onTakeQuiz}
                   className="bg-yellow-400 text-black px-8 py-3 rounded-full text-lg font-bold hover:bg-yellow-300 transition-all border-none cursor-pointer"
                 >
                   Take the quiz to start
@@ -559,10 +550,7 @@ function Features() {
   );
 }
 
-function Pricing() {
-  const handleTakeQuiz = () => {
-    window.open('/quiz', '_blank');
-  };
+function Pricing({ onTakeQuiz }: { onTakeQuiz: () => void }) {
 
   return (
     <section id="pricing" className="py-20 bg-gray-50">
@@ -645,7 +633,7 @@ function Pricing() {
               </div>
 
               <button
-                onClick={handleTakeQuiz}
+                onClick={onTakeQuiz}
                 className="w-full py-4 rounded-full font-bold text-xl bg-yellow-400 text-black hover:bg-yellow-300 hover:shadow-lg transition-all hover:scale-105 border-none cursor-pointer"
               >
                 Take the quiz to start
@@ -870,10 +858,7 @@ function Results() {
   );
 }
 
-function SignUp() {
-  const handleTakeQuiz = () => {
-    window.open('/quiz', '_blank');
-  };
+function SignUp({ onTakeQuiz }: { onTakeQuiz: () => void }) {
 
   return (
     <section className="py-20 bg-gradient-to-br from-blue-400 to-blue-600">
@@ -891,7 +876,7 @@ function SignUp() {
           <div className="bg-white rounded-2xl p-8 shadow-2xl max-w-md w-full">
             <div className="space-y-4">
               <button 
-                onClick={handleTakeQuiz}
+                onClick={onTakeQuiz}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white text-lg py-3 px-6 rounded-lg border-none cursor-pointer transition-all"
               >
                 Start Your Health Assessment
@@ -963,19 +948,45 @@ function Footer() {
 }
 
 function App() {
+  const [showQuiz, setShowQuiz] = useState(false);
+  const [quizAnswers, setQuizAnswers] = useState<Record<string, any>>({});
+
+  const handleQuizComplete = (answers: Record<string, any>) => {
+    console.log('Quiz completed with answers:', answers);
+    setQuizAnswers(answers);
+    setShowQuiz(false);
+    // Here you could redirect to a results page or show results
+    alert('Quiz completed! Check console for results.');
+  };
+
+  const handleQuizClose = () => {
+    setShowQuiz(false);
+  };
+
+  const openQuiz = () => {
+    setShowQuiz(true);
+  };
+
   return (
     <div className="min-h-screen bg-white">
-      <Navigation />
-      <Hero />
-      <Features />
+      <Navigation onTakeQuiz={openQuiz} />
+      <Hero onTakeQuiz={openQuiz} />
+      <Features onTakeQuiz={openQuiz} />
       <HowItWorks />
       <ReviewsAndTestimonials />
       <FAQ />
       <Promise />
       <Results />
-      <SignUp />
-      <Pricing />
+      <SignUp onTakeQuiz={openQuiz} />
+      <Pricing onTakeQuiz={openQuiz} />
       <Footer />
+      
+      {showQuiz && (
+        <Quiz 
+          onComplete={handleQuizComplete}
+          onClose={handleQuizClose}
+        />
+      )}
     </div>
   )
 }
