@@ -109,7 +109,7 @@ function Hero({ onTakeQuiz }: { onTakeQuiz: () => void }) {
               onClick={onTakeQuiz}
               className="bg-yellow-400 text-black px-10 py-4 rounded-full text-lg font-bold hover:bg-yellow-300 hover:shadow-lg transition-all border-none cursor-pointer"
             >
-              Start Your Free Assessment
+              Create My Health Plan
             </button>
           </div>
 
@@ -170,7 +170,7 @@ function Hero({ onTakeQuiz }: { onTakeQuiz: () => void }) {
                 onClick={onTakeQuiz}
                 className="bg-yellow-400 text-black px-8 py-3 rounded-full text-lg font-bold hover:bg-yellow-300 transition-all border-none cursor-pointer"
               >
-                Get Started Now
+                Create My Health Plan
               </button>
             </div>
           </div>
@@ -526,7 +526,7 @@ function Features({ onTakeQuiz }: { onTakeQuiz: () => void }) {
                   onClick={onTakeQuiz}
                   className="bg-yellow-400 text-black px-8 py-3 rounded-full text-lg font-bold hover:bg-yellow-300 transition-all border-none cursor-pointer"
                 >
-                  Take the quiz to start
+                  Create My Health Plan
                 </button>
               </div>
             </div>
@@ -636,7 +636,7 @@ function Pricing({ onTakeQuiz }: { onTakeQuiz: () => void }) {
                 onClick={onTakeQuiz}
                 className="w-full py-4 rounded-full font-bold text-xl bg-yellow-400 text-black hover:bg-yellow-300 hover:shadow-lg transition-all hover:scale-105 border-none cursor-pointer"
               >
-                Take the quiz to start
+                Create My Health Plan
               </button>
 
               <p className="text-sm text-gray-500 mt-4">
@@ -879,10 +879,10 @@ function SignUp({ onTakeQuiz }: { onTakeQuiz: () => void }) {
                 onClick={onTakeQuiz}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white text-lg py-3 px-6 rounded-lg border-none cursor-pointer transition-all"
               >
-                Start Your Health Assessment
+                Create My Health Plan
               </button>
               <p className="text-center text-sm text-gray-500 mb-4">
-                Complete our 23-question assessment to get personalized insights
+                Complete our comprehensive assessment to get personalized insights
               </p>
               
               <div className="border-t pt-4">
