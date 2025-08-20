@@ -1,4 +1,87 @@
 import './App.css'
+import { useState } from 'react'
+
+// Inline Lucide icons since we don't have external dependencies
+const Menu = (props: any) => (
+  <svg {...props} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path>
+  </svg>
+)
+
+const X = (props: any) => (
+  <svg {...props} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+  </svg>
+)
+
+function Navigation() {
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  
+  const handleTakeQuiz = () => {
+    window.open('/quiz', '_blank');
+  };
+
+  return (
+    <nav className="fixed top-0 w-full bg-transparent z-40">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-20">
+          <div className="flex items-center space-x-2 cursor-pointer">
+            <div className="w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center">
+              <span className="text-white font-bold text-sm">BC</span>
+            </div>
+            <span className="font-bold text-xl text-yellow-400">BrezCode</span>
+          </div>
+          
+          <div className="hidden lg:flex items-center">
+            <div className="flex items-center space-x-6 mr-8">
+              <a href="#how-it-works" className="text-yellow-400 hover:text-yellow-300 transition-colors font-medium px-2 py-1">How it works</a>
+              <a href="#features" className="text-yellow-400 hover:text-yellow-300 transition-colors font-medium px-2 py-1">Features</a>
+              <a href="#pricing" className="text-yellow-400 hover:text-yellow-300 transition-colors font-medium px-2 py-1">Pricing</a>
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              <button 
+                className="text-yellow-400 hover:text-yellow-300 font-medium px-4 py-2"
+              >
+                Sign In
+              </button>
+              <button 
+                onClick={handleTakeQuiz}
+                className="bg-white text-blue-600 px-6 py-2 rounded-full hover:bg-gray-100 transition-colors font-semibold"
+              >
+                Sign Up
+              </button>
+            </div>
+          </div>
+          
+          {/* Mobile menu button */}
+          <div className="lg:hidden">
+            <button
+              onClick={() => setShowMobileMenu(!showMobileMenu)}
+              className="text-yellow-400 hover:text-yellow-300"
+            >
+              {showMobileMenu ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      {/* Mobile menu */}
+      {showMobileMenu && (
+        <div className="lg:hidden bg-blue-600/95 backdrop-blur-sm border-t border-white/10">
+          <div className="px-4 py-6 space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <a href="#how-it-works" className="block text-yellow-400 hover:text-yellow-300 transition-colors font-medium text-center py-3 px-4 bg-white/5 rounded-lg" onClick={() => setShowMobileMenu(false)}>How it works</a>
+              <a href="#features" className="block text-yellow-400 hover:text-yellow-300 transition-colors font-medium text-center py-3 px-4 bg-white/5 rounded-lg" onClick={() => setShowMobileMenu(false)}>Features</a>
+              <a href="#pricing" className="block text-yellow-400 hover:text-yellow-300 transition-colors font-medium text-center py-3 px-4 bg-white/5 rounded-lg" onClick={() => setShowMobileMenu(false)}>Pricing</a>
+              <button onClick={() => { handleTakeQuiz(); setShowMobileMenu(false); }} className="block text-yellow-400 hover:text-yellow-300 transition-colors font-medium text-center py-3 px-4 bg-white/5 rounded-lg">Sign Up</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </nav>
+  );
+}
 
 function Hero() {
   const handleTakeQuiz = () => {
@@ -8,7 +91,7 @@ function Hero() {
   return (
     <section className="min-h-screen bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
+        <div className="text-center mb-16 pt-20">
           <div className="inline-flex items-center bg-white/20 backdrop-blur-sm rounded-full px-6 py-3 mb-8 mt-8">
             <div className="w-3 h-3 bg-green-400 rounded-full mr-3 animate-pulse"></div>
             <span className="text-white text-sm font-medium">Evidence-based AI coaching available 24/7</span>
@@ -70,17 +153,13 @@ function Hero() {
               }}
             />
 
-            {/* Chat Bubbles */}
-            <div className="absolute top-8 left-8 bg-white rounded-2xl p-3 shadow-lg max-w-48 z-20">
+            {/* Chat Bubbles - repositioned to match original */}
+            <div className="absolute top-16 right-16 bg-white rounded-2xl p-3 shadow-lg max-w-48 z-20">
               <p className="text-sm text-gray-700">Hey Sue, how'd it go yesterday?</p>
             </div>
 
-            <div className="absolute top-24 right-4 bg-purple-500 rounded-2xl p-3 shadow-lg max-w-48 z-20">
+            <div className="absolute bottom-24 right-8 bg-purple-500 rounded-2xl p-3 shadow-lg max-w-48 z-20">
               <p className="text-sm text-white">I am following the plan, and feeling great today!</p>
-            </div>
-
-            <div className="absolute bottom-32 left-2 bg-green-500 rounded-2xl p-3 shadow-lg max-w-40 z-20">
-              <p className="text-sm text-white">Great work sticking to your plan!</p>
             </div>
           </div>
 
@@ -111,7 +190,7 @@ function Hero() {
 
 function HowItWorks() {
   return (
-    <section className="py-20 bg-gray-50">
+    <section id="how-it-works" className="py-20 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <div className="flex items-center justify-center mb-6">
@@ -223,45 +302,48 @@ function RiskReductionChart() {
 
   return (
     <div className="grid lg:grid-cols-2 gap-12 items-center mb-16">
-      {/* Mobile Phone Frame */}
+      {/* Mobile Phone Frame - Enhanced Design */}
       <div className="flex justify-center">
         <div className="relative">
-          {/* Phone Frame */}
-          <div className="w-72 bg-gray-900 rounded-3xl p-3 shadow-2xl" style={{ height: '580px' }}>
-            {/* Screen */}
-            <div className="w-full h-full bg-white rounded-3xl overflow-hidden relative">
-              {/* Phone Notch */}
-              <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-24 h-5 bg-gray-900 rounded-b-lg z-10"></div>
+          {/* Phone Frame - More realistic styling */}
+          <div className="w-80 bg-gray-900 rounded-[3rem] p-2 shadow-2xl" style={{ height: '640px' }}>
+            {/* Screen with more realistic bezels */}
+            <div className="w-full h-full bg-white rounded-[2.5rem] overflow-hidden relative border-4 border-gray-800">
+              {/* Phone Notch - More realistic */}
+              <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-32 h-6 bg-gray-900 rounded-b-2xl z-10 flex items-center justify-center">
+                <div className="w-12 h-1 bg-gray-700 rounded-full"></div>
+              </div>
 
               {/* Chart Content */}
-              <div className="pt-6 px-3 h-full">
+              <div className="pt-8 px-4 h-full bg-gradient-to-b from-blue-50 to-white">
                 {/* Header inside phone */}
-                <div className="text-center mb-4">
-                  <h3 className="text-sm font-bold text-green-600 mb-1">
-                    🎉 Reach Risk Reduction of 100% 🎊
+                <div className="text-center mb-6">
+                  <h3 className="text-lg font-bold text-green-600 mb-2">
+                    🎉 Risk Reduction Goals 🎊
                   </h3>
-                  <p className="text-xs text-gray-600 mb-2">
-                    Combine all activities for maximum protection! 🌟
+                  <p className="text-sm text-gray-600 mb-3">
+                    Track your progress with evidence-based activities
                   </p>
-                  <h4 className="text-xs font-bold text-gray-800 mb-3">Risk Reduction by Activity</h4>
+                  <h4 className="text-sm font-bold text-gray-800 mb-4">Activity Impact Overview</h4>
                 </div>
 
-                {/* Activity Bars */}
-                <div className="space-y-2">
+                {/* Activity Bars - Better design */}
+                <div className="space-y-3">
                   {data.map((item, index) => (
-                    <div key={index} className="flex items-center">
-                      <div className="flex-1 relative flex items-center">
-                        <div 
-                          className="bg-blue-600 h-6 rounded-sm flex items-center px-2 transition-all duration-500 ease-out"
-                          style={{ width: `${getBarWidth(item.reduction)}%`, minWidth: '80px' }}
-                        >
-                          <span className="text-white font-bold text-xs truncate">
-                            {item.name}
-                          </span>
-                        </div>
-                        <span className="text-gray-800 font-bold text-xs ml-2 min-w-6">
-                          {item.reduction}%
+                    <div key={index} className="bg-white rounded-lg p-3 shadow-sm border border-gray-100">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-semibold text-gray-800 truncate">
+                          {item.name}
                         </span>
+                        <span className="text-sm font-bold text-green-600">
+                          -{item.reduction}%
+                        </span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className="bg-gradient-to-r from-green-400 to-green-600 h-2 rounded-full transition-all duration-500 ease-out"
+                          style={{ width: `${getBarWidth(item.reduction)}%` }}
+                        ></div>
                       </div>
                     </div>
                   ))}
@@ -271,7 +353,7 @@ function RiskReductionChart() {
           </div>
 
           {/* Phone Home Indicator */}
-          <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-20 h-1 bg-gray-600 rounded-full"></div>
+          <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-gray-600 rounded-full"></div>
         </div>
       </div>
 
@@ -354,7 +436,7 @@ function Features() {
   ];
 
   return (
-    <section className="py-20 bg-white">
+    <section id="features" className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-6">
@@ -472,7 +554,7 @@ function Pricing() {
   };
 
   return (
-    <section className="py-20 bg-gray-50">
+    <section id="pricing" className="py-20 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-6">
@@ -862,6 +944,7 @@ function Footer() {
         </div>
         <div className="border-t border-gray-700 mt-12 pt-8 text-center text-gray-400">
           <p>© 2024 BrezCode. All rights reserved. This service is for informational purposes only and does not replace professional medical advice.</p>
+          <p className="text-xs text-gray-500 mt-2">Last updated: {new Date().toLocaleString()}</p>
         </div>
       </div>
     </footer>
@@ -871,6 +954,7 @@ function Footer() {
 function App() {
   return (
     <div className="min-h-screen bg-white">
+      <Navigation />
       <Hero />
       <HowItWorks />
       <Features />
