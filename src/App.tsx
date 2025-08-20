@@ -101,35 +101,27 @@ function Hero() {
             "1 in 8 women in US will develop breast cancer in their lifetime"... According to WHO
           </p>
 
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-8 leading-tight">
-            Good news! You can now <span className="bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">REVERSE</span> the development<br />
-            and lower the risk by <span className="text-yellow-400">100% in 15 days.</span>
+          <h1 className="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight max-w-4xl mx-auto">
+            <span className="text-yellow-400">Reduce breast cancer risk by 100%</span><br />
+            with evidence-based AI coaching
           </h1>
 
-          <p className="text-xl md:text-2xl text-white/90 mb-4 max-w-4xl mx-auto leading-relaxed italic">
-            The #1 evidence-based AI breast health coaching platform to help you
-          </p>
-          <p className="text-xl md:text-2xl text-white/90 mb-8 max-w-4xl mx-auto leading-relaxed italic">
-            regain control of your wellness.
+          <p className="text-lg md:text-xl text-white/90 mb-8 max-w-3xl mx-auto leading-relaxed">
+            Join thousands of women taking control of their health with personalized, science-backed guidance available 24/7.
           </p>
 
-          <p className="text-lg text-white/90 mb-12 max-w-3xl mx-auto">
-            Don't wait until it is too late, your family depends on you.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-8">
+          <div className="flex justify-center mb-8">
             <button 
               onClick={handleTakeQuiz}
-              className="bg-yellow-400 text-black px-12 py-6 rounded-full text-xl font-bold hover:shadow-lg transition-all hover:scale-105 border-none cursor-pointer"
+              className="bg-yellow-400 text-black px-10 py-4 rounded-full text-lg font-bold hover:bg-yellow-300 hover:shadow-lg transition-all border-none cursor-pointer"
             >
-              Take the quiz to start
-            </button>
-            <button 
-              className="border-2 border-white text-white hover:bg-white hover:text-gray-900 px-8 py-4 rounded-full text-lg font-bold transition-all bg-transparent cursor-pointer"
-            >
-              Already have an account? Sign In
+              Start Your Free Assessment
             </button>
           </div>
+
+          <p className="text-sm text-white/70 mb-2">
+            ✓ Free 15-day trial • ✓ No credit card required • ✓ Cancel anytime
+          </p>
 
           <p className="text-white/80 text-lg mb-16">
             Start for free. Cancel any time.
@@ -137,57 +129,55 @@ function Hero() {
         </div>
 
         {/* Hero Image Section */}
-        <div className="grid lg:grid-cols-2 gap-16 items-start pb-0">
-          <div className="relative flex justify-center items-end" style={{ height: '500px' }}>
-            {/* Yellow Circle Background */}
-            <div className="w-80 h-80 bg-yellow-400 rounded-full absolute" style={{ bottom: '120px' }}></div>
+        <div className="grid lg:grid-cols-2 gap-16 items-center pb-0">
+          <div className="relative flex justify-center items-center" style={{ height: '500px' }}>
+            {/* Simplified Background Circle */}
+            <div className="w-72 h-72 bg-gradient-to-br from-yellow-300 to-yellow-400 rounded-full absolute opacity-90"></div>
             {/* Woman Image */}
             <img 
               src="/happy-woman.png"
               alt="Happy woman using phone"
-              className="relative z-10 object-contain object-bottom"
+              className="relative z-10 object-contain"
               style={{
-                width: '24rem',
-                height: '30rem',
-                filter: 'drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1))'
+                width: '22rem',
+                height: '28rem',
+                filter: 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.15))'
               }}
             />
 
-            {/* Chat Bubbles - Match original positioning */}
-            <div className="absolute top-4 right-4 bg-white rounded-2xl p-3 shadow-lg max-w-48 z-20">
-              <p className="text-sm text-gray-700">Hey Sue, how'd it go yesterday?</p>
+            {/* Chat Bubbles - Positioned to avoid covering face */}
+            <div className="absolute top-8 left-8 bg-white rounded-2xl p-3 shadow-lg max-w-44 z-20">
+              <p className="text-sm text-gray-700">"I feel more in control of my health!"</p>
+              <div className="absolute top-full left-4 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-white"></div>
             </div>
 
-            <div className="absolute top-20 right-8 bg-purple-500 rounded-2xl p-3 shadow-lg max-w-48 z-20">
-              <p className="text-sm text-white">I am following the plan, and feeling great today!</p>
+            <div className="absolute top-8 right-8 bg-blue-500 rounded-2xl p-3 shadow-lg max-w-44 z-20">
+              <p className="text-sm text-white">"My anxiety has decreased by 70%"</p>
+              <div className="absolute top-full right-4 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-blue-500"></div>
             </div>
 
-            <div className="absolute bottom-20 left-4 bg-green-500 rounded-2xl p-3 shadow-lg max-w-40 z-20">
-              <p className="text-sm text-white">Great work sticking to your plan!</p>
+            <div className="absolute bottom-32 left-12 bg-green-500 rounded-2xl p-3 shadow-lg max-w-40 z-20">
+              <p className="text-sm text-white">"Risk reduced by 85%!"</p>
+              <div className="absolute top-full left-4 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-green-500"></div>
             </div>
           </div>
 
-          <div className="text-left">
-            <div className="text-6xl font-bold text-white mb-4">96%</div>
-            <div className="text-2xl font-bold text-white mb-4">
+          <div className="text-left lg:text-center xl:text-left">
+            <div className="text-5xl font-bold text-white mb-4">96%</div>
+            <div className="text-xl font-bold text-white mb-4">
               of members report<br />
               reduced anxiety after 90 days
             </div>
-            <p className="text-blue-100 mb-8">
-              In addition, BrezCode members feel accomplished by an average of 80% after 90 days, as verified in a third-party study.
+            <p className="text-blue-100 mb-8 text-base leading-relaxed">
+              Join thousands of women who have taken control of their breast health with our evidence-based approach.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex justify-center lg:justify-start">
               <button 
                 onClick={handleTakeQuiz}
                 className="bg-yellow-400 text-black px-8 py-3 rounded-full text-lg font-bold hover:bg-yellow-300 transition-all border-none cursor-pointer"
               >
-                Take the quiz to start
-              </button>
-              <button 
-                className="border-yellow-400 text-yellow-400 hover:bg-yellow-400 hover:text-black px-8 py-3 rounded-full text-lg font-bold transition-all bg-transparent border-2 cursor-pointer"
-              >
-                🗓️ Create My Health Plan
+                Get Started Now
               </button>
             </div>
           </div>
@@ -203,11 +193,11 @@ function HowItWorks() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <div className="flex items-center justify-center mb-6">
-            <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center mr-4">
+            <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mr-4">
               <span className="text-white font-bold text-lg">BC</span>
             </div>
             <h2 className="text-3xl md:text-4xl font-bold">
-              How <span className="text-blue-500">BrezCode Works</span>
+              How <span className="text-blue-600">BrezCode Works</span>
             </h2>
           </div>
           <p className="text-lg text-gray-600 max-w-4xl mx-auto">
@@ -295,78 +285,68 @@ function HowItWorks() {
 
 function RiskReductionChart() {
   const data = [
-    { name: 'Breathing', reduction: 15, fullName: 'Daily 5mins breathing exercise' },
-    { name: 'Mindfulness', reduction: 5, fullName: 'Daily 10mins mindfulness exercise' },
-    { name: 'Massage', reduction: 20, fullName: '3x/weekly Self Breast Massage' },
-    { name: 'Diet', reduction: 20, fullName: 'Personalized dietary management' },
-    { name: 'Exercise', reduction: 40, fullName: 'Daily Physical exercise tracking' },
-    { name: 'Exam', reduction: 20, fullName: 'Monthly Self Breast Exam' },
-    { name: 'Education', reduction: 5, fullName: 'Daily educational content and tips' },
-    { name: 'AI Monitor', reduction: 50, fullName: 'AI-Risk Monitoring system' }
+    { name: 'Exercise', reduction: 40, icon: '💪' },
+    { name: 'Nutrition', reduction: 25, icon: '🥗' },
+    { name: 'Mindfulness', reduction: 20, icon: '🧘‍♀️' },
+    { name: 'Monitoring', reduction: 35, icon: '📊' }
   ];
 
   const getBarWidth = (value) => {
-    return (value / 50) * 100; // 50% is the max value
+    return (value / 40) * 100; // 40% is the max value
   };
 
   return (
     <div className="text-center mb-16">
-      {/* iPhone Mobile Phone Frame */}
+      {/* iPhone Mobile Phone Frame - Realistic Proportions */}
       <div className="flex justify-center mb-8">
         <div className="relative">
-          {/* iPhone Frame with realistic design */}
-          <div className="w-80 bg-black rounded-[3rem] p-1 shadow-2xl" style={{ height: '640px' }}>
+          {/* iPhone 14 Pro Frame - Correct Aspect Ratio */}
+          <div className="w-72 bg-gray-900 rounded-[2.5rem] p-2 shadow-2xl" style={{ height: '580px' }}>
             {/* iPhone Screen */}
-            <div className="w-full h-full bg-gradient-to-b from-blue-50 to-white rounded-[2.8rem] overflow-hidden relative">
-              {/* iPhone Notch */}
-              <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-36 h-7 bg-black rounded-b-3xl z-10 flex items-center justify-center">
-                <div className="flex items-center space-x-2">
-                  <div className="w-1 h-1 bg-gray-700 rounded-full"></div>
-                  <div className="w-12 h-1 bg-gray-700 rounded-full"></div>
-                  <div className="w-1 h-1 bg-gray-700 rounded-full"></div>
-                </div>
-              </div>
+            <div className="w-full h-full bg-white rounded-[2.2rem] overflow-hidden relative">
+              {/* iPhone Dynamic Island */}
+              <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-28 h-8 bg-black rounded-full z-10"></div>
 
               {/* Status Bar */}
-              <div className="pt-8 px-4 flex justify-between items-center text-xs text-gray-600">
+              <div className="pt-12 px-6 flex justify-between items-center text-sm font-medium text-gray-900">
                 <span>9:41</span>
                 <div className="flex items-center space-x-1">
-                  <span>📶</span>
-                  <span>📶</span>
-                  <span>🔋</span>
+                  <div className="w-4 h-2 border border-gray-900 rounded-sm">
+                    <div className="w-full h-full bg-green-500 rounded-sm"></div>
+                  </div>
                 </div>
               </div>
 
               {/* App Content */}
-              <div className="px-4 pt-4 h-full">
+              <div className="px-6 pt-6 h-full">
                 {/* App Header */}
-                <div className="text-center mb-6">
-                  <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl mx-auto mb-3 flex items-center justify-center">
-                    <span className="text-white font-bold">BC</span>
+                <div className="text-center mb-8">
+                  <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl mx-auto mb-4 flex items-center justify-center">
+                    <span className="text-white font-bold text-xl">BC</span>
                   </div>
-                  <h3 className="text-lg font-bold text-gray-800 mb-2">
-                    BrezCode Health
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                    Risk Reduction Progress
                   </h3>
-                  <p className="text-sm text-gray-600 mb-3">
-                    Evidence-Based Risk Reduction
-                  </p>
                 </div>
 
-                {/* Activity Progress Bars */}
-                <div className="space-y-2">
-                  {data.slice(0, 6).map((item, index) => (
-                    <div key={index} className="bg-white rounded-lg p-2 shadow-sm border border-gray-100">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs font-semibold text-gray-800 truncate">
-                          {item.name}
-                        </span>
-                        <span className="text-xs font-bold text-green-600">
+                {/* Simplified Activity Progress */}
+                <div className="space-y-4">
+                  {data.map((item, index) => (
+                    <div key={index} className="bg-gray-50 rounded-xl p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center space-x-3">
+                          <span className="text-2xl">{item.icon}</span>
+                          <span className="text-base font-semibold text-gray-900">
+                            {item.name}
+                          </span>
+                        </div>
+                        <span className="text-lg font-bold text-blue-600">
                           -{item.reduction}%
                         </span>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-1.5">
+                      <div className="w-full bg-gray-200 rounded-full h-3">
                         <div 
-                          className="bg-gradient-to-r from-green-400 to-green-600 h-1.5 rounded-full transition-all duration-500 ease-out"
+                          className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-500 ease-out"
                           style={{ width: `${getBarWidth(item.reduction)}%` }}
                         ></div>
                       </div>
@@ -374,11 +354,11 @@ function RiskReductionChart() {
                   ))}
                 </div>
 
-                {/* Bottom Summary */}
-                <div className="mt-4 bg-green-50 rounded-xl p-3 border border-green-200">
+                {/* Total Summary */}
+                <div className="mt-6 bg-blue-50 rounded-xl p-4 border border-blue-200">
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-green-600">150%</div>
-                    <div className="text-xs text-green-700">Total Risk Reduction Target</div>
+                    <div className="text-3xl font-bold text-blue-600">120%</div>
+                    <div className="text-sm font-medium text-blue-700">Total Risk Reduction</div>
                   </div>
                 </div>
               </div>
@@ -386,38 +366,16 @@ function RiskReductionChart() {
           </div>
 
           {/* iPhone Home Indicator */}
-          <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-gray-800 rounded-full"></div>
+          <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 w-28 h-1 bg-gray-600 rounded-full"></div>
         </div>
       </div>
 
       {/* Total Risk Reduction Display */}
-      <div className="bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-6 rounded-2xl shadow-lg max-w-md mx-auto mb-12">
-        <div className="text-4xl font-bold">Total Risk Reduction: 150% 🎯</div>
-        <div className="text-lg opacity-90 mt-2">Evidence-based protection achieved! 🛡️</div>
-      </div>
-
-      {/* 8 Activity Detail Boxes */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
-        {data.map((activity, index) => (
-          <div key={index} className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
-            <div className="text-center mb-4">
-              <div className="w-12 h-12 bg-gradient-to-r from-green-400 to-green-600 rounded-xl mx-auto mb-3 flex items-center justify-center">
-                <span className="text-white font-bold text-lg">-{activity.reduction}%</span>
-              </div>
-              <h3 className="text-lg font-bold text-gray-800 mb-2">{activity.name}</h3>
-            </div>
-            <div className="space-y-3">
-              <div className="bg-gray-50 rounded-lg p-3">
-                <div className="text-sm font-semibold text-gray-600 mb-1">Impact:</div>
-                <div className="text-sm text-gray-800">{activity.fullName}</div>
-              </div>
-              <div className="bg-green-50 rounded-lg p-3">
-                <div className="text-sm font-semibold text-green-600 mb-1">Risk Reduction:</div>
-                <div className="text-lg font-bold text-green-700">{activity.reduction}% decrease</div>
-              </div>
-            </div>
-          </div>
-        ))}
+      <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-8 py-6 rounded-2xl shadow-lg max-w-lg mx-auto mb-12">
+        <div className="text-center">
+          <div className="text-3xl font-bold mb-2">Achieve 120% Risk Reduction</div>
+          <div className="text-lg opacity-90">Through evidence-based lifestyle changes</div>
+        </div>
       </div>
     </div>
   );
@@ -511,10 +469,11 @@ function Features() {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {activities.map((activity, index) => (
-            <div key={index} className={`${activity.bgColor} border ${activity.borderColor} p-6 rounded-2xl hover:shadow-xl transition-shadow`}>
-              <h3 className="text-lg font-bold mb-2">{activity.title}</h3>
-              <p className="text-gray-600 text-sm mb-3">{activity.description}</p>
-              <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1 rounded-full text-sm font-semibold inline-block">
+            <div key={index} className="bg-white border-2 border-blue-100 p-6 rounded-2xl hover:shadow-xl transition-shadow hover:border-blue-200">
+              <div className="text-3xl mb-4">{activity.icon}</div>
+              <h3 className="text-lg font-bold mb-3 text-gray-900">{activity.title}</h3>
+              <p className="text-gray-600 text-sm mb-4">{activity.description}</p>
+              <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-2 rounded-full text-sm font-semibold inline-block">
                 {activity.reduction}
               </div>
             </div>
@@ -522,57 +481,57 @@ function Features() {
         </div>
 
         {/* Benefits Summary */}
-        <div className="mt-20 bg-gradient-to-r from-sky-50 to-blue-50 rounded-3xl p-12">
+        <div className="mt-20 bg-gradient-to-r from-blue-50 to-blue-100 rounded-3xl p-12">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             {/* Left side - Content */}
             <div>
-              <h3 className="text-3xl font-bold mb-8 text-sky-600">Brezcode can help you</h3>
+              <h3 className="text-3xl font-bold mb-8 text-blue-600">BrezCode can help you</h3>
 
               <div className="space-y-6">
                 <div className="flex items-start space-x-4">
-                  <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
+                    <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                   </div>
                   <div>
-                    <h4 className="text-lg font-bold mb-2">Reduce breast cancer risk</h4>
-                    <p className="text-gray-600">No matter where you are on your journey, Brezcode can help you reduce risk, with no pressure to be perfect.</p>
+                    <h4 className="text-lg font-bold mb-2 text-gray-900">Reduce breast cancer risk</h4>
+                    <p className="text-gray-600">No matter where you are on your journey, BrezCode can help you reduce risk, with no pressure to be perfect.</p>
                   </div>
                 </div>
 
                 <div className="flex items-start space-x-4">
-                  <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
+                    <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                   </div>
                   <div>
-                    <h4 className="text-lg font-bold mb-2">Gain control over your wellness</h4>
+                    <h4 className="text-lg font-bold mb-2 text-gray-900">Gain control over your wellness</h4>
                     <p className="text-gray-600">We'll teach you the science-backed habits and techniques to gain control over your breast health.</p>
                   </div>
                 </div>
 
                 <div className="flex items-start space-x-4">
-                  <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
+                    <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
                     </svg>
                   </div>
                   <div>
-                    <h4 className="text-lg font-bold mb-2">Reduce anxiety and stress</h4>
+                    <h4 className="text-lg font-bold mb-2 text-gray-900">Reduce anxiety and stress</h4>
                     <p className="text-gray-600">The days of anxiety ruining your day or week are over. Learn to enjoy peace of mind with fewer negative effects.</p>
                   </div>
                 </div>
 
                 <div className="flex items-start space-x-4">
-                  <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
+                    <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
                     </svg>
                   </div>
                   <div>
-                    <h4 className="text-lg font-bold mb-2">Improve your well-being</h4>
+                    <h4 className="text-lg font-bold mb-2 text-gray-900">Improve your well-being</h4>
                     <p className="text-gray-600">Taking care of your health can have a big positive impact on your sleep, mental health, relationships, and more.</p>
                   </div>
                 </div>
