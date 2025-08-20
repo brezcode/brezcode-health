@@ -2,6 +2,8 @@ import './App.css'
 import { useRef, useState, useEffect } from 'react'
 import Quiz from './components/Quiz'
 import QuizPage from './pages/QuizPage'
+import UserDashboard from './components/UserDashboard'
+import ReportPage from './pages/ReportPage'
 
 // Inline Lucide icons since we don't have external dependencies
 const Menu = (props: any) => (
@@ -968,6 +970,16 @@ function App() {
   // Route to quiz page
   if (currentPath === '/quiz') {
     return <QuizPage />;
+  }
+
+  // Route to dashboard page
+  if (currentPath === '/dashboard') {
+    return <UserDashboard />;
+  }
+
+  // Route to report page
+  if (currentPath === '/report') {
+    return <ReportPage />;
   }
 
   // Main landing page
