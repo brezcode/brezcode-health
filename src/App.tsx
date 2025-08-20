@@ -153,21 +153,17 @@ function Hero() {
               }}
             />
 
-            {/* Chat Bubbles - Conversation flow from top of head to below jeans */}
-            <div className="absolute top-4 left-4 bg-white rounded-2xl p-3 shadow-lg max-w-44 z-20">
-              <p className="text-xs text-gray-700">Hey Sue, how'd it go yesterday?</p>
+            {/* Chat Bubbles - Match original positioning */}
+            <div className="absolute top-4 right-4 bg-white rounded-2xl p-3 shadow-lg max-w-48 z-20">
+              <p className="text-sm text-gray-700">Hey Sue, how'd it go yesterday?</p>
             </div>
 
-            <div className="absolute top-20 right-4 bg-blue-500 rounded-2xl p-3 shadow-lg max-w-44 z-20">
-              <p className="text-xs text-white">Starting my health routine!</p>
+            <div className="absolute top-20 right-8 bg-purple-500 rounded-2xl p-3 shadow-lg max-w-48 z-20">
+              <p className="text-sm text-white">I am following the plan, and feeling great today!</p>
             </div>
 
-            <div className="absolute bottom-40 left-8 bg-green-500 rounded-2xl p-3 shadow-lg max-w-44 z-20">
-              <p className="text-xs text-white">Feeling great following the plan!</p>
-            </div>
-
-            <div className="absolute bottom-20 right-12 bg-purple-500 rounded-2xl p-3 shadow-lg max-w-44 z-20">
-              <p className="text-xs text-white">Risk reduced by 40% already! 🎉</p>
+            <div className="absolute bottom-20 left-4 bg-green-500 rounded-2xl p-3 shadow-lg max-w-40 z-20">
+              <p className="text-sm text-white">Great work sticking to your plan!</p>
             </div>
           </div>
 
@@ -181,12 +177,17 @@ function Hero() {
               In addition, BrezCode members feel accomplished by an average of 80% after 90 days, as verified in a third-party study.
             </p>
 
-            <div className="flex justify-center">
+            <div className="flex flex-col sm:flex-row gap-4">
               <button 
                 onClick={handleTakeQuiz}
                 className="bg-yellow-400 text-black px-8 py-3 rounded-full text-lg font-bold hover:bg-yellow-300 transition-all border-none cursor-pointer"
               >
                 Take the quiz to start
+              </button>
+              <button 
+                className="border-yellow-400 text-yellow-400 hover:bg-yellow-400 hover:text-black px-8 py-3 rounded-full text-lg font-bold transition-all bg-transparent border-2 cursor-pointer"
+              >
+                🗓️ Create My Health Plan
               </button>
             </div>
           </div>
@@ -432,49 +433,65 @@ function Features() {
       title: 'Daily 5mins breathing exercise',
       description: 'Lower Chronic stress',
       reduction: '-15% risk',
-      icon: "🫁"
+      icon: "🫁",
+      bgColor: "bg-blue-50",
+      borderColor: "border-blue-200"
     },
     {
       title: 'Daily 10mins mindfulness exercise',
       description: 'Increase positivity',
       reduction: '-5% risk',
-      icon: "🧘‍♀️"
+      icon: "🧘‍♀️",
+      bgColor: "bg-purple-50",
+      borderColor: "border-purple-200"
     },
     {
       title: '3x/weekly Self Breast Massage',
       description: 'Lower Chronic inflammation',
       reduction: '-20% risk',
-      icon: "💆‍♀️"
+      icon: "💆‍♀️",
+      bgColor: "bg-pink-50",
+      borderColor: "border-pink-200"
     },
     {
       title: 'Personalized dietary management',
       description: 'Lower Carcinogen',
       reduction: '-20% risk',
-      icon: "🥗"
+      icon: "🥗",
+      bgColor: "bg-green-50",
+      borderColor: "border-green-200"
     },
     {
       title: 'Daily Physical exercise tracking',
       description: 'Lower oxidative stress',
       reduction: '-40% risk',
-      icon: "🏃‍♀️"
+      icon: "🏃‍♀️",
+      bgColor: "bg-orange-50",
+      borderColor: "border-orange-200"
     },
     {
       title: 'Monthly Self Breast Exam',
       description: 'Early Symptom Detection',
       reduction: '-20% risk',
-      icon: "🔍"
+      icon: "🔍",
+      bgColor: "bg-teal-50",
+      borderColor: "border-teal-200"
     },
     {
       title: 'Daily educational content and tips',
       description: 'Increase awareness',
       reduction: '-5% risk',
-      icon: "📚"
+      icon: "📚",
+      bgColor: "bg-indigo-50",
+      borderColor: "border-indigo-200"
     },
     {
       title: 'AI-Risk Monitoring system',
       description: 'Early detection',
       reduction: '-50% risk',
-      icon: "🤖"
+      icon: "🤖",
+      bgColor: "bg-yellow-50",
+      borderColor: "border-yellow-200"
     }
   ];
 
@@ -494,95 +511,91 @@ function Features() {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {activities.map((activity, index) => (
-            <div key={index} className="bg-yellow-50 border-2 border-yellow-200 p-6 rounded-2xl hover:shadow-xl transition-shadow">
-              <div className="text-2xl mb-3">{activity.icon}</div>
+            <div key={index} className={`${activity.bgColor} border ${activity.borderColor} p-6 rounded-2xl hover:shadow-xl transition-shadow`}>
               <h3 className="text-lg font-bold mb-2">{activity.title}</h3>
               <p className="text-gray-600 text-sm mb-3">{activity.description}</p>
-              <div className="bg-gradient-to-r from-green-500 to-green-600 text-white px-3 py-1 rounded-full text-sm font-semibold inline-block">
+              <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1 rounded-full text-sm font-semibold inline-block">
                 {activity.reduction}
               </div>
             </div>
           ))}
         </div>
 
-        {/* Benefits Summary with Yoga Lady - Improved spacing and responsive design */}
-        <div className="mt-20 bg-gradient-to-r from-blue-50 to-blue-100 rounded-3xl p-8 lg:p-12">
-          <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-start">
+        {/* Benefits Summary */}
+        <div className="mt-20 bg-gradient-to-r from-sky-50 to-blue-50 rounded-3xl p-12">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
             {/* Left side - Content */}
-            <div className="space-y-8">
-              <h3 className="text-3xl lg:text-4xl font-bold text-blue-600 text-center lg:text-left">BrezCode can help you</h3>
+            <div>
+              <h3 className="text-3xl font-bold mb-8 text-sky-600">Brezcode can help you</h3>
 
               <div className="space-y-6">
                 <div className="flex items-start space-x-4">
-                  <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
+                    <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                   </div>
                   <div>
-                    <h4 className="text-xl font-bold mb-3 text-gray-800">Reduce breast cancer risk</h4>
-                    <p className="text-gray-600 leading-relaxed">No matter where you are on your journey, BrezCode can help you reduce risk, with no pressure to be perfect.</p>
+                    <h4 className="text-lg font-bold mb-2">Reduce breast cancer risk</h4>
+                    <p className="text-gray-600">No matter where you are on your journey, Brezcode can help you reduce risk, with no pressure to be perfect.</p>
                   </div>
                 </div>
 
                 <div className="flex items-start space-x-4">
-                  <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
+                    <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                   </div>
                   <div>
-                    <h4 className="text-xl font-bold mb-3 text-gray-800">Gain control over your wellness</h4>
-                    <p className="text-gray-600 leading-relaxed">We'll teach you the science-backed habits and techniques to gain control over your breast health.</p>
+                    <h4 className="text-lg font-bold mb-2">Gain control over your wellness</h4>
+                    <p className="text-gray-600">We'll teach you the science-backed habits and techniques to gain control over your breast health.</p>
                   </div>
                 </div>
 
                 <div className="flex items-start space-x-4">
-                  <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
+                    <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
                     </svg>
                   </div>
                   <div>
-                    <h4 className="text-xl font-bold mb-3 text-gray-800">Reduce anxiety and stress</h4>
-                    <p className="text-gray-600 leading-relaxed">The days of anxiety ruining your day or week are over. Learn to enjoy peace of mind with fewer negative effects.</p>
+                    <h4 className="text-lg font-bold mb-2">Reduce anxiety and stress</h4>
+                    <p className="text-gray-600">The days of anxiety ruining your day or week are over. Learn to enjoy peace of mind with fewer negative effects.</p>
                   </div>
                 </div>
 
                 <div className="flex items-start space-x-4">
-                  <div className="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
-                    <svg className="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
+                    <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
                     </svg>
                   </div>
                   <div>
-                    <h4 className="text-xl font-bold mb-3 text-gray-800">Improve your well-being</h4>
-                    <p className="text-gray-600 leading-relaxed">Taking care of your health can have a big positive impact on your sleep, mental health, relationships, and more.</p>
+                    <h4 className="text-lg font-bold mb-2">Improve your well-being</h4>
+                    <p className="text-gray-600">Taking care of your health can have a big positive impact on your sleep, mental health, relationships, and more.</p>
                   </div>
                 </div>
               </div>
 
-              <div className="text-center lg:text-left">
+              <div className="mt-8">
                 <button 
                   onClick={handleTakeQuiz}
-                  className="bg-yellow-400 text-black px-8 py-4 rounded-full text-lg font-bold hover:bg-yellow-300 transition-all border-none cursor-pointer shadow-lg hover:shadow-xl"
+                  className="bg-yellow-400 text-black px-8 py-3 rounded-full text-lg font-bold hover:bg-yellow-300 transition-all border-none cursor-pointer"
                 >
                   Take the quiz to start
                 </button>
               </div>
             </div>
 
-            {/* Right side - Yoga Lady Image - Better frame to prevent head cutoff */}
-            <div className="relative flex justify-center lg:justify-end">
-              <div className="bg-white rounded-3xl p-6 shadow-lg max-w-md w-full">
-                <div className="aspect-square w-full rounded-2xl overflow-hidden bg-gray-50">
+            {/* Right side - Image */}
+            <div className="relative">
+              <div className="bg-white rounded-3xl p-8 shadow-lg">
+                <div className="w-full h-96 rounded-2xl overflow-hidden flex items-center justify-center">
                   <img 
-                    src="/yoga-lady.png"
+                    src="/yoga-lady.png" 
                     alt="Woman meditating in peaceful pose"
-                    className="w-full h-full object-contain"
-                    style={{
-                      objectPosition: 'center center'
-                    }}
+                    className="w-full h-full object-cover rounded-2xl"
                   />
                 </div>
               </div>
@@ -1002,8 +1015,8 @@ function App() {
     <div className="min-h-screen bg-white">
       <Navigation />
       <Hero />
-      <HowItWorks />
       <Features />
+      <HowItWorks />
       <ReviewsAndTestimonials />
       <FAQ />
       <Promise />
