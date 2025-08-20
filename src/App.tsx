@@ -1,5 +1,5 @@
 import './App.css'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 
 // Inline Lucide icons since we don't have external dependencies
 const Menu = (props: any) => (
@@ -146,17 +146,17 @@ function Hero() {
             />
 
             {/* Dialog Box 1 - Top right of head */}
-            <div className="absolute top-12 right-6 bg-white rounded-2xl p-3 shadow-lg max-w-44 z-20">
+            <div className="absolute bg-white rounded-2xl p-3 shadow-lg max-w-40 z-20" style={{ top: '8%', right: '1.5rem' }}>
               <p className="text-sm text-gray-700">"I feel more in control of my health!"</p>
             </div>
 
             {/* Dialog Box 2 - Below box 1, same right side */}
-            <div className="absolute top-32 right-6 bg-blue-500 rounded-2xl p-3 shadow-lg max-w-44 z-20">
+            <div className="absolute bg-blue-500 rounded-2xl p-3 shadow-lg max-w-40 z-20" style={{ top: '36%', right: '1.5rem' }}>
               <p className="text-sm text-white">"My anxiety has decreased by 70%"</p>
             </div>
 
             {/* Dialog Box 3 - Lower, same right side */}
-            <div className="absolute top-52 right-6 bg-green-500 rounded-2xl p-3 shadow-lg max-w-40 z-20">
+            <div className="absolute bg-green-500 rounded-2xl p-3 shadow-lg max-w-40 z-20" style={{ top: '72%', right: '1.5rem' }}>
               <p className="text-sm text-white">"Risk reduced by 85%!"</p>
             </div>
           </div>
@@ -283,68 +283,63 @@ function HowItWorks() {
 }
 
 function RiskReductionChart() {
+  const outerFrameRef = useRef<HTMLDivElement>(null)
+  const innerScreenRef = useRef<HTMLDivElement>(null)
+
   const data = [
     { name: 'Exercise', reduction: 40, icon: '💪' },
     { name: 'Nutrition', reduction: 25, icon: '🥗' },
     { name: 'Mindfulness', reduction: 20, icon: '🧘‍♀️' },
-    { name: 'Monitoring', reduction: 35, icon: '📊' }
+    { name: 'Monitoring', reduction: 35, icon: '📊' },
+    { name: 'Breathing', reduction: 15, icon: '🫁' },
+    { name: 'Massage', reduction: 20, icon: '💆‍♀️' },
+    { name: 'Self Exam', reduction: 20, icon: '🔍' }
   ];
 
+  const total = data.reduce((sum, item) => sum + item.reduction, 0);
+
   const getBarWidth = (value) => {
-    return (value / 40) * 100; // 40% is the max value
+    return (value / 50) * 100; // 50% is the max value (matches old layout)
   };
 
   return (
     <div className="text-center mb-16">
-      {/* iPhone Mobile Phone Frame - Realistic Proportions */}
+      {/* iPhone mockup frame (div-based) */}
       <div className="flex justify-center mb-8">
         <div className="relative">
-          {/* iPhone 14 Pro Frame - Correct Aspect Ratio */}
-          <div className="w-72 bg-gray-900 rounded-[2.5rem] p-2 shadow-2xl" style={{ height: '580px' }}>
-            {/* iPhone Screen */}
-            <div className="w-full h-full bg-white rounded-[2.2rem] overflow-hidden relative">
-              {/* iPhone Dynamic Island */}
-              <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-28 h-8 bg-black rounded-full z-10"></div>
+          <div ref={outerFrameRef} className="shadow-2xl" style={{ height: '600px', width: '20rem', background: 'linear-gradient(180deg, #1f2937, #0b0f19)', borderRadius: '3rem', padding: '8px' }}>
+            <div ref={innerScreenRef} className="w-full h-full overflow-hidden relative" style={{ background: '#ffffff', borderRadius: '2.5rem' }}>
+              <div
+                className="absolute bg-black rounded-b-2xl z-10"
+                style={{ top: 0, left: '50%', transform: 'translateX(-50%)', width: '8rem', height: '1.5rem' }}
+              ></div>
 
-              {/* Status Bar */}
-              <div className="pt-12 px-6 flex justify-between items-center text-sm font-medium text-gray-900">
+              <div className="pt-8 px-6 flex justify-between items-center text-sm font-medium text-gray-900">
                 <span>9:41</span>
-                <div className="flex items-center space-x-1">
-                  <div className="w-4 h-2 border border-gray-900 rounded-sm">
-                    <div className="w-full h-full bg-green-500 rounded-sm"></div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-4 h-2 border border-gray-900 rounded-lg">
+                    <div className="w-full h-full bg-green-500 rounded-lg"></div>
                   </div>
                 </div>
               </div>
 
-              {/* App Content */}
-              <div className="px-6 pt-6 h-full">
-                {/* App Header */}
-                <div className="text-center mb-8">
-                  <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl mx-auto mb-4 flex items-center justify-center">
-                    <span className="text-white font-bold text-xl">BC</span>
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">
-                    Risk Reduction Progress
-                  </h3>
+              <div className="px-6 pt-4 h-full overflow-y-auto" style={{ scrollbarGutter: 'stable' }}>
+                <div className="text-center mb-6">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">Risk Reduction Progress</h3>
                 </div>
 
-                {/* Simplified Activity Progress */}
                 <div className="space-y-4">
                   {data.map((item, index) => (
-                    <div key={index} className="bg-gray-50 rounded-xl p-4">
+                    <div key={index} className="bg-gray-50 rounded-xl p-4" style={item.name === 'Self Exam' ? { marginBottom: '1rem' } : undefined}>
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center space-x-3">
                           <span className="text-2xl">{item.icon}</span>
-                          <span className="text-base font-semibold text-gray-900">
-                            {item.name}
-                          </span>
+                          <span className="text-base font-semibold text-gray-900">{item.name}</span>
                         </div>
-                        <span className="text-lg font-bold text-blue-600">
-                          -{item.reduction}%
-                        </span>
+                        <span className="text-lg font-bold text-blue-600">-{item.reduction}%</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-3">
-                        <div 
+                        <div
                           className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-500 ease-out"
                           style={{ width: `${getBarWidth(item.reduction)}%` }}
                         ></div>
@@ -353,26 +348,25 @@ function RiskReductionChart() {
                   ))}
                 </div>
 
-                {/* Total Summary */}
-                <div className="mt-6 bg-blue-50 rounded-xl p-4 border border-blue-200">
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-blue-600">120%</div>
-                    <div className="text-sm font-medium text-blue-700">Total Risk Reduction</div>
-                  </div>
-                </div>
+                
               </div>
+              {/* PNG bezel overlay (optional). Place a transparent PNG at public/iphone-frame.png */}
+              <img
+                src="/iphone-frame.png"
+                alt="iPhone frame"
+                className="absolute"
+                style={{ top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}
+                onError={(e: any) => { e.currentTarget.style.display = 'none' }}
+              />
             </div>
           </div>
-
-          {/* iPhone Home Indicator */}
-          <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 w-28 h-1 bg-gray-600 rounded-full"></div>
         </div>
       </div>
 
       {/* Total Risk Reduction Display */}
       <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-8 py-6 rounded-2xl shadow-lg max-w-lg mx-auto mb-12">
         <div className="text-center">
-          <div className="text-3xl font-bold mb-2">Achieve 120% Risk Reduction</div>
+          <div className="text-3xl font-bold mb-2">Achieve {total}% Risk Reduction</div>
           <div className="text-lg opacity-90">Through evidence-based lifestyle changes</div>
         </div>
       </div>

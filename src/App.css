@@ -132,6 +132,7 @@ body {
 .rounded-full { border-radius: 9999px; }
 .rounded-2xl { border-radius: 1rem; }
 .rounded-3xl { border-radius: 1.5rem; }
+.rounded-b-2xl { border-bottom-left-radius: 1rem; border-bottom-right-radius: 1rem; }
 
 /* Effects */
 .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
@@ -140,6 +141,7 @@ body {
 .backdrop-blur-sm { backdrop-filter: blur(4px); }
 
 .overflow-hidden { overflow: hidden; }
+.overflow-y-auto { overflow-y: auto; }
 
 .cursor-pointer { cursor: pointer; }
 
@@ -235,6 +237,8 @@ body {
 .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
 
 .bg-gray-800 { background-color: #1f2937; }
+.bg-gray-900 { background-color: #111827; }
+.bg-black { background-color: #000000; }
 .bg-orange-500 { background-color: #f97316; }
 .bg-orange-600 { background-color: #ea580c; }
 .bg-indigo-700 { background-color: #4338ca; }
@@ -317,3 +321,27 @@ body {
 .from-blue-500 { --tw-gradient-from: #3b82f6; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(59, 130, 246, 0)); }
 .to-blue-600 { --tw-gradient-to: #2563eb; }
 .border-blue-500 { border-color: #3b82f6; }
+
+/* Navigation responsive utilities */
+.fixed { position: fixed; }
+.z-40 { z-index: 40; }
+.hidden { display: none; }
+.block { display: block; }
+.justify-between { justify-content: space-between; }
+.mr-8 { margin-right: 2rem; }
+.px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
+.py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+.h-20 { height: 5rem; }
+.bg-transparent { background-color: transparent; }
+.bg-blue-600\/95 { background-color: rgba(37, 99, 235, 0.95); }
+.border-white\/10 { border-color: rgba(255, 255, 255, 0.1); }
+.bg-white\/5 { background-color: rgba(255, 255, 255, 0.05); }
+.hover\:text-yellow-300:hover { color: #fde047; }
+.space-x-4 > :not([hidden]) ~ :not([hidden]) { margin-left: 1rem; }
+.space-x-6 > :not([hidden]) ~ :not([hidden]) { margin-left: 1.5rem; }
+
+/* Responsive display for nav */
+@media (min-width: 1024px) {
+  .lg\:flex { display: flex; }
+  .lg\:hidden { display: none; }
+}
