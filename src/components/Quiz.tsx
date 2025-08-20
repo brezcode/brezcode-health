@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Slider } from "@/components/ui/slider";
 import { Progress } from "@/components/ui/progress";
 
 interface QuizQuestion {
@@ -557,6 +558,8 @@ export default function Quiz({ onComplete, onClose }: QuizProps) {
         }
 
         return true;
+      case "slider":
+        return currentAnswer !== null && currentAnswer !== undefined;
       default:
         return true;
     }
@@ -677,6 +680,23 @@ export default function Quiz({ onComplete, onClose }: QuizProps) {
                 </div>
               </div>
             )}
+          </div>
+        );
+
+      case "slider":
+        return (
+          <div className="space-y-6">
+            <Label className="text-lg">
+              Select a value: {currentAnswer || currentQuestion.min || 0}
+            </Label>
+            <Slider
+              value={[currentAnswer || currentQuestion.min || 0]}
+              onValueChange={(value) => setCurrentAnswer(value[0])}
+              min={currentQuestion.min || 0}
+              max={currentQuestion.max || 100}
+              step={1}
+              className="w-full"
+            />
           </div>
         );
 
