@@ -297,81 +297,76 @@ function RiskReductionChart() {
 
   return (
     <div className="text-center mb-16">
-      {/* iPhone 16 with BrezCode App Frame */}
+      {/* iPhone Mobile Phone Frame - Realistic Proportions */}
       <div className="flex justify-center mb-8">
         <div className="relative">
-          {/* iPhone 16 Background Image */}
-          <div className="w-80" style={{ height: '640px' }}>
-            <img 
-              src="https://images.unsplash.com/photo-1556656793-08538906a9f8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
-              alt="iPhone 16"
-              className="w-full h-full object-contain drop-shadow-2xl"
-            />
-            
-            {/* BrezCode App Screen - Positioned inside iPhone screen */}
-            <div className="absolute top-12 left-1/2 transform -translate-x-1/2 w-64" style={{ height: '520px' }}>
-              <div className="w-full h-full bg-white rounded-[2.2rem] overflow-hidden relative border border-gray-200">
-                {/* iPhone Dynamic Island */}
-                <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-24 h-6 bg-black rounded-full z-10"></div>
+          {/* iPhone 14 Pro Frame - Correct Aspect Ratio */}
+          <div className="w-72 bg-gray-900 rounded-[2.5rem] p-2 shadow-2xl" style={{ height: '580px' }}>
+            {/* iPhone Screen */}
+            <div className="w-full h-full bg-white rounded-[2.2rem] overflow-hidden relative">
+              {/* iPhone Dynamic Island */}
+              <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-28 h-8 bg-black rounded-full z-10"></div>
 
-                {/* Status Bar */}
-                <div className="pt-10 px-5 flex justify-between items-center text-xs font-medium text-gray-900">
-                  <span>9:41</span>
-                  <div className="flex items-center space-x-1">
-                    <div className="w-3 h-1.5 border border-gray-900 rounded-sm">
-                      <div className="w-full h-full bg-green-500 rounded-sm"></div>
-                    </div>
+              {/* Status Bar */}
+              <div className="pt-12 px-6 flex justify-between items-center text-sm font-medium text-gray-900">
+                <span>9:41</span>
+                <div className="flex items-center space-x-1">
+                  <div className="w-4 h-2 border border-gray-900 rounded-sm">
+                    <div className="w-full h-full bg-green-500 rounded-sm"></div>
                   </div>
                 </div>
+              </div>
 
-                {/* App Content */}
-                <div className="px-5 pt-4 h-full">
-                  {/* App Header */}
-                  <div className="text-center mb-6">
-                    <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl mx-auto mb-3 flex items-center justify-center">
-                      <span className="text-white font-bold text-lg">BC</span>
-                    </div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-1">
-                      Risk Reduction Progress
-                    </h3>
+              {/* App Content */}
+              <div className="px-6 pt-6 h-full">
+                {/* App Header */}
+                <div className="text-center mb-8">
+                  <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl mx-auto mb-4 flex items-center justify-center">
+                    <span className="text-white font-bold text-xl">BC</span>
                   </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                    Risk Reduction Progress
+                  </h3>
+                </div>
 
-                  {/* Simplified Activity Progress */}
-                  <div className="space-y-3">
-                    {data.map((item, index) => (
-                      <div key={index} className="bg-gray-50 rounded-xl p-3">
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center space-x-2">
-                            <span className="text-lg">{item.icon}</span>
-                            <span className="text-sm font-semibold text-gray-900">
-                              {item.name}
-                            </span>
-                          </div>
-                          <span className="text-sm font-bold text-blue-600">
-                            -{item.reduction}%
+                {/* Simplified Activity Progress */}
+                <div className="space-y-4">
+                  {data.map((item, index) => (
+                    <div key={index} className="bg-gray-50 rounded-xl p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center space-x-3">
+                          <span className="text-2xl">{item.icon}</span>
+                          <span className="text-base font-semibold text-gray-900">
+                            {item.name}
                           </span>
                         </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-500 ease-out"
-                            style={{ width: `${getBarWidth(item.reduction)}%` }}
-                          ></div>
-                        </div>
+                        <span className="text-lg font-bold text-blue-600">
+                          -{item.reduction}%
+                        </span>
                       </div>
-                    ))}
-                  </div>
-
-                  {/* Total Summary */}
-                  <div className="mt-4 bg-blue-50 rounded-xl p-3 border border-blue-200">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-blue-600">120%</div>
-                      <div className="text-xs font-medium text-blue-700">Total Risk Reduction</div>
+                      <div className="w-full bg-gray-200 rounded-full h-3">
+                        <div 
+                          className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-500 ease-out"
+                          style={{ width: `${getBarWidth(item.reduction)}%` }}
+                        ></div>
+                      </div>
                     </div>
+                  ))}
+                </div>
+
+                {/* Total Summary */}
+                <div className="mt-6 bg-blue-50 rounded-xl p-4 border border-blue-200">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-blue-600">120%</div>
+                    <div className="text-sm font-medium text-blue-700">Total Risk Reduction</div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
+
+          {/* iPhone Home Indicator */}
+          <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 w-28 h-1 bg-gray-600 rounded-full"></div>
         </div>
       </div>
 
