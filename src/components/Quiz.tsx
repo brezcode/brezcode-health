@@ -1,4 +1,10 @@
 import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Progress } from "@/components/ui/progress";
 
 interface QuizQuestion {
   id: string;
@@ -483,16 +489,20 @@ export default function Quiz({ onComplete, onClose }: QuizProps) {
         nextQuestionIndex = visibleQuestions.length;
       } else {
         // No new questions, we're at the end
-        const finalAnswers = { 
+        const finalAnswers: Record<string, any> = { 
           ...updatedAnswers,
           country: userCountry // Automatically include detected country
         };
 
         // Calculate BMI if both weight and height are provided
         if (finalAnswers.weight && finalAnswers.height) {
-          const bmi = Number(finalAnswers.weight) / (Number(finalAnswers.height) ** 2);
-          finalAnswers.bmi = Math.round(bmi * 10) / 10;
-          finalAnswers.obesity = bmi >= 30 ? "Yes" : "No";
+          const weight = finalAnswers.weight;
+          const height = finalAnswers.height;
+          if (weight && height) {
+            const bmi = Number(weight) / (Number(height) ** 2);
+            finalAnswers.bmi = Math.round(bmi * 10) / 10;
+            finalAnswers.obesity = bmi >= 30 ? "Yes" : "No";
+          }
         }
         
         // Save answers to localStorage for demo report generation
@@ -557,16 +567,16 @@ export default function Quiz({ onComplete, onClose }: QuizProps) {
       case "number_range":
         return (
           <div className="space-y-4">
-            <label className="text-lg font-medium text-gray-700">
-              Choose a number from {currentQuestion.min} to {currentQuestion.max}
-            </label>
-            <input
+            <Label className="text-lg">
+              Choose a value: {currentAnswer || currentQuestion.min || 0}
+            </Label>
+            <Input
               type="number"
               min={currentQuestion.min}
               max={currentQuestion.max}
               value={currentAnswer}
               onChange={(e) => setCurrentAnswer(e.target.value)}
-              className="w-full text-xl p-4 text-center border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="text-xl p-4"
               placeholder={`Enter a number between ${currentQuestion.min} and ${currentQuestion.max}`}
               step={currentQuestion.id === "height" ? "0.1" : "1"}
             />
@@ -576,26 +586,19 @@ export default function Quiz({ onComplete, onClose }: QuizProps) {
       case "multiple_choice":
         return (
           <div className="space-y-4">
-            <div className="space-y-3">
+            <RadioGroup value={currentAnswer} onValueChange={(value) => {
+              setCurrentAnswer(value);
+              setValidationError("");
+            }}>
               {currentQuestion.options?.map((option, index) => (
-                <label key={index} className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer border border-gray-200">
-                  <input
-                    type="radio"
-                    name={currentQuestion.id}
-                    value={option}
-                    checked={currentAnswer === option}
-                    onChange={(e) => {
-                      setCurrentAnswer(e.target.value);
-                      setValidationError("");
-                    }}
-                    className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                  />
-                  <span className="text-lg flex-1">
+                <div key={index} className="flex items-center space-x-2 p-3 rounded-lg hover:bg-gray-50">
+                  <RadioGroupItem value={option} id={`option-${index}`} />
+                  <Label htmlFor={`option-${index}`} className="text-lg cursor-pointer flex-1">
                     {option}
-                  </span>
-                </label>
+                  </Label>
+                </div>
               ))}
-            </div>
+            </RadioGroup>
 
             {validationError && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-4 mt-4">
@@ -616,44 +619,31 @@ export default function Quiz({ onComplete, onClose }: QuizProps) {
 
       case "yes_no":
         return (
-          <div className="space-y-3">
-            <label className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer border border-gray-200">
-              <input
-                type="radio"
-                name={currentQuestion.id}
-                value="yes"
-                checked={currentAnswer === "yes"}
-                onChange={(e) => setCurrentAnswer(e.target.value)}
-                className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-              />
-              <span className="text-lg flex-1">Yes</span>
-            </label>
-            <label className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer border border-gray-200">
-              <input
-                type="radio"
-                name={currentQuestion.id}
-                value="no"
-                checked={currentAnswer === "no"}
-                onChange={(e) => setCurrentAnswer(e.target.value)}
-                className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-              />
-              <span className="text-lg flex-1">No</span>
-            </label>
-          </div>
+          <RadioGroup value={currentAnswer} onValueChange={setCurrentAnswer}>
+            <div className="flex items-center space-x-2 p-3 rounded-lg hover:bg-gray-50">
+              <RadioGroupItem value="yes" id="yes" />
+              <Label htmlFor="yes" className="text-lg cursor-pointer flex-1">Yes</Label>
+            </div>
+            <div className="flex items-center space-x-2 p-3 rounded-lg hover:bg-gray-50">
+              <RadioGroupItem value="no" id="no" />
+              <Label htmlFor="no" className="text-lg cursor-pointer flex-1">No</Label>
+            </div>
+          </RadioGroup>
         );
 
       case "text":
         return (
           <div className="space-y-4">
-            <label className="text-lg font-medium text-gray-700">Your answer:</label>
-            <input
+            <Label htmlFor="text-input" className="text-lg">Your answer:</Label>
+            <Input
+              id="text-input"
               type={currentQuestion.id === "email" ? "email" : currentQuestion.id === "phone_number" ? "tel" : "text"}
               value={currentAnswer}
               onChange={(e) => {
                 setCurrentAnswer(e.target.value);
                 setValidationError("");
               }}
-              className="w-full text-xl p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="text-xl p-4"
               placeholder={
                 currentQuestion.id === "email" ? "Enter your email address" :
                 currentQuestion.id === "phone_number" ? "Enter your phone number" :
@@ -696,13 +686,15 @@ export default function Quiz({ onComplete, onClose }: QuizProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white rounded-lg shadow-xl">
-        <div className="p-6 space-y-4 border-b border-gray-200">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <CardHeader className="space-y-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-gray-900">Breast Health Assessment</h1>
+            <CardTitle className="text-2xl">Breast Health Assessment</CardTitle>
             <div className="flex items-center gap-2">
-              <button 
+              <Button 
+                variant="outline" 
+                size="sm"
                 onClick={() => {
                   // Skip quiz with default answers for testing
                   const defaultAnswers = {
@@ -733,13 +725,13 @@ export default function Quiz({ onComplete, onClose }: QuizProps) {
                   };
                   onComplete(defaultAnswers);
                 }}
-                className="px-3 py-1 text-sm border border-blue-300 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded"
+                className="text-blue-600 hover:text-blue-700"
               >
                 Skip Quiz (Test)
-              </button>
-              <button onClick={onClose} className="text-gray-500 hover:text-gray-700 text-2xl font-bold">
-                ×
-              </button>
+              </Button>
+              <Button variant="ghost" onClick={onClose} className="text-gray-500 hover:text-gray-700">
+                ✕
+              </Button>
             </div>
           </div>
           <div className="space-y-2">
@@ -747,16 +739,11 @@ export default function Quiz({ onComplete, onClose }: QuizProps) {
               <span>Question {currentQuestionIndex + 1} of {visibleQuestions.length}</span>
               <span>{Math.round(progress)}% complete</span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
-                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${progress}%` }}
-              ></div>
-            </div>
+            <Progress value={progress} className="w-full" />
           </div>
-        </div>
+        </CardHeader>
 
-        <div className="p-6 space-y-8">
+        <CardContent className="space-y-8">
           <div className="space-y-6">
             <h3 className="text-2xl font-semibold leading-relaxed">
               {currentQuestion.question}
@@ -766,26 +753,31 @@ export default function Quiz({ onComplete, onClose }: QuizProps) {
             {currentQuestion.id === "height" && answers.weight && currentAnswer && (
               <div className="bg-blue-50 p-4 rounded-lg">
                 {(() => {
-                  const bmi = Number(answers.weight) / (Number(currentAnswer) ** 2);
-                  const roundedBmi = Math.round(bmi * 10) / 10;
-                  const isPostmenopausal = answers.menopause === "Yes, at age 55 or older" || answers.menopause === "Yes, before age 55";
+                  const weight = answers.weight;
+                  const height = currentAnswer;
+                  if (weight && height) {
+                    const bmi = Number(weight) / (Number(height) ** 2);
+                    const roundedBmi = Math.round(bmi * 10) / 10;
+                    const isPostmenopausal = answers.menopause === "Yes, at age 55 or older" || answers.menopause === "Yes, before age 55";
 
-                  return (
-                    <div>
-                      <p className="text-sm text-blue-700 mb-2">
-                        <strong>Your calculated BMI: {roundedBmi}</strong>
-                      </p>
-                      {roundedBmi >= 30 && isPostmenopausal && (
-                        <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
-                          <p className="text-sm text-orange-700">
-                            <strong>⚠️ Important Health Notice:</strong> Your BMI is {roundedBmi}, which is in the obese range (≥30). 
-                            As a postmenopausal woman, this is associated with increased breast cancer risk. 
-                            Consider speaking with your healthcare provider about strategies to lower your BMI through diet and exercise.
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  );
+                    return (
+                      <div>
+                        <p className="text-sm text-blue-700 mb-2">
+                          <strong>Your calculated BMI: {roundedBmi}</strong>
+                        </p>
+                        {roundedBmi >= 30 && isPostmenopausal && (
+                          <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+                            <p className="text-sm text-orange-700">
+                              <strong>⚠️ Important Health Notice:</strong> Your BMI is {roundedBmi}, which is in the obese range (≥30). 
+                              As a postmenopausal woman, this is associated with increased breast cancer risk. 
+                              Consider speaking with your healthcare provider about strategies to lower your BMI through diet and exercise.
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }
+                  return null;
                 })()}
               </div>
             )}
@@ -807,25 +799,26 @@ export default function Quiz({ onComplete, onClose }: QuizProps) {
             )}
           </div>
 
-          <div className="flex justify-between pt-6 border-t border-gray-200">
-            <button
+          <div className="flex justify-between pt-6 border-t">
+            <Button
+              variant="outline"
               onClick={handlePrevious}
               disabled={currentQuestionIndex === 0}
-              className="px-8 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-8 py-3"
             >
               Previous
-            </button>
+            </Button>
 
-            <button
+            <Button
               onClick={handleNext}
               disabled={!isAnswerValid()}
-              className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white"
             >
               {isLastQuestion ? "Complete Assessment" : "Next"}
-            </button>
+            </Button>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

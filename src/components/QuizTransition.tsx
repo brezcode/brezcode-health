@@ -1,10 +1,12 @@
+import React from 'react';
+
 interface QuizTransitionProps {
   onContinue: () => void;
 }
 
 export default function QuizTransition({ onContinue }: QuizTransitionProps) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-blue-50 flex items-center justify-center p-4">
       <div className="w-full max-w-2xl bg-white rounded-lg shadow-xl border border-gray-200">
         <div className="text-center p-6 border-b border-gray-200">
           <div className="flex justify-center mb-4">
@@ -78,7 +80,7 @@ export default function QuizTransition({ onContinue }: QuizTransitionProps) {
           <div className="text-center pt-4">
             <button 
               onClick={onContinue}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 text-lg font-semibold rounded-lg shadow-lg transition-all"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg font-semibold rounded-lg shadow-lg transition-all"
             >
               Continue to Registration
             </button>
