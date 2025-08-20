@@ -145,23 +145,19 @@ function Hero() {
               }}
             />
 
-            {/* Chat Bubbles - Vertical positioning on right side */}
             {/* Dialog Box 1 - Top right of head */}
-            <div className="absolute top-8 right-8 bg-white rounded-2xl p-3 shadow-lg max-w-44 z-20">
+            <div className="absolute" style={{top: '20px', right: '20px'}} className="bg-white rounded-2xl p-3 shadow-lg max-w-44 z-20">
               <p className="text-sm text-gray-700">"I feel more in control of my health!"</p>
-              <div className="absolute top-full right-4 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-white"></div>
             </div>
 
             {/* Dialog Box 2 - Below box 1 with spacing */}
-            <div className="absolute top-32 right-12 bg-blue-500 rounded-2xl p-3 shadow-lg max-w-44 z-20">
+            <div className="absolute" style={{top: '120px', right: '30px'}} className="bg-blue-500 rounded-2xl p-3 shadow-lg max-w-44 z-20">
               <p className="text-sm text-white">"My anxiety has decreased by 70%"</p>
-              <div className="absolute top-full right-4 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-blue-500"></div>
             </div>
 
             {/* Dialog Box 3 - Near bottom of image */}
-            <div className="absolute bottom-16 right-8 bg-green-500 rounded-2xl p-3 shadow-lg max-w-40 z-20">
+            <div className="absolute" style={{top: '350px', right: '20px'}} className="bg-green-500 rounded-2xl p-3 shadow-lg max-w-40 z-20">
               <p className="text-sm text-white">"Risk reduced by 85%!"</p>
-              <div className="absolute top-full right-4 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-green-500"></div>
             </div>
           </div>
 
