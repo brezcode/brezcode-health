@@ -17,6 +17,9 @@ const PORT = process.env.PORT || 3002;
 app.use(cors());
 app.use(express.json());
 
+// Import avatar routes
+import avatarRoutes from '../backend/routes/avatarRoutes.js';
+
 // In-memory storage for demo (replace with database in production)
 let pendingUsers = {};
 let verificationCodes = {};
@@ -171,6 +174,9 @@ async function sendWhatsAppVerification(phoneNumber, code) {
 }
 
 // API Routes
+
+// Dr. Sakura Avatar routes
+app.use('/api/avatar', avatarRoutes);
 
 // WhatsApp signup endpoint
 app.post('/api/auth/signup-whatsapp', async (req, res) => {
