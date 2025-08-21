@@ -1,4 +1,21 @@
 import React from 'react';
+import { 
+  Card, 
+  Button, 
+  Typography, 
+  Space, 
+  Row, 
+  Col, 
+  Alert
+} from 'antd';
+import {
+  CheckCircleOutlined,
+  FileTextOutlined,
+  HeartOutlined,
+  SafetyOutlined
+} from '@ant-design/icons';
+
+const { Title, Paragraph, Text } = Typography;
 
 interface QuizTransitionProps {
   onContinue: () => void;
@@ -6,90 +23,176 @@ interface QuizTransitionProps {
 
 export default function QuizTransition({ onContinue }: QuizTransitionProps) {
   return (
-    <div className="min-h-screen bg-blue-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl bg-white rounded-lg shadow-xl border border-gray-200">
-        <div className="text-center p-6 border-b border-gray-200">
-          <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-              <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-            </div>
+    <div style={{ 
+      minHeight: '100vh', 
+      background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
+      display: 'flex', 
+      alignItems: 'center', 
+      justifyContent: 'center', 
+      padding: '16px'
+    }}>
+      <Card 
+        style={{ 
+          width: '100%', 
+          maxWidth: '800px',
+          borderRadius: '16px',
+          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+        }}
+        bodyStyle={{ padding: '32px' }}
+      >
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <div style={{ marginBottom: '24px' }}>
+            <CheckCircleOutlined 
+              style={{ 
+                fontSize: '64px', 
+                color: '#52c41a',
+                backgroundColor: '#f6ffed',
+                padding: '16px',
+                borderRadius: '50%'
+              }} 
+            />
           </div>
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">
+          <Title level={1} style={{ color: '#1f2937', marginBottom: '16px' }}>
             Congratulations! Quiz Complete
-          </h1>
-          <p className="text-lg text-gray-600">
+          </Title>
+          <Paragraph style={{ fontSize: '18px', color: '#6b7280' }}>
             You've successfully completed your comprehensive breast health assessment
-          </p>
+          </Paragraph>
         </div>
         
-        <div className="p-6 space-y-6">
-          <div className="bg-blue-50 p-6 rounded-lg">
-            <h3 className="text-xl font-semibold text-blue-800 mb-3">
-              What's Next?
-            </h3>
-            <p className="text-blue-700">
-              Based on your responses, we're preparing a personalized assessment report with evidence-based recommendations tailored specifically for your breast health profile.
-            </p>
-          </div>
+        <Space direction="vertical" size="large" style={{ width: '100%' }}>
+          <Alert
+            message="What's Next?"
+            description="Based on your responses, we're preparing a personalized assessment report with evidence-based recommendations tailored specifically for your breast health profile."
+            type="info"
+            showIcon
+            style={{ 
+              backgroundColor: '#f0f9ff', 
+              border: '1px solid #bae6fd',
+              borderRadius: '12px'
+            }}
+          />
 
-          <div className="grid md:grid-cols-2 gap-4">
-            <div className="flex items-start space-x-3 p-4 bg-white rounded-lg border border-gray-200">
-              <svg className="w-6 h-6 text-purple-600 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-              </svg>
-              <div>
-                <h4 className="font-semibold text-gray-800">Comprehensive Report</h4>
-                <p className="text-sm text-gray-600">Detailed analysis of your risk factors and personalized recommendations</p>
-              </div>
-            </div>
+          <Row gutter={[16, 16]}>
+            <Col xs={24} md={12}>
+              <Card 
+                size="small" 
+                style={{ 
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '12px',
+                  height: '100%'
+                }}
+                bodyStyle={{ padding: '20px' }}
+              >
+                <Space direction="vertical" size="small" style={{ width: '100%' }}>
+                  <FileTextOutlined 
+                    style={{ 
+                      fontSize: '24px', 
+                      color: '#8b5cf6',
+                      backgroundColor: '#f3e8ff',
+                      padding: '12px',
+                      borderRadius: '8px'
+                    }} 
+                  />
+                  <div>
+                    <Title level={4} style={{ margin: '8px 0', color: '#1f2937' }}>
+                      Comprehensive Report
+                    </Title>
+                    <Text style={{ color: '#6b7280' }}>
+                      Detailed analysis of your risk factors and personalized recommendations
+                    </Text>
+                  </div>
+                </Space>
+              </Card>
+            </Col>
             
-            <div className="flex items-start space-x-3 p-4 bg-white rounded-lg border border-gray-200">
-              <svg className="w-6 h-6 text-red-600 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-              </svg>
-              <div>
-                <h4 className="font-semibold text-gray-800">Personalized Health Schedule</h4>
-                <p className="text-sm text-gray-600">Daily activities tailored to your assessment results and health goals</p>
-              </div>
-            </div>
-          </div>
+            <Col xs={24} md={12}>
+              <Card 
+                size="small" 
+                style={{ 
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '12px',
+                  height: '100%'
+                }}
+                bodyStyle={{ padding: '20px' }}
+              >
+                <Space direction="vertical" size="small" style={{ width: '100%' }}>
+                  <HeartOutlined 
+                    style={{ 
+                      fontSize: '24px', 
+                      color: '#dc2626',
+                      backgroundColor: '#fef2f2',
+                      padding: '12px',
+                      borderRadius: '8px'
+                    }} 
+                  />
+                  <div>
+                    <Title level={4} style={{ margin: '8px 0', color: '#1f2937' }}>
+                      Personalized Health Schedule
+                    </Title>
+                    <Text style={{ color: '#6b7280' }}>
+                      Daily activities tailored to your assessment results and health goals
+                    </Text>
+                  </div>
+                </Space>
+              </Card>
+            </Col>
+          </Row>
 
-          <div className="bg-yellow-50 p-6 rounded-lg border border-yellow-200">
-            <div className="flex items-start space-x-3">
-              <svg className="w-6 h-6 text-yellow-600 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.031 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-              </svg>
+          <Alert
+            message="Complete Your Registration"
+            description={
               <div>
-                <h4 className="font-semibold text-yellow-800 mb-2">
-                  Complete Your Registration
-                </h4>
-                <p className="text-yellow-700 mb-4">
+                <Paragraph style={{ marginBottom: '16px', color: '#92400e' }}>
                   To provide you with your personalized assessment report and begin your breast health coaching journey, we need to complete your account setup.
-                </p>
-                <ul className="text-sm text-yellow-700 space-y-1">
-                  <li>• Secure your account with email verification</li>
-                  <li>• Enable SMS notifications for important health reminders</li>
-                  <li>• Ensure we can deliver your personalized report safely</li>
+                </Paragraph>
+                <ul style={{ 
+                  color: '#92400e', 
+                  margin: 0, 
+                  paddingLeft: '20px',
+                  fontSize: '14px'
+                }}>
+                  <li>Secure your account with email verification</li>
+                  <li>Enable SMS notifications for important health reminders</li>
+                  <li>Ensure we can deliver your personalized report safely</li>
                 </ul>
               </div>
-            </div>
-          </div>
+            }
+            type="warning"
+            icon={<SafetyOutlined />}
+            style={{ 
+              backgroundColor: '#fffbeb', 
+              border: '1px solid #fde68a',
+              borderRadius: '12px'
+            }}
+          />
 
-          <div className="text-center pt-4">
-            <button 
+          <div style={{ textAlign: 'center', paddingTop: '16px' }}>
+            <Button 
+              type="primary" 
+              size="large"
               onClick={onContinue}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg font-semibold rounded-lg shadow-lg transition-all"
+              style={{ 
+                height: '48px',
+                padding: '0 32px',
+                fontSize: '18px',
+                fontWeight: 600,
+                borderRadius: '8px',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+              }}
             >
               Continue to Registration
-            </button>
-            <p className="text-sm text-gray-500 mt-3">
+            </Button>
+            <Paragraph style={{ 
+              marginTop: '12px', 
+              color: '#9ca3af',
+              fontSize: '14px'
+            }}>
               This will only take 2-3 minutes to complete
-            </p>
+            </Paragraph>
           </div>
-        </div>
-      </div>
+        </Space>
+      </Card>
     </div>
   );
 }

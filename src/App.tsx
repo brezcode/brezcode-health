@@ -4,189 +4,342 @@ import Quiz from './components/Quiz'
 import QuizPage from './pages/QuizPage'
 import UserDashboard from './components/UserDashboard'
 import ReportPage from './pages/ReportPage'
+import { 
+  Button, 
+  Layout, 
+  Menu, 
+  Typography, 
+  Space, 
+  Avatar, 
+  Drawer,
+  Grid,
+  Divider,
+  ConfigProvider
+} from 'antd';
+import { 
+  MenuOutlined, 
+  CloseOutlined,
+  UserOutlined
+} from '@ant-design/icons';
 
-// Inline Lucide icons since we don't have external dependencies
-const Menu = (props: any) => (
-  <svg {...props} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path>
-  </svg>
-)
-
-const X = (props: any) => (
-  <svg {...props} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-  </svg>
-)
+const { Header } = Layout;
+const { Title, Text } = Typography;
 
 function Navigation({ onTakeQuiz }: { onTakeQuiz: () => void }) {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   return (
-    <nav className="fixed top-0 w-full bg-transparent z-40">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
-          <div className="flex items-center space-x-2 cursor-pointer">
-            <div className="w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-sm">BC</span>
-            </div>
-            <span className="font-bold text-xl text-yellow-400">BrezCode</span>
+    <div style={{ 
+      position: 'fixed', 
+      top: 0, 
+      left: 0,
+      right: 0,
+      width: '100%', 
+      background: 'transparent', 
+      zIndex: 40,
+      height: '80px'
+    }}>
+      <div style={{ 
+        maxWidth: '1440px', 
+        margin: '0 auto',
+        height: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0 16px'
+      }}>
+        {/* Logo */}
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: '8px', 
+          cursor: 'pointer'
+        }}>
+          <div style={{ 
+            width: 32, 
+            height: 32, 
+            backgroundColor: '#facc15', 
+            color: '#000', 
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '14px',
+            fontWeight: 'bold'
+          }}>
+            BC
+          </div>
+          <div style={{ 
+            color: '#facc15', 
+            fontSize: '20px',
+            fontWeight: 'bold'
+          }}>
+            BrezCode
+          </div>
+        </div>
+        
+        {/* Desktop Menu */}
+        <div style={{ 
+          display: 'none',
+          alignItems: 'center', 
+          gap: '24px'
+        }} className="lg:flex">
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '32px'
+          }}>
+            <a href="#how-it-works" style={{ 
+              color: '#facc15', 
+              fontWeight: 500, 
+              textDecoration: 'none'
+            }}>
+              How it works
+            </a>
+            <a href="#features" style={{ 
+              color: '#facc15', 
+              fontWeight: 500, 
+              textDecoration: 'none'
+            }}>
+              Features
+            </a>
+            <a href="#pricing" style={{ 
+              color: '#facc15', 
+              fontWeight: 500, 
+              textDecoration: 'none'
+            }}>
+              Pricing
+            </a>
           </div>
           
-          <div className="hidden lg:flex items-center">
-            <div className="flex items-center space-x-6 mr-8">
-              <a href="#how-it-works" className="text-yellow-400 hover:text-yellow-300 transition-colors font-medium px-2 py-1">How it works</a>
-              <a href="#features" className="text-yellow-400 hover:text-yellow-300 transition-colors font-medium px-2 py-1">Features</a>
-              <a href="#pricing" className="text-yellow-400 hover:text-yellow-300 transition-colors font-medium px-2 py-1">Pricing</a>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <button 
-                className="text-yellow-400 hover:text-yellow-300 font-medium px-4 py-2"
-              >
-                Sign In
-              </button>
-              <button 
-                onClick={onTakeQuiz}
-                className="bg-white text-blue-600 px-6 py-2 rounded-full hover:bg-gray-100 transition-colors font-semibold"
-              >
-                Sign Up
-              </button>
-            </div>
-          </div>
-          
-          {/* Mobile menu button */}
-          <div className="lg:hidden">
-            <button
-              onClick={() => setShowMobileMenu(!showMobileMenu)}
-              className="text-yellow-400 hover:text-yellow-300"
-            >
-              {showMobileMenu ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </button>
-          </div>
+          <Button 
+            type="text" 
+            style={{ 
+              color: '#facc15',
+              border: 'none',
+              background: 'transparent',
+              padding: '8px 16px',
+              fontSize: '16px'
+            }}
+          >
+            Sign In
+          </Button>
+        </div>
+        
+        {/* Mobile Menu Button */}
+        <div style={{ display: 'block' }} className="lg:hidden">
+          <Button
+            type="text"
+            icon={<MenuOutlined />}
+            onClick={() => setShowMobileMenu(true)}
+            style={{ 
+              color: '#facc15',
+              border: 'none',
+              background: 'transparent',
+              padding: '8px'
+            }}
+          />
         </div>
       </div>
       
-      {/* Mobile menu */}
-      {showMobileMenu && (
-        <div className="lg:hidden bg-blue-600/95 backdrop-blur-sm border-t border-white/10">
-          <div className="px-4 py-6 space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <a href="#how-it-works" className="block text-yellow-400 hover:text-yellow-300 transition-colors font-medium text-center py-3 px-4 bg-white/5 rounded-lg" onClick={() => setShowMobileMenu(false)}>How it works</a>
-              <a href="#features" className="block text-yellow-400 hover:text-yellow-300 transition-colors font-medium text-center py-3 px-4 bg-white/5 rounded-lg" onClick={() => setShowMobileMenu(false)}>Features</a>
-              <a href="#pricing" className="block text-yellow-400 hover:text-yellow-300 transition-colors font-medium text-center py-3 px-4 bg-white/5 rounded-lg" onClick={() => setShowMobileMenu(false)}>Pricing</a>
-              <button onClick={() => { onTakeQuiz(); setShowMobileMenu(false); }} className="block text-yellow-400 hover:text-yellow-300 transition-colors font-medium text-center py-3 px-4 bg-white/5 rounded-lg">Sign Up</button>
-            </div>
+      {/* Mobile Menu Drawer */}
+      <Drawer
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Avatar size={24} style={{ backgroundColor: '#facc15', color: '#000', fontSize: '12px' }}>
+              BC
+            </Avatar>
+            <span style={{ color: '#facc15', fontSize: '16px' }}>BrezCode</span>
           </div>
-        </div>
-      )}
-    </nav>
+        }
+        placement="right"
+        onClose={() => setShowMobileMenu(false)}
+        open={showMobileMenu}
+        width={280}
+        bodyStyle={{ padding: '24px' }}
+        headerStyle={{ backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}
+      >
+        <Space direction="vertical" size="large" style={{ width: '100%' }}>
+          <Button 
+            type="text" 
+            block 
+            href="#how-it-works"
+            onClick={() => setShowMobileMenu(false)}
+            style={{ 
+              textAlign: 'left', 
+              height: '48px', 
+              justifyContent: 'flex-start',
+              fontSize: '16px'
+            }}
+          >
+            How it works
+          </Button>
+          <Button 
+            type="text" 
+            block 
+            href="#features"
+            onClick={() => setShowMobileMenu(false)}
+            style={{ 
+              textAlign: 'left', 
+              height: '48px', 
+              justifyContent: 'flex-start',
+              fontSize: '16px'
+            }}
+          >
+            Features
+          </Button>
+          <Button 
+            type="text" 
+            block 
+            href="#pricing"
+            onClick={() => setShowMobileMenu(false)}
+            style={{ 
+              textAlign: 'left', 
+              height: '48px', 
+              justifyContent: 'flex-start',
+              fontSize: '16px'
+            }}
+          >
+            Pricing
+          </Button>
+          
+          <Divider style={{ margin: '16px 0' }} />
+          
+          <Button 
+            type="text"
+            block
+            style={{ 
+              textAlign: 'left', 
+              height: '48px',
+              justifyContent: 'flex-start',
+              fontSize: '16px'
+            }}
+          >
+            Sign In
+          </Button>
+        </Space>
+      </Drawer>
+    </div>
   );
 }
 
 function Hero({ onTakeQuiz }: { onTakeQuiz: () => void }) {
-
   return (
-    <section className="min-h-screen bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 relative overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16 pt-20">
-          <div className="inline-flex items-center bg-white/20 backdrop-blur-sm rounded-full px-6 py-3 mb-8 mt-8">
-            <div className="w-3 h-3 bg-green-400 rounded-full mr-3 animate-pulse"></div>
-            <span className="text-white text-sm font-medium">Evidence-based AI coaching available 24/7</span>
+    <div style={{ 
+      minHeight: '100vh', 
+      background: 'linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #2563eb 100%)',
+      position: 'relative',
+      overflow: 'hidden',
+      paddingTop: '80px'
+    }}>
+      <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 16px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '64px', paddingTop: '80px' }}>
+          <div style={{ 
+            display: 'inline-flex', 
+            alignItems: 'center', 
+            backgroundColor: 'rgba(255, 255, 255, 0.2)', 
+            backdropFilter: 'blur(4px)',
+            borderRadius: '24px', 
+            padding: '12px 24px', 
+            marginBottom: '32px', 
+            marginTop: '32px' 
+          }}>
+            <div style={{ 
+              width: '12px', 
+              height: '12px', 
+              backgroundColor: '#4ade80', 
+              borderRadius: '50%', 
+              marginRight: '12px',
+              animation: 'pulse 2s infinite'
+            }}></div>
+            <Text style={{ color: '#fff', fontSize: '14px', fontWeight: 500 }}>
+              Evidence-based AI coaching available 24/7
+            </Text>
           </div>
 
-          <p className="text-xl text-white/90 mb-6 max-w-4xl mx-auto leading-relaxed">
+          <Text style={{ 
+            fontSize: '20px', 
+            color: 'rgba(255, 255, 255, 0.9)', 
+            marginBottom: '24px', 
+            maxWidth: '1024px', 
+            margin: '0 auto 24px',
+            lineHeight: 1.6,
+            display: 'block'
+          }}>
             "1 in 8 women in US will develop breast cancer in their lifetime"... According to WHO
-          </p>
+          </Text>
 
-          <h1 className="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight max-w-4xl mx-auto">
-            <span className="text-yellow-400">Reduce breast cancer risk by 100%</span><br />
+          <Title level={1} style={{ 
+            fontSize: '48px', 
+            color: '#fff', 
+            marginBottom: '24px', 
+            lineHeight: 1.2, 
+            maxWidth: '1024px', 
+            margin: '0 auto 24px' 
+          }}>
+            <span style={{ color: '#facc15' }}>Reduce breast cancer risk by 100%</span><br />
             with evidence-based AI coaching
-          </h1>
+          </Title>
 
-          <p className="text-lg md:text-xl text-white/90 mb-8 max-w-3xl mx-auto leading-relaxed">
+          <Text style={{ 
+            fontSize: '18px', 
+            color: 'rgba(255, 255, 255, 0.9)', 
+            marginBottom: '32px', 
+            maxWidth: '768px', 
+            margin: '0 auto 32px',
+            lineHeight: 1.6,
+            display: 'block'
+          }}>
             Join thousands of women taking control of their health with personalized, science-backed guidance available 24/7.
-          </p>
+          </Text>
 
-          <div className="flex justify-center mb-8">
-            <button 
+          <div style={{ marginBottom: '32px' }}>
+            <Button 
+              type="primary"
+              size="large"
               onClick={onTakeQuiz}
-              className="bg-yellow-400 text-black px-10 py-4 rounded-full text-lg font-bold hover:bg-yellow-300 hover:shadow-lg transition-all border-none cursor-pointer"
+              style={{ 
+                backgroundColor: '#facc15', 
+                color: '#000', 
+                padding: '16px 40px', 
+                fontSize: '18px', 
+                fontWeight: 700, 
+                height: 'auto',
+                borderRadius: '24px',
+                border: 'none'
+              }}
             >
               Start Your Free Assessment
-            </button>
+            </Button>
           </div>
 
-          <p className="text-sm text-white/70 mb-2">
+          <Text style={{ 
+            fontSize: '14px', 
+            color: 'rgba(255, 255, 255, 0.7)', 
+            marginBottom: '8px',
+            display: 'block'
+          }}>
             ✓ Free 15-day trial • ✓ No credit card required • ✓ Cancel anytime
-          </p>
+          </Text>
 
-          <p className="text-white/80 text-lg mb-16">
+          <Text style={{ 
+            color: 'rgba(255, 255, 255, 0.8)', 
+            fontSize: '18px', 
+            marginBottom: '64px',
+            display: 'block'
+          }}>
             Start for free. Cancel any time.
-          </p>
-        </div>
-
-        {/* Hero Image Section */}
-        <div className="grid lg:grid-cols-2 gap-16 items-center pb-0">
-          <div className="relative flex justify-center items-center" style={{ height: '500px' }}>
-            {/* Simplified Background Circle */}
-            <div className="w-72 h-72 bg-gradient-to-br from-yellow-300 to-yellow-400 rounded-full absolute opacity-90"></div>
-            {/* Woman Image */}
-            <img 
-              src="/happy-woman.png"
-              alt="Happy woman using phone"
-              className="relative z-10 object-contain"
-              style={{
-                width: '22rem',
-                height: '28rem',
-                filter: 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.15))'
-              }}
-            />
-
-            {/* Dialog Box 1 - Top right of head */}
-            <div className="absolute bg-white rounded-2xl p-3 shadow-lg max-w-40 z-20" style={{ top: '8%', right: '1.5rem' }}>
-              <p className="text-sm text-gray-700">"I feel more in control of my health!"</p>
-            </div>
-
-            {/* Dialog Box 2 - Below box 1, same right side */}
-            <div className="absolute bg-blue-500 rounded-2xl p-3 shadow-lg max-w-40 z-20" style={{ top: '36%', right: '1.5rem' }}>
-              <p className="text-sm text-white">"My anxiety has decreased by 70%"</p>
-            </div>
-
-            {/* Dialog Box 3 - Lower, same right side */}
-            <div className="absolute bg-green-500 rounded-2xl p-3 shadow-lg max-w-40 z-20" style={{ top: '72%', right: '1.5rem' }}>
-              <p className="text-sm text-white">"Risk reduced by 85%!"</p>
-            </div>
-          </div>
-
-          <div className="text-left lg:text-center xl:text-left">
-            <div className="text-5xl font-bold text-white mb-4">96%</div>
-            <div className="text-xl font-bold text-white mb-4">
-              of members report<br />
-              reduced anxiety after 90 days
-            </div>
-            <p className="text-blue-100 mb-8 text-base leading-relaxed">
-              Join thousands of women who have taken control of their breast health with our evidence-based approach.
-            </p>
-
-            <div className="flex justify-center lg:justify-start">
-              <button 
-                onClick={onTakeQuiz}
-                className="bg-yellow-400 text-black px-8 py-3 rounded-full text-lg font-bold hover:bg-yellow-300 transition-all border-none cursor-pointer"
-              >
-                Get Started Now
-              </button>
-            </div>
-          </div>
+          </Text>
         </div>
       </div>
-    </section>
+    </div>
   );
 }
 
 function HowItWorks() {
   return (
     <section id="how-it-works" className="py-20 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 16px' }}>
         <div className="text-center mb-12">
           <div className="flex items-center justify-center mb-6">
             <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mr-4">
@@ -201,8 +354,8 @@ function HowItWorks() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
+          <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow w-full max-w-sm">
             <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center mb-4">
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
@@ -214,7 +367,7 @@ function HowItWorks() {
             </p>
           </div>
 
-          <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+          <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow w-full max-w-sm">
             <div className="w-12 h-12 bg-yellow-400 rounded-xl flex items-center justify-center mb-4">
               <svg className="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
@@ -250,7 +403,7 @@ function HowItWorks() {
             </p>
           </div>
 
-          <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+          <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow w-full max-w-sm">
             <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center mb-4">
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
@@ -262,7 +415,7 @@ function HowItWorks() {
             </p>
           </div>
 
-          <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
+          <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow w-full max-w-sm">
             <div className="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center mb-4">
               <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
@@ -442,7 +595,7 @@ function Features({ onTakeQuiz }: { onTakeQuiz: () => void }) {
 
   return (
     <section id="features" className="py-20 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 16px' }}>
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-6">
             Evidence-based activities to reverse breast cancer development
@@ -454,9 +607,9 @@ function Features({ onTakeQuiz }: { onTakeQuiz: () => void }) {
 
         <RiskReductionChart />
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 justify-items-center">
           {activities.map((activity, index) => (
-            <div key={index} className="bg-white border-2 border-blue-100 p-6 rounded-2xl hover:shadow-xl transition-shadow hover:border-blue-200">
+            <div key={index} className="bg-white border-2 border-blue-100 p-6 rounded-2xl hover:shadow-xl transition-shadow hover:border-blue-200 w-full max-w-sm">
               <div className="text-3xl mb-4">{activity.icon}</div>
               <h3 className="text-lg font-bold mb-3 text-gray-900">{activity.title}</h3>
               <p className="text-gray-600 text-sm mb-4">{activity.description}</p>
@@ -469,9 +622,9 @@ function Features({ onTakeQuiz }: { onTakeQuiz: () => void }) {
 
         {/* Benefits Summary */}
         <div className="mt-20 bg-gradient-to-r from-blue-50 to-blue-100 rounded-3xl p-12">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div className="grid md:grid-cols-2 gap-12 items-center justify-items-center">
             {/* Left side - Content */}
-            <div>
+            <div className="text-center md:text-left">
               <h3 className="text-3xl font-bold mb-8 text-blue-600">BrezCode can help you</h3>
 
               <div className="space-y-6">
@@ -535,7 +688,7 @@ function Features({ onTakeQuiz }: { onTakeQuiz: () => void }) {
             </div>
 
             {/* Right side - Image */}
-            <div className="relative">
+            <div className="relative flex justify-center">
               <div className="bg-white rounded-3xl p-8 shadow-lg">
                 <div className="w-full h-96 rounded-2xl overflow-hidden flex items-center justify-center">
                   <img 
@@ -557,7 +710,7 @@ function Pricing({ onTakeQuiz }: { onTakeQuiz: () => void }) {
 
   return (
     <section id="pricing" className="py-20 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 16px' }}>
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-6">
             Free 15-day trial, then <span className="text-blue-500">simple pricing</span>
@@ -663,7 +816,7 @@ function Pricing({ onTakeQuiz }: { onTakeQuiz: () => void }) {
 function ReviewsAndTestimonials() {
   return (
     <section className="py-20 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 16px' }}>
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-6">
             Real BrezCode customers
@@ -734,7 +887,7 @@ function ReviewsAndTestimonials() {
 function FAQ() {
   return (
     <section className="py-20 bg-gray-50">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 16px' }}>
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-6">
             Frequently Asked <span className="text-blue-500">Questions</span>
@@ -770,7 +923,7 @@ function FAQ() {
 function Promise() {
   return (
     <section className="py-20 bg-gradient-to-br from-purple-600 to-indigo-700">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 16px' }}>
         <div className="text-center">
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
             Our Promise to You
@@ -815,7 +968,7 @@ function Promise() {
 function Results() {
   return (
     <section className="py-20 bg-white">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 16px' }}>
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
             With measurable impact
@@ -865,7 +1018,7 @@ function SignUp({ onTakeQuiz }: { onTakeQuiz: () => void }) {
 
   return (
     <section className="py-20 bg-gradient-to-br from-blue-400 to-blue-600">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 16px' }}>
         <div className="text-center mb-12">
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
             Start Your Journey Today
@@ -909,7 +1062,7 @@ function SignUp({ onTakeQuiz }: { onTakeQuiz: () => void }) {
 function Footer() {
   return (
     <footer className="bg-gray-800 text-white py-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 16px' }}>
         <div className="grid md:grid-cols-4 gap-8">
           <div className="col-span-2">
             <div className="flex items-center space-x-2 mb-6">
@@ -950,6 +1103,19 @@ function Footer() {
   );
 }
 
+// Ant Design theme configuration
+const theme = {
+  token: {
+    colorPrimary: '#2563eb',
+    colorSuccess: '#10b981',
+    colorWarning: '#f59e0b',
+    colorError: '#ef4444',
+    colorInfo: '#3b82f6',
+    borderRadius: 8,
+    fontFamily: '"Inter", system-ui, -apple-system, sans-serif',
+  },
+};
+
 function App() {
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
 
@@ -984,19 +1150,21 @@ function App() {
 
   // Main landing page
   return (
-    <div className="min-h-screen bg-white">
-      <Navigation onTakeQuiz={navigateToQuiz} />
-      <Hero onTakeQuiz={navigateToQuiz} />
-      <Features onTakeQuiz={navigateToQuiz} />
-      <HowItWorks />
-      <ReviewsAndTestimonials />
-      <FAQ />
-      <Promise />
-      <Results />
-      <SignUp onTakeQuiz={navigateToQuiz} />
-      <Pricing onTakeQuiz={navigateToQuiz} />
-      <Footer />
-    </div>
+    <ConfigProvider theme={theme}>
+      <div style={{ minHeight: '100vh', backgroundColor: '#fff' }}>
+        <Navigation onTakeQuiz={navigateToQuiz} />
+        <Hero onTakeQuiz={navigateToQuiz} />
+        <Features onTakeQuiz={navigateToQuiz} />
+        <HowItWorks />
+        <ReviewsAndTestimonials />
+        <FAQ />
+        <Promise />
+        <Results />
+        <SignUp onTakeQuiz={navigateToQuiz} />
+        <Pricing onTakeQuiz={navigateToQuiz} />
+        <Footer />
+      </div>
+    </ConfigProvider>
   )
 }
 

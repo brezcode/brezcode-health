@@ -2,6 +2,10 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
+
+// Load environment variables FIRST
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -32,45 +36,79 @@ async function sendVerificationEmail(email, code) {
       const { default: sgMail } = await import('@sendgrid/mail');
       sgMail.setApiKey(process.env.SENDGRID_API_KEY);
       
+      const fromEmail = process.env.FROM_EMAIL;
+      const fromName = process.env.FROM_NAME || 'BrezCode Health';
+      
       const msg = {
         to: email,
-        from: process.env.FROM_EMAIL,
+        from: {
+          email: fromEmail,
+          name: fromName
+        },
         subject: 'BrezCode Health - Verify Your Email',
         html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <div style="text-align: center; margin-bottom: 30px;">
-              <h1 style="color: #2563eb; margin: 0;">BrezCode Health</h1>
-              <p style="color: #6b7280; margin: 5px 0;">Your Personalized Health Journey</p>
-            </div>
-            
-            <div style="background: #f8fafc; padding: 30px; border-radius: 10px; text-align: center;">
-              <h2 style="color: #1f2937; margin-bottom: 20px;">Verify Your Email Address</h2>
-              <p style="color: #4b5563; margin-bottom: 25px;">Please use the verification code below to complete your account setup:</p>
-              
-              <div style="background: #2563eb; color: white; font-size: 32px; font-weight: bold; padding: 20px; border-radius: 8px; letter-spacing: 8px; margin: 20px 0;">
-                ${code}
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Verify Your Email - BrezCode Health</title>
+          </head>
+          <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc;">
+            <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+              <!-- Header -->
+              <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 20px; text-align: center;">
+                <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 600;">BrezCode Health</h1>
+                <p style="color: rgba(255, 255, 255, 0.9); margin: 8px 0 0 0; font-size: 16px;">Your Personalized Health Journey</p>
               </div>
               
-              <p style="color: #6b7280; font-size: 14px; margin-top: 25px;">
-                This code will expire in 15 minutes.<br>
-                If you didn't create a BrezCode Health account, please ignore this email.
-              </p>
+              <!-- Content -->
+              <div style="padding: 40px 30px; text-align: center;">
+                <h2 style="color: #1f2937; margin: 0 0 20px 0; font-size: 24px; font-weight: 600;">Verify Your Email Address</h2>
+                <p style="color: #4b5563; margin: 0 0 30px 0; font-size: 16px; line-height: 1.6;">
+                  Welcome to BrezCode Health! Please use the verification code below to complete your account setup and start your personalized health journey.
+                </p>
+                
+                <!-- Verification Code -->
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-size: 36px; font-weight: bold; padding: 25px; border-radius: 12px; letter-spacing: 6px; margin: 30px 0; display: inline-block; min-width: 200px;">
+                  ${code}
+                </div>
+                
+                <!-- Info -->
+                <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin: 30px 0;">
+                  <p style="color: #6b7280; margin: 0; font-size: 14px; line-height: 1.5;">
+                    <strong>Important:</strong> This verification code will expire in 15 minutes.<br>
+                    If you didn't create a BrezCode Health account, please ignore this email.
+                  </p>
+                </div>
+                
+                <!-- CTA -->
+                <p style="color: #4b5563; margin: 30px 0 0 0; font-size: 16px;">
+                  Enter this code in the verification page to complete your registration.
+                </p>
+              </div>
+              
+              <!-- Footer -->
+              <div style="background-color: #f1f5f9; padding: 30px; text-align: center; border-top: 1px solid #e2e8f0;">
+                <p style="color: #64748b; margin: 0; font-size: 14px;">
+                  © 2024 BrezCode Health. Taking control of your health, one step at a time.
+                </p>
+                <p style="color: #94a3b8; margin: 8px 0 0 0; font-size: 12px;">
+                  This email was sent to ${email}
+                </p>
+              </div>
             </div>
-            
-            <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
-              <p style="color: #9ca3af; font-size: 12px;">
-                © 2024 BrezCode Health. Taking control of your health, one step at a time.
-              </p>
-            </div>
-          </div>
+          </body>
+          </html>
         `
       };
       
       await sgMail.send(msg);
-      console.log(`✅ Verification email sent to ${email}`);
+      console.log(`✅ Verification email sent to ${email} via Twilio/SendGrid`);
       return true;
     } else {
-      console.log('⚠️  SendGrid not configured - check console for code');
+      console.log('⚠️  Twilio/SendGrid not configured - check console for code');
+      console.log('📧 To enable email sending, set SENDGRID_API_KEY and FROM_EMAIL in your .env file');
       return false;
     }
   } catch (error) {
@@ -137,7 +175,14 @@ app.post('/api/auth/verify-email', (req, res) => {
   try {
     const { email, code } = req.body;
     
+    console.log('🔍 VERIFICATION DEBUG:');
+    console.log('📧 Email received:', email);
+    console.log('🔢 Code received:', code);
+    console.log('📋 Current verification codes in memory:', JSON.stringify(verificationCodes, null, 2));
+    console.log('👥 Current pending users:', Object.keys(pendingUsers));
+    
     if (!email || !code) {
+      console.log('❌ Missing email or code');
       return res.status(400).json({ error: 'Email and verification code are required' });
     }
     
@@ -268,7 +313,15 @@ if (process.env.NODE_ENV === 'production') {
 
 app.listen(PORT, () => {
   console.log(`🚀 BrezCode Health API server running on port ${PORT}`);
-  console.log(`📧 Email service: ${process.env.SENDGRID_API_KEY ? 'SendGrid configured ✅' : 'Console logging only ⚠️'}`);
+  
+  if (process.env.SENDGRID_API_KEY && process.env.FROM_EMAIL) {
+    console.log(`📧 Email service: Twilio/SendGrid ✅`);
+    console.log(`📧 From: ${process.env.FROM_EMAIL}`);
+  } else {
+    console.log(`📧 Email service: Console logging only ⚠️`);
+    console.log(`📧 To enable Twilio/SendGrid, set SENDGRID_API_KEY and FROM_EMAIL in .env file`);
+  }
+  
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
 });
 

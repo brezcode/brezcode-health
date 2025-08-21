@@ -1,4 +1,27 @@
 import { useState } from "react";
+import { 
+  Form, 
+  Input, 
+  Button, 
+  Card, 
+  Progress, 
+  Typography, 
+  Space, 
+  Divider,
+  Alert,
+  Row,
+  Col
+} from "antd";
+import { 
+  EyeInvisibleOutlined, 
+  EyeTwoTone, 
+  UserOutlined, 
+  MailOutlined, 
+  LockOutlined,
+  ArrowLeftOutlined
+} from "@ant-design/icons";
+
+const { Title, Text, Paragraph } = Typography;
 
 interface SignupFlowProps {
   quizAnswers: Record<string, any>;
@@ -7,7 +30,6 @@ interface SignupFlowProps {
 
 export default function SignupFlow({ quizAnswers, onComplete }: SignupFlowProps) {
   const [step, setStep] = useState(1);
-  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -19,11 +41,10 @@ export default function SignupFlow({ quizAnswers, onComplete }: SignupFlowProps)
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSignup = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSignup = async (values: any) => {
     setError("");
     
-    if (formData.password !== formData.confirmPassword) {
+    if (values.password !== values.confirmPassword) {
       setError("Passwords do not match");
       return;
     }
@@ -33,7 +54,7 @@ export default function SignupFlow({ quizAnswers, onComplete }: SignupFlowProps)
     try {
       // Store user data and quiz answers locally for demo
       localStorage.setItem('brezcode_user', JSON.stringify({
-        ...formData,
+        ...values,
         password: undefined, // Don't store password
         quizAnswers,
         registeredAt: new Date().toISOString()
@@ -50,8 +71,7 @@ export default function SignupFlow({ quizAnswers, onComplete }: SignupFlowProps)
     }
   };
 
-  const handleVerification = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleVerification = async (values: any) => {
     setError("");
     setIsLoading(true);
     
@@ -80,180 +100,260 @@ export default function SignupFlow({ quizAnswers, onComplete }: SignupFlowProps)
 
   if (step === 1) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 flex items-center justify-center p-4">
-        <div className="w-full max-w-md mx-auto bg-white rounded-lg shadow-xl">
-          <div className="text-center p-6 border-b">
-            <div className="w-32 bg-gray-200 rounded-full h-2 mx-auto mb-4">
-              <div className="bg-blue-600 h-2 rounded-full" style={{ width: '50%' }}></div>
-            </div>
-            <h1 className="text-2xl font-bold">Create Your Account</h1>
-            <p className="text-gray-600">Enter your details to get started</p>
+      <div style={{ 
+        minHeight: '100vh', 
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        padding: '16px'
+      }}>
+        <Card 
+          style={{ 
+            width: '100%', 
+            maxWidth: 480,
+            borderRadius: 16,
+            boxShadow: '0 20px 40px rgba(0,0,0,0.1)'
+          }}
+        >
+          <div style={{ textAlign: 'center', marginBottom: 24 }}>
+            <Progress 
+              percent={50} 
+              size="small" 
+              strokeColor="#667eea"
+              style={{ marginBottom: 16 }}
+            />
+            <Title level={2} style={{ marginBottom: 8, color: '#1a1a1a' }}>
+              Create Your Account
+            </Title>
+            <Text type="secondary">
+              Enter your details to get started
+            </Text>
           </div>
           
-          <div className="p-6">
-            <form onSubmit={handleSignup} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
-                  <input
-                    type="text"
-                    value={formData.firstName}
-                    onChange={(e) => setFormData(prev => ({ ...prev, firstName: e.target.value }))}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          <Form
+            layout="vertical"
+            onFinish={handleSignup}
+            requiredMark={false}
+          >
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item
+                  name="firstName"
+                  label="First Name"
+                  rules={[{ required: true, message: 'Please enter your first name' }]}
+                >
+                  <Input 
+                    prefix={<UserOutlined />} 
+                    placeholder="First Name"
+                    size="large"
                   />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
-                  <input
-                    type="text"
-                    value={formData.lastName}
-                    onChange={(e) => setFormData(prev => ({ ...prev, lastName: e.target.value }))}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  name="lastName"
+                  label="Last Name"
+                  rules={[{ required: true, message: 'Please enter your last name' }]}
+                >
+                  <Input 
+                    prefix={<UserOutlined />} 
+                    placeholder="Last Name"
+                    size="large"
                   />
-                </div>
-              </div>
+                </Form.Item>
+              </Col>
+            </Row>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-                <input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
+            <Form.Item
+              name="email"
+              label="Email Address"
+              rules={[
+                { required: true, message: 'Please enter your email' },
+                { type: 'email', message: 'Please enter a valid email' }
+              ]}
+            >
+              <Input 
+                prefix={<MailOutlined />} 
+                placeholder="your@email.com"
+                size="large"
+              />
+            </Form.Item>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    value={formData.password}
-                    onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
-                    required
-                    minLength={8}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  />
-                  <button
-                    type="button"
-                    className="absolute right-3 top-2.5 text-gray-500 hover:text-gray-700"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L5.636 5.636m4.242 4.242L14.12 14.12m-4.242-4.242L14.12 14.12M21 12c-1.27 4.057-5.065 7-9.543 7-.84 0-1.659-.109-2.457-.317m4.457-4.457l-4.457-4.457"></path>
-                      </svg>
-                    ) : (
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                      </svg>
-                    )}
-                  </button>
-                </div>
-              </div>
+            <Form.Item
+              name="password"
+              label="Password"
+              rules={[
+                { required: true, message: 'Please enter your password' },
+                { min: 8, message: 'Password must be at least 8 characters' }
+              ]}
+            >
+              <Input.Password 
+                prefix={<LockOutlined />} 
+                placeholder="Create a password"
+                size="large"
+                iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
+              />
+            </Form.Item>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
-                <input
-                  type="password"
-                  value={formData.confirmPassword}
-                  onChange={(e) => setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-                {formData.confirmPassword && formData.password !== formData.confirmPassword && (
-                  <p className="text-sm text-red-600 mt-1">Passwords do not match</p>
-                )}
-              </div>
+            <Form.Item
+              name="confirmPassword"
+              label="Confirm Password"
+              dependencies={['password']}
+              rules={[
+                { required: true, message: 'Please confirm your password' },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (!value || getFieldValue('password') === value) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(new Error('Passwords do not match'));
+                  },
+                }),
+              ]}
+            >
+              <Input.Password 
+                prefix={<LockOutlined />} 
+                placeholder="Confirm your password"
+                size="large"
+                iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
+              />
+            </Form.Item>
 
-              {error && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                  <p className="text-sm text-red-700">{error}</p>
-                </div>
-              )}
+            {error && (
+              <Alert
+                message={error}
+                type="error"
+                showIcon
+                style={{ marginBottom: 16 }}
+              />
+            )}
 
-              <button 
-                type="submit" 
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={
-                  isLoading || 
-                  formData.password !== formData.confirmPassword ||
-                  !formData.firstName ||
-                  !formData.lastName ||
-                  !formData.email ||
-                  !formData.password ||
-                  !formData.confirmPassword
-                }
+            <Form.Item style={{ marginBottom: 0 }}>
+              <Button 
+                type="primary" 
+                htmlType="submit" 
+                loading={isLoading}
+                size="large"
+                style={{ 
+                  width: '100%', 
+                  height: 48,
+                  borderRadius: 8,
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  border: 'none'
+                }}
               >
                 {isLoading ? "Creating Account..." : "Create Account"}
-              </button>
-            </form>
-          </div>
-        </div>
+              </Button>
+            </Form.Item>
+          </Form>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 flex items-center justify-center p-4">
-      <div className="w-full max-w-md mx-auto bg-white rounded-lg shadow-xl">
-        <div className="text-center p-6 border-b">
-          <div className="w-32 bg-gray-200 rounded-full h-2 mx-auto mb-4">
-            <div className="bg-blue-600 h-2 rounded-full" style={{ width: '100%' }}></div>
-          </div>
-          <h1 className="text-2xl font-bold">Verify Your Email</h1>
-          <p className="text-gray-600">
-            We sent a verification code to {formData.email}
-          </p>
+    <div style={{ 
+      minHeight: '100vh', 
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      display: 'flex', 
+      alignItems: 'center', 
+      justifyContent: 'center',
+      padding: '16px'
+    }}>
+      <Card 
+        style={{ 
+          width: '100%', 
+          maxWidth: 480,
+          borderRadius: 16,
+          boxShadow: '0 20px 40px rgba(0,0,0,0.1)'
+        }}
+      >
+        <div style={{ textAlign: 'center', marginBottom: 24 }}>
+          <Progress 
+            percent={100} 
+            size="small" 
+            strokeColor="#52c41a"
+            style={{ marginBottom: 16 }}
+          />
+          <Title level={2} style={{ marginBottom: 8, color: '#1a1a1a' }}>
+            Verify Your Email
+          </Title>
+          <Paragraph type="secondary">
+            We sent a verification code to <Text strong>{formData.email}</Text>
+          </Paragraph>
         </div>
         
-        <div className="p-6">
-          <form onSubmit={handleVerification} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Verification Code</label>
-              <input
-                type="text"
-                value={verificationCode}
-                onChange={(e) => setVerificationCode(e.target.value)}
-                placeholder="Enter 6-digit code"
-                maxLength={6}
-                className="w-full px-3 py-2 text-center text-lg tracking-widest border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                required
-              />
-              <p className="text-xs text-gray-500 mt-2 text-center">
-                For demo: enter any 6-digit number (e.g., 123456)
-              </p>
-            </div>
+        <Form
+          layout="vertical"
+          onFinish={handleVerification}
+          requiredMark={false}
+        >
+          <Form.Item
+            name="verificationCode"
+            label="Verification Code"
+            rules={[
+              { required: true, message: 'Please enter the verification code' },
+              { len: 6, message: 'Please enter a 6-digit code' }
+            ]}
+          >
+            <Input 
+              placeholder="Enter 6-digit code"
+              maxLength={6}
+              size="large"
+              style={{ 
+                textAlign: 'center', 
+                fontSize: 18, 
+                letterSpacing: 4,
+                fontFamily: 'monospace'
+              }}
+              onChange={(e) => setVerificationCode(e.target.value)}
+            />
+          </Form.Item>
 
-            {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                <p className="text-sm text-red-700">{error}</p>
-              </div>
-            )}
+          <Paragraph type="secondary" style={{ textAlign: 'center', fontSize: 12 }}>
+            For demo: enter any 6-digit number (e.g., 123456)
+          </Paragraph>
 
-            <button 
-              type="submit" 
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={isLoading || verificationCode.length !== 6}
+          {error && (
+            <Alert
+              message={error}
+              type="error"
+              showIcon
+              style={{ marginBottom: 16 }}
+            />
+          )}
+
+          <Form.Item style={{ marginBottom: 16 }}>
+            <Button 
+              type="primary" 
+              htmlType="submit" 
+              loading={isLoading}
+              size="large"
+              style={{ 
+                width: '100%', 
+                height: 48,
+                borderRadius: 8,
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                border: 'none'
+              }}
             >
               {isLoading ? "Verifying..." : "Verify Email"}
-            </button>
-          </form>
+            </Button>
+          </Form.Item>
 
-          <div className="text-center mt-4">
-            <button
-              className="text-sm text-blue-600 hover:text-blue-800 underline"
+          <Divider>
+            <Button
+              type="link"
+              icon={<ArrowLeftOutlined />}
               onClick={() => setStep(1)}
+              style={{ color: '#667eea' }}
             >
               Back to Account Details
-            </button>
-          </div>
-        </div>
-      </div>
+            </Button>
+          </Divider>
+        </Form>
+      </Card>
     </div>
   );
 }
