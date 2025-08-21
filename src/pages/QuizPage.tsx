@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Quiz from "../components/Quiz";
 import QuizTransition from "../components/QuizTransition";
-import CleanSignupFlow from "../components/CleanSignupFlow";
+import AntdSignupFlow from "../components/AntdSignupFlow";
 
 export default function QuizPage() {
   const [quizCompleted, setQuizCompleted] = useState(false);
@@ -40,7 +40,7 @@ export default function QuizPage() {
   // Show signup flow after transition
   if (quizCompleted && !showTransition) {
     return (
-      <CleanSignupFlow 
+      <AntdSignupFlow 
         quizAnswers={quizAnswers} 
         onComplete={handleSignupComplete}
       />
