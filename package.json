@@ -17,7 +17,8 @@
     "test-twilio": "node scripts/test-twilio-whatsapp.js",
     "test-real-whatsapp": "node scripts/test-real-whatsapp.js",
     "test-whatsapp-signup": "node scripts/test-whatsapp-signup.js",
-    "test-dr-sakura": "node scripts/test-dr-sakura.js"
+    "test-dr-sakura": "node scripts/test-dr-sakura.js",
+    "create-admin": "node scripts/create-admin.js"
   },
   "dependencies": {
     "@ant-design/icons": "^6.0.0",
@@ -35,12 +36,16 @@
     "@radix-ui/react-slot": "^1.2.3",
     "@sendgrid/mail": "^8.1.4",
     "antd": "^5.27.1",
+    "bcryptjs": "^3.0.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "express": "^4.21.2",
+    "express-rate-limit": "^8.0.1",
+    "express-session": "^1.18.2",
     "framer-motion": "^12.23.12",
+    "helmet": "^8.1.0",
     "lucide-react": "^0.540.0",
     "next-auth": "^4.24.11",
     "node-fetch": "^3.3.2",

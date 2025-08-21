@@ -3,6 +3,7 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
+import session from 'express-session';
 
 // Load environment variables FIRST
 dotenv.config();
@@ -13,12 +14,28 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3002;
 
+// Session configuration for business dashboard
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'brezcode-health-session-secret-2024',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}));
+
 // Middleware
 app.use(cors());
 app.use(express.json());
 
 // Import avatar routes
 import avatarRoutes from '../backend/routes/avatarRoutes.js';
+
+// Import business routes
+import businessAuthRoutes from '../backend/routes/businessAuthRoutes.js';
+import businessDashboardRoutes from '../backend/routes/businessDashboardRoutes.js';
 
 // In-memory storage for demo (replace with database in production)
 let pendingUsers = {};
@@ -177,6 +194,24 @@ async function sendWhatsAppVerification(phoneNumber, code) {
 
 // Dr. Sakura Avatar routes
 app.use('/api/avatar', avatarRoutes);
+
+// Business Dashboard Authentication routes
+app.use('/api/business/auth', businessAuthRoutes);
+
+// Business Dashboard API routes
+app.use('/api/business/dashboard', businessDashboardRoutes);
+
+// Serve business dashboard static files
+app.use('/backend/static', express.static(path.join(__dirname, '../backend/public')));
+
+// Business dashboard routes
+app.get('/backend', (req, res) => {
+  res.sendFile(path.join(__dirname, '../backend/public/login.html'));
+});
+
+app.get('/backend/dashboard', (req, res) => {
+  res.sendFile(path.join(__dirname, '../backend/public/dashboard.html'));
+});
 
 // WhatsApp signup endpoint
 app.post('/api/auth/signup-whatsapp', async (req, res) => {
