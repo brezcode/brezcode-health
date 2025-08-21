@@ -12,7 +12,11 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test-sendgrid": "node scripts/test-sendgrid.js",
-    "test-verification": "node scripts/test-verification.js"
+    "test-verification": "node scripts/test-verification.js",
+    "test-whatsapp": "node scripts/test-whatsapp.js",
+    "test-twilio": "node scripts/test-twilio-whatsapp.js",
+    "test-real-whatsapp": "node scripts/test-real-whatsapp.js",
+    "test-whatsapp-signup": "node scripts/test-whatsapp-signup.js"
   },
   "dependencies": {
     "@ant-design/icons": "^6.0.0",
@@ -37,6 +41,7 @@
     "framer-motion": "^12.23.12",
     "lucide-react": "^0.540.0",
     "next-auth": "^4.24.11",
+    "node-fetch": "^3.3.2",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "tailwind-merge": "^3.3.1"

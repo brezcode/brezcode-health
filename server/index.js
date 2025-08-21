@@ -22,6 +22,13 @@ let pendingUsers = {};
 let verificationCodes = {};
 let users = {};
 
+// WhatsApp webhook verification token
+const WHATSAPP_VERIFY_TOKEN = process.env.META_VERIFY_TOKEN || 'brezcode-health-2024';
+
+// WhatsApp API configuration
+const META_ACCESS_TOKEN = process.env.META_ACCESS_TOKEN;
+const META_PHONE_NUMBER_ID = process.env.META_PHONE_NUMBER_ID;
+
 // Generate 6-digit verification code
 function generateVerificationCode() {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -117,7 +124,104 @@ async function sendVerificationEmail(email, code) {
   }
 }
 
+// Send WhatsApp verification message
+async function sendWhatsAppVerification(phoneNumber, code) {
+  console.log(`📱 WhatsApp verification code for ${phoneNumber}: ${code}`);
+  
+  try {
+    if (!META_ACCESS_TOKEN || !META_PHONE_NUMBER_ID) {
+      console.log('⚠️  WhatsApp API not configured - check META_ACCESS_TOKEN and META_PHONE_NUMBER_ID');
+      return false;
+    }
+
+    const url = `https://graph.facebook.com/v21.0/${META_PHONE_NUMBER_ID}/messages`;
+    
+    const textMessage = {
+      messaging_product: "whatsapp",
+      to: phoneNumber,
+      type: "text",
+      text: {
+        body: `🔐 Your BrezCode Health verification code is: ${code}\n\nThis code will expire in 15 minutes. Enter this code to complete your account verification.\n\n- BrezCode Health Team`
+      }
+    };
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${META_ACCESS_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(textMessage)
+    });
+
+    const responseData = await response.json();
+    
+    if (response.ok) {
+      console.log(`✅ WhatsApp message sent successfully to ${phoneNumber}:`, responseData);
+      return true;
+    } else {
+      console.error('❌ WhatsApp API error:', responseData);
+      return false;
+    }
+
+  } catch (error) {
+    console.error('❌ WhatsApp sending failed:', error.message);
+    return false;
+  }
+}
+
 // API Routes
+
+// WhatsApp signup endpoint
+app.post('/api/auth/signup-whatsapp', async (req, res) => {
+  try {
+    const { firstName, lastName, phoneNumber, password, quizAnswers } = req.body;
+    
+    if (!firstName || !lastName || !phoneNumber || !password) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
+    
+    // Check if user already exists
+    if (users[phoneNumber]) {
+      return res.status(409).json({ error: 'Account with this phone number already exists' });
+    }
+    
+    // Generate verification code
+    const verificationCode = generateVerificationCode();
+    const expiryTime = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+    
+    // Store pending user data
+    pendingUsers[phoneNumber] = {
+      firstName,
+      lastName,
+      phoneNumber,
+      password,
+      quizAnswers: quizAnswers || {},
+      createdAt: new Date()
+    };
+    
+    // Store verification code
+    verificationCodes[phoneNumber] = {
+      code: verificationCode,
+      expiryTime,
+      attempts: 0
+    };
+    
+    // Send WhatsApp verification message
+    const whatsappSent = await sendWhatsAppVerification(phoneNumber, verificationCode);
+    
+    res.json({
+      message: 'Account created successfully. Please check your WhatsApp for verification code.',
+      requiresVerification: true,
+      phoneNumber: phoneNumber,
+      whatsappSent: whatsappSent
+    });
+    
+  } catch (error) {
+    console.error('WhatsApp signup error:', error);
+    res.status(500).json({ error: 'Failed to create account' });
+  }
+});
 
 // Signup endpoint
 app.post('/api/auth/signup', async (req, res) => {
@@ -167,6 +271,79 @@ app.post('/api/auth/signup', async (req, res) => {
   } catch (error) {
     console.error('Signup error:', error);
     res.status(500).json({ error: 'Failed to create account' });
+  }
+});
+
+// Verify WhatsApp endpoint
+app.post('/api/auth/verify-whatsapp', (req, res) => {
+  try {
+    const { phoneNumber, code } = req.body;
+    
+    console.log('🔍 WHATSAPP VERIFICATION DEBUG:');
+    console.log('📱 Phone number received:', phoneNumber);
+    console.log('🔢 Code received:', code);
+    console.log('📋 Current verification codes in memory:', JSON.stringify(verificationCodes, null, 2));
+    console.log('👥 Current pending users:', Object.keys(pendingUsers));
+    
+    if (!phoneNumber || !code) {
+      console.log('❌ Missing phone number or code');
+      return res.status(400).json({ error: 'Phone number and verification code are required' });
+    }
+    
+    // Check if verification code exists and is valid
+    const verification = verificationCodes[phoneNumber];
+    if (!verification) {
+      return res.status(400).json({ error: 'No verification code found for this phone number' });
+    }
+    
+    // Check if code has expired
+    if (new Date() > verification.expiryTime) {
+      delete verificationCodes[phoneNumber];
+      return res.status(400).json({ error: 'Verification code has expired' });
+    }
+    
+    // Check if code matches
+    if (verification.code !== code) {
+      verification.attempts += 1;
+      if (verification.attempts >= 5) {
+        delete verificationCodes[phoneNumber];
+        return res.status(400).json({ error: 'Too many failed attempts. Please request a new code.' });
+      }
+      return res.status(400).json({ error: 'Invalid verification code' });
+    }
+    
+    // Get pending user data
+    const pendingUser = pendingUsers[phoneNumber];
+    if (!pendingUser) {
+      return res.status(400).json({ error: 'No pending account found for this phone number' });
+    }
+    
+    // Create verified user (remove password from response)
+    const { password, ...userWithoutPassword } = pendingUser;
+    const verifiedUser = {
+      ...userWithoutPassword,
+      id: Date.now(),
+      isPhoneVerified: true,
+      verifiedAt: new Date()
+    };
+    
+    // Store verified user
+    users[phoneNumber] = { ...verifiedUser, password }; // Keep password in storage
+    
+    // Clean up temporary data
+    delete pendingUsers[phoneNumber];
+    delete verificationCodes[phoneNumber];
+    
+    console.log(`✅ Phone number verified successfully for: ${phoneNumber}`);
+    
+    res.json({
+      message: 'Phone number verified successfully',
+      user: userWithoutPassword // Don't send password to client
+    });
+    
+  } catch (error) {
+    console.error('WhatsApp verification error:', error);
+    res.status(500).json({ error: 'Failed to verify phone number' });
   }
 });
 
@@ -243,6 +420,46 @@ app.post('/api/auth/verify-email', (req, res) => {
   }
 });
 
+// Resend WhatsApp verification code endpoint
+app.post('/api/auth/resend-whatsapp-verification', async (req, res) => {
+  try {
+    const { phoneNumber } = req.body;
+    
+    if (!phoneNumber) {
+      return res.status(400).json({ error: 'Phone number is required' });
+    }
+    
+    // Check if pending user exists
+    const pendingUser = pendingUsers[phoneNumber];
+    if (!pendingUser) {
+      return res.status(400).json({ error: 'No pending verification found for this phone number' });
+    }
+    
+    // Generate new verification code
+    const verificationCode = generateVerificationCode();
+    const expiryTime = new Date(Date.now() + 15 * 60 * 1000);
+    
+    // Update verification code
+    verificationCodes[phoneNumber] = {
+      code: verificationCode,
+      expiryTime,
+      attempts: 0
+    };
+    
+    // Send new WhatsApp verification message
+    const whatsappSent = await sendWhatsAppVerification(phoneNumber, verificationCode);
+    
+    res.json({
+      message: 'Verification code resent successfully',
+      whatsappSent: whatsappSent
+    });
+    
+  } catch (error) {
+    console.error('Resend WhatsApp verification error:', error);
+    res.status(500).json({ error: 'Failed to resend verification code' });
+  }
+});
+
 // Resend verification code endpoint
 app.post('/api/auth/resend-verification', async (req, res) => {
   try {
@@ -300,6 +517,63 @@ app.get('/api/stats', (req, res) => {
     pendingVerifications: Object.keys(pendingUsers).length,
     activeVerificationCodes: Object.keys(verificationCodes).length
   });
+});
+
+// WhatsApp Webhook Endpoints
+app.get('/webhook/whatsapp', (req, res) => {
+  const mode = req.query['hub.mode'];
+  const token = req.query['hub.verify_token'];
+  const challenge = req.query['hub.challenge'];
+
+  if (mode === 'subscribe' && token === WHATSAPP_VERIFY_TOKEN) {
+    console.log('✅ WhatsApp webhook verified successfully');
+    res.status(200).send(challenge);
+  } else {
+    console.log('❌ WhatsApp webhook verification failed');
+    res.status(403).send('Forbidden');
+  }
+});
+
+app.post('/webhook/whatsapp', (req, res) => {
+  const body = req.body;
+
+  if (body.object === 'whatsapp_business_account') {
+    try {
+      body.entry.forEach(entry => {
+        entry.changes.forEach(change => {
+          if (change.field === 'messages') {
+            const messages = change.value.messages;
+            if (messages) {
+              messages.forEach(message => {
+                console.log('📱 Received WhatsApp message:', {
+                  from: message.from,
+                  timestamp: message.timestamp,
+                  type: message.type,
+                  text: message.text?.body || 'No text content'
+                });
+                
+                // Handle different message types
+                if (message.type === 'text') {
+                  // Process text message
+                  console.log(`💬 User ${message.from} said: ${message.text.body}`);
+                  
+                  // Here you can add your message handling logic
+                  // For example, auto-replies, health tips, etc.
+                }
+              });
+            }
+          }
+        });
+      });
+      
+      res.status(200).send('OK');
+    } catch (error) {
+      console.error('❌ Error processing WhatsApp webhook:', error);
+      res.status(500).send('Internal Server Error');
+    }
+  } else {
+    res.status(404).send('Not Found');
+  }
 });
 
 // Serve static files in production
