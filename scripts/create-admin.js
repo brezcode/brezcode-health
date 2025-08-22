@@ -10,10 +10,10 @@ async function createAdminUser() {
   
   try {
     const adminData = {
-      email: 'admin@brezcode.com',
-      password: 'BrezCode2024!',
-      firstName: 'Admin',
-      lastName: 'User'
+      email: 'leedennyps@gmail.com',
+      password: '11111111',
+      firstName: 'Denny',
+      lastName: 'Lee'
     };
     
     console.log('📝 Creating admin user with:');

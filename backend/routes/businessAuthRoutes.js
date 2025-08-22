@@ -8,10 +8,10 @@ const router = express.Router();
 let adminUsers = [
   {
     id: 1,
-    email: 'admin@brezcode.com',
-    password: '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // hashed 'password'
-    firstName: 'Admin',
-    lastName: 'User',
+    email: 'leedennyps@gmail.com',
+    password: '$2a$10$CwTycUXWue0Thq9StjUM0uBUcjZUiHtQKDdOPP01vEqX.H/P7FRKO', // hashed '11111111'
+    firstName: 'Denny',
+    lastName: 'Lee',
     role: 'admin',
     createdAt: new Date()
   }
