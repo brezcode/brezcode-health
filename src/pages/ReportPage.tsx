@@ -5,12 +5,38 @@ export default function ReportPage() {
   const [report, setReport] = useState<any>(null);
 
   useEffect(() => {
-    // Get quiz answers from localStorage
-    const quizAnswers = JSON.parse(localStorage.getItem('brezcode_quiz_answers') || '{}');
-    const userData = JSON.parse(localStorage.getItem('brezcode_user') || '{}');
-    
-    // Calculate comprehensive scores based on quiz answers
-    const calculateSectionScore = (sectionName: string, answers: any) => {
+    const loadQuizData = async () => {
+      let quizAnswers = {};
+      let userData = JSON.parse(localStorage.getItem('brezcode_user') || '{}');
+      
+      // Try to get quiz session ID and fetch from database first
+      const sessionId = localStorage.getItem('brezcode_quiz_session_id');
+      
+      if (sessionId) {
+        try {
+          console.log('🔍 Fetching quiz results from database:', sessionId);
+          const response = await fetch(`/api/quiz/${sessionId}`);
+          const result = await response.json();
+          
+          if (result.success && result.quiz_result) {
+            console.log('✅ Quiz results loaded from database');
+            quizAnswers = result.quiz_result.answers || {};
+          } else {
+            console.log('⚠️ Database fetch failed, falling back to localStorage');
+            quizAnswers = JSON.parse(localStorage.getItem('brezcode_quiz_answers') || '{}');
+          }
+        } catch (error) {
+          console.error('❌ Error fetching quiz results from database:', error);
+          console.log('⚠️ Falling back to localStorage');
+          quizAnswers = JSON.parse(localStorage.getItem('brezcode_quiz_answers') || '{}');
+        }
+      } else {
+        // No session ID, use localStorage
+        quizAnswers = JSON.parse(localStorage.getItem('brezcode_quiz_answers') || '{}');
+      }
+      
+      // Calculate comprehensive scores based on quiz answers
+      const calculateSectionScore = (sectionName: string, answers: any) => {
       let score = 100;
       let riskFactors: string[] = [];
       let factorCount = 0;
@@ -228,6 +254,9 @@ export default function ReportPage() {
     };
 
     setReport(sampleReport);
+    };
+    
+    loadQuizData();
   }, []);
 
   // Helper functions

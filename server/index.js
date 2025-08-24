@@ -40,6 +40,10 @@ import trainingRoutes from '../backend/routes/trainingRoutes.js';
 
 // Import AI training services for REAL AI
 import { AvatarTrainingSessionService } from '../backend/services/avatarTrainingSessionService.js';
+import DatabaseAvatarTrainingService from '../backend/services/databaseAvatarTrainingService.js';
+import QuizResult from '../backend/models/QuizResult.js';
+import User from '../backend/models/User.js';
+import { initializeDatabase } from '../backend/scripts/init-database.js';
 
 // In-memory storage for demo (replace with database in production)
 let pendingUsers = {};
@@ -204,41 +208,26 @@ app.post('/direct-api/training/start', async (req, res) => {
 
     console.log(`🚀 DIRECT: Starting AI training session with ${avatarId} for ${scenario}`);
 
-    // Create session using REAL AvatarTrainingSessionService
-    const scenarioDetails = {
-      id: scenario,
-      name: scenario === 'health_consultation' ? 'Breast Health Consultation' : 'Health Scenario',
-      description: 'Patient consultation about breast health concerns',
-      customerPersona: 'Maria Santos - Health Concerns - Anxious about family history, wants concrete guidance',
-      customerMood: 'anxious',
-      objectives: ['Provide reassurance', 'Give medical guidance', 'Educate on self-care']
-    };
+    // Create session using DATABASE AvatarTrainingService
+    const session = await DatabaseAvatarTrainingService.createSession(avatarId, customerId, scenario);
 
-    const session = await AvatarTrainingSessionService.createSession(
-      1, // userId
-      avatarId,
-      scenario,
-      'health_coaching',
-      scenarioDetails
-    );
-
-    console.log(`✅ DIRECT: Training session created: ${session.sessionId}`);
+    console.log(`✅ DIRECT: Training session created: ${session.session_id}`);
 
     res.json({
-      id: session.sessionId,
+      id: session.session_id,
       avatar_id: avatarId,
       customer_id: customerId,
       scenario: scenario,
-      status: 'running',
-      messages: [],
-      performance_metrics: {
+      status: session.status,
+      messages: session.messages || [],
+      performance_metrics: session.performance_metrics || {
         response_quality: 90,
         customer_satisfaction: 88,
         goal_achievement: 85,
         conversation_flow: 92
       },
-      started_at: session.startedAt.toISOString(),
-      duration: 0
+      started_at: session.started_at,
+      duration: session.duration || 0
     });
   } catch (error) {
     console.error('❌ DIRECT: Error starting training session:', error);
@@ -254,37 +243,37 @@ app.post('/direct-api/training/:sessionId/continue', async (req, res) => {
     console.log(`🔄 DIRECT: Continuing AI conversation for session ${sessionId}`);
 
     // Get session to verify it exists
-    const session = await AvatarTrainingSessionService.getSession(sessionId);
+    const session = await DatabaseAvatarTrainingService.getSession(sessionId);
     if (!session) {
       return res.status(404).json({ error: 'Session not found' });
     }
 
     // Continue the conversation with AI-generated patient question and Dr. Sakura response using REAL AI
-    const updatedSession = await AvatarTrainingSessionService.continueConversation(sessionId);
+    const updatedSession = await DatabaseAvatarTrainingService.continueConversation(sessionId);
 
     console.log(`✅ DIRECT: AI Continue processed successfully for session ${sessionId}`);
 
     // Format response to match frontend expectations
-    const formattedMessages = updatedSession.conversationHistory.map(msg => ({
-      id: msg.messageId || `msg_${msg.sequenceNumber}`,
+    const formattedMessages = (updatedSession.messages || []).map(msg => ({
+      id: msg.id || `msg_${Date.now()}`,
       role: msg.role,
       content: msg.content,
       timestamp: msg.timestamp || new Date().toISOString(),
       emotion: msg.emotion || 'neutral',
-      quality_score: msg.role === 'avatar' ? 90 : undefined
+      quality_score: msg.role === 'avatar' ? (msg.quality_score || 90) : undefined
     }));
 
     res.json({
       success: true,
       session: {
         id: sessionId,
-        status: 'running',
+        status: updatedSession.status,
         messages: formattedMessages,
-        performance_metrics: {
-          response_quality: Math.floor(Math.random() * 10) + 85,
-          customer_satisfaction: Math.floor(Math.random() * 10) + 80,
-          goal_achievement: Math.floor(Math.random() * 10) + 75,
-          conversation_flow: Math.floor(Math.random() * 10) + 85
+        performance_metrics: updatedSession.performance_metrics || {
+          response_quality: 90,
+          customer_satisfaction: 88,
+          goal_achievement: 85,
+          conversation_flow: 92
         }
       }
     });
@@ -302,19 +291,19 @@ app.post('/direct-api/training/:sessionId/stop', async (req, res) => {
     console.log(`🛑 DIRECT: Stopping training session ${sessionId}`);
 
     // Complete the session
-    await AvatarTrainingSessionService.completeSession(sessionId);
+    const completedSession = await DatabaseAvatarTrainingService.stopSession(sessionId);
 
     const finalSession = {
       id: sessionId,
-      status: 'completed',
-      duration: Math.floor(Math.random() * 300) + 180,
-      performance_metrics: {
-        response_quality: Math.floor(Math.random() * 15) + 80,
-        customer_satisfaction: Math.floor(Math.random() * 15) + 75, 
-        goal_achievement: Math.floor(Math.random() * 20) + 70,
-        conversation_flow: Math.floor(Math.random() * 15) + 80
+      status: completedSession.status,
+      duration: completedSession.duration || 0,
+      performance_metrics: completedSession.performance_metrics || {
+        response_quality: 85,
+        customer_satisfaction: 82,
+        goal_achievement: 78,
+        conversation_flow: 88
       },
-      messages: []
+      messages: completedSession.messages || []
     };
 
     console.log(`✅ DIRECT: Training session completed: ${sessionId}`);
@@ -323,6 +312,80 @@ app.post('/direct-api/training/:sessionId/stop', async (req, res) => {
   } catch (error) {
     console.error('❌ DIRECT: Error stopping training:', error);
     res.status(500).json({ error: 'Failed to stop training: ' + error.message });
+  }
+});
+
+// QUIZ RESULT ENDPOINTS - Database Integration
+// Save quiz results to database
+app.post('/api/quiz/submit', async (req, res) => {
+  try {
+    const { answers, risk_score, risk_level, recommendations } = req.body;
+    
+    console.log('📝 Saving quiz results to database');
+    
+    // For now, use a default user_id since we don't have user authentication fully implemented
+    const user_id = req.body.user_id || 'anonymous_user';
+    
+    const quizResult = await QuizResult.create({
+      user_id,
+      answers,
+      risk_score,
+      risk_level,
+      recommendations
+    });
+    
+    console.log(`✅ Quiz result saved with session_id: ${quizResult.session_id}`);
+    
+    res.json({
+      success: true,
+      session_id: quizResult.session_id,
+      quiz_result: quizResult
+    });
+  } catch (error) {
+    console.error('❌ Error saving quiz result:', error);
+    res.status(500).json({ error: 'Failed to save quiz results' });
+  }
+});
+
+// Get quiz results by session ID
+app.get('/api/quiz/:sessionId', async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    
+    const quizResult = await QuizResult.findBySessionId(sessionId);
+    
+    if (!quizResult) {
+      return res.status(404).json({ error: 'Quiz result not found' });
+    }
+    
+    res.json({
+      success: true,
+      quiz_result: quizResult
+    });
+  } catch (error) {
+    console.error('❌ Error retrieving quiz result:', error);
+    res.status(500).json({ error: 'Failed to retrieve quiz results' });
+  }
+});
+
+// Get user's latest quiz result
+app.get('/api/quiz/user/:userId/latest', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    const latestQuiz = await QuizResult.getLatestByUserId(userId);
+    
+    if (!latestQuiz) {
+      return res.status(404).json({ error: 'No quiz results found for this user' });
+    }
+    
+    res.json({
+      success: true,
+      quiz_result: latestQuiz
+    });
+  } catch (error) {
+    console.error('❌ Error retrieving latest quiz result:', error);
+    res.status(500).json({ error: 'Failed to retrieve latest quiz results' });
   }
 });
 
@@ -773,8 +836,16 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`🚀 BrezCode Health API server running on port ${PORT}`);
+  
+  // Initialize database on server startup
+  try {
+    await initializeDatabase();
+    console.log(`🗄️ Database: Initialized successfully`);
+  } catch (error) {
+    console.log(`⚠️ Database: Initialization failed, using fallback storage:`, error.message);
+  }
   
   if (process.env.SENDGRID_API_KEY && process.env.FROM_EMAIL) {
     console.log(`📧 Email service: Twilio/SendGrid ✅`);

@@ -915,12 +915,12 @@ function Pricing({ onTakeQuiz }: { onTakeQuiz: () => void }) {
         </div>
 
         <div className="max-w-2xl mx-auto">
-          <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-3xl shadow-xl p-12 border-2 border-blue-500 relative">
-            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-              <span className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-8 py-3 rounded-full text-lg font-bold">
-                ⭐ BEST VALUE
-              </span>
-            </div>
+          <div className="text-center mb-4">
+            <span className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-8 py-3 rounded-full text-lg font-bold inline-block">
+              ⭐ BEST VALUE
+            </span>
+          </div>
+          <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-3xl shadow-xl p-12 border-2 border-blue-500">
 
             <div className="text-center">
               <h3 className="text-3xl font-bold mb-4">BrezCode Premium</h3>

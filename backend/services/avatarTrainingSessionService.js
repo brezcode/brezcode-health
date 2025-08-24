@@ -1,13 +1,39 @@
 // Original BrezCode Platform Avatar Training Session Service
-// Comprehensive AI Training Platform - In-Memory Implementation
+// Comprehensive AI Training Platform - Database Implementation
 
 import { ClaudeAvatarService } from './claudeAvatarService.js';
 import { TRAINING_SCENARIOS } from '../avatarTrainingScenarios.js';
+import AITrainingSession from '../models/AITrainingSession.js';
+import { testConnection } from '../config/database.js';
 
-// In-memory storage (replace with database in production)
-let sessions = new Map();
-let messages = new Map();
+// Fallback in-memory storage if database is unavailable
+let fallbackSessions = new Map();
+let fallbackMessages = new Map();
 let sessionCounter = 1;
+let databaseAvailable = false;
+
+// Test database connection on service initialization
+async function initializeDatabase() {
+  try {
+    databaseAvailable = await testConnection();
+    if (databaseAvailable) {
+      console.log('✅ AI Training Service: Database connection established');
+      // Clean up any abandoned sessions from previous runs
+      const abandoned = await AITrainingSession.cleanupAbandonedSessions(2);
+      if (abandoned.length > 0) {
+        console.log(`🧹 Cleaned up ${abandoned.length} abandoned training sessions`);
+      }
+    } else {
+      console.log('⚠️ AI Training Service: Using in-memory fallback storage');
+    }
+  } catch (error) {
+    console.log('⚠️ AI Training Service: Database initialization failed, using fallback:', error.message);
+    databaseAvailable = false;
+  }
+}
+
+// Initialize on service load
+initializeDatabase();
 
 export class AvatarTrainingSessionService {
 
