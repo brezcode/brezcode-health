@@ -225,12 +225,11 @@ function Navigation({ onTakeQuiz }: { onTakeQuiz: () => void }) {
 
 function Hero({ onTakeQuiz }: { onTakeQuiz: () => void }) {
   return (
-    <div style={{ 
+    <section style={{ 
       minHeight: '100vh', 
       background: 'linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #2563eb 100%)',
       position: 'relative',
-      overflow: 'hidden',
-      paddingTop: '80px'
+      overflow: 'hidden'
     }}>
       <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 16px' }}>
         <div style={{ textAlign: 'center', marginBottom: '64px', paddingTop: '80px' }}>
@@ -241,8 +240,7 @@ function Hero({ onTakeQuiz }: { onTakeQuiz: () => void }) {
             backdropFilter: 'blur(4px)',
             borderRadius: '24px', 
             padding: '12px 24px', 
-            marginBottom: '32px', 
-            marginTop: '32px' 
+            marginBottom: '32px'
           }}>
             <div style={{ 
               width: '12px', 
@@ -272,28 +270,64 @@ function Hero({ onTakeQuiz }: { onTakeQuiz: () => void }) {
           <Title level={1} style={{ 
             fontSize: '48px', 
             color: '#fff', 
-            marginBottom: '24px', 
+            marginBottom: '32px', 
             lineHeight: 1.2, 
             maxWidth: '1024px', 
             margin: '0 auto 24px' 
           }}>
-            <span style={{ color: '#facc15' }}>Reduce breast cancer risk by 100%</span><br />
-            with evidence-based AI coaching
+            Good news! You can now <span style={{ 
+              background: 'linear-gradient(45deg, #facc15, #f59e0b)', 
+              WebkitBackgroundClip: 'text', 
+              WebkitTextFillColor: 'transparent' 
+            }}>REVERSE</span> the development<br />
+            and lower the risk by <span style={{ color: '#facc15' }}>100% in 15 days.</span>
           </Title>
+
+          <Text style={{ 
+            fontSize: '20px', 
+            color: 'rgba(255, 255, 255, 0.9)', 
+            marginBottom: '8px', 
+            maxWidth: '1024px', 
+            margin: '0 auto 8px',
+            lineHeight: 1.6,
+            display: 'block',
+            fontStyle: 'italic'
+          }}>
+            The #1 evidence-based AI breast health coaching platform to help you
+          </Text>
+          <Text style={{ 
+            fontSize: '20px', 
+            color: 'rgba(255, 255, 255, 0.9)', 
+            marginBottom: '32px', 
+            maxWidth: '1024px', 
+            margin: '0 auto 32px',
+            lineHeight: 1.6,
+            display: 'block',
+            fontStyle: 'italic'
+          }}>
+            regain control of your wellness.
+          </Text>
 
           <Text style={{ 
             fontSize: '18px', 
             color: 'rgba(255, 255, 255, 0.9)', 
-            marginBottom: '32px', 
+            marginBottom: '48px', 
             maxWidth: '768px', 
-            margin: '0 auto 32px',
+            margin: '0 auto 48px',
             lineHeight: 1.6,
             display: 'block'
           }}>
-            Join thousands of women taking control of their health with personalized, science-backed guidance available 24/7.
+            Don't wait until it is too late, your family depends on you.
           </Text>
 
-          <div style={{ marginBottom: '32px' }}>
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            gap: '24px', 
+            justifyContent: 'center', 
+            alignItems: 'center', 
+            marginBottom: '32px'
+          }}>
             <Button 
               type="primary"
               size="large"
@@ -301,26 +335,34 @@ function Hero({ onTakeQuiz }: { onTakeQuiz: () => void }) {
               style={{ 
                 backgroundColor: '#facc15', 
                 color: '#000', 
-                padding: '16px 40px', 
-                fontSize: '18px', 
+                padding: '20px 48px', 
+                fontSize: '20px', 
                 fontWeight: 700, 
                 height: 'auto',
                 borderRadius: '24px',
-                border: 'none'
+                border: 'none',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
               }}
             >
-              Start Your Free Assessment
+              Take the quiz to start
+            </Button>
+            <Button 
+              variant="outline"
+              size="large"
+              style={{ 
+                border: '2px solid #fff',
+                color: '#fff',
+                backgroundColor: 'transparent',
+                padding: '16px 32px', 
+                fontSize: '16px', 
+                fontWeight: 700, 
+                height: 'auto',
+                borderRadius: '24px'
+              }}
+            >
+              Already have an account? Sign In
             </Button>
           </div>
-
-          <Text style={{ 
-            fontSize: '14px', 
-            color: 'rgba(255, 255, 255, 0.7)', 
-            marginBottom: '8px',
-            display: 'block'
-          }}>
-            ✓ Free 15-day trial • ✓ No credit card required • ✓ Cancel anytime
-          </Text>
 
           <Text style={{ 
             color: 'rgba(255, 255, 255, 0.8)', 
@@ -331,8 +373,138 @@ function Hero({ onTakeQuiz }: { onTakeQuiz: () => void }) {
             Start for free. Cancel any time.
           </Text>
         </div>
+
+        {/* Hero Image Section */}
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', 
+          gap: '64px', 
+          alignItems: 'start', 
+          paddingBottom: '0' 
+        }}>
+          <div style={{ 
+            position: 'relative', 
+            display: 'flex', 
+            justifyContent: 'center', 
+            alignItems: 'flex-end', 
+            height: '500px' 
+          }}>
+            {/* Yellow Circle Background */}
+            <div style={{ 
+              width: '320px', 
+              height: '320px', 
+              backgroundColor: '#facc15', 
+              borderRadius: '50%', 
+              position: 'absolute',
+              bottom: '120px'
+            }}></div>
+            {/* Woman Image */}
+            <img 
+              src="/happy-woman.png"
+              alt="Happy woman using phone"
+              style={{
+                position: 'relative',
+                zIndex: 10,
+                objectFit: 'contain',
+                objectPosition: 'bottom',
+                width: '24rem',
+                height: '30rem',
+                filter: 'drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1))'
+              }}
+            />
+
+            {/* Chat Bubbles */}
+            <div style={{ 
+              position: 'absolute', 
+              top: '16px', 
+              right: '16px', 
+              backgroundColor: '#fff', 
+              borderRadius: '16px', 
+              padding: '12px', 
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', 
+              maxWidth: '192px', 
+              zIndex: 20 
+            }}>
+              <p style={{ fontSize: '14px', color: '#374151', margin: 0 }}>Hey Sue, how'd it go yesterday?</p>
+            </div>
+
+            <div style={{ 
+              position: 'absolute', 
+              top: '80px', 
+              right: '32px', 
+              backgroundColor: '#8b5cf6', 
+              borderRadius: '16px', 
+              padding: '12px', 
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', 
+              maxWidth: '192px', 
+              zIndex: 20 
+            }}>
+              <p style={{ fontSize: '14px', color: '#fff', margin: 0 }}>I am following the plan, and feeling great today!</p>
+            </div>
+
+            <div style={{ 
+              position: 'absolute', 
+              bottom: '80px', 
+              left: '16px', 
+              backgroundColor: '#10b981', 
+              borderRadius: '16px', 
+              padding: '12px', 
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', 
+              maxWidth: '160px', 
+              zIndex: 20 
+            }}>
+              <p style={{ fontSize: '14px', color: '#fff', margin: 0 }}>Great work sticking to your plan!</p>
+            </div>
+          </div>
+
+          <div style={{ textAlign: 'left' }}>
+            <div style={{ fontSize: '96px', fontWeight: 'bold', color: '#fff', marginBottom: '16px' }}>96%</div>
+            <div style={{ 
+              fontSize: '32px', 
+              fontWeight: 'bold', 
+              color: '#fff', 
+              marginBottom: '16px' 
+            }}>
+              of members report<br />
+              reduced anxiety after 90 days
+            </div>
+            <p style={{ 
+              color: 'rgba(219, 234, 254, 1)', 
+              marginBottom: '32px',
+              fontSize: '16px',
+              lineHeight: 1.6
+            }}>
+              In addition, BrezCode members feel accomplished by an average of 80% after 90 days, as verified in a third-party study.
+            </p>
+
+            <div style={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              gap: '16px'
+            }}>
+              <Button 
+                type="primary"
+                size="large"
+                onClick={onTakeQuiz}
+                style={{ 
+                  backgroundColor: '#facc15', 
+                  color: '#000', 
+                  padding: '16px 32px', 
+                  fontSize: '18px', 
+                  fontWeight: 700, 
+                  height: 'auto',
+                  borderRadius: '24px',
+                  border: 'none'
+                }}
+              >
+                Take the quiz to start
+              </Button>
+              <div style={{ height: '56px' }}></div>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -356,75 +528,99 @@ function HowItWorks() {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
           <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow w-full max-w-sm">
-            <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center mb-4">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-              </svg>
+            <div className="flex items-start space-x-4">
+              <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center flex-shrink-0">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-lg font-bold mb-3">Weekly planning</h3>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  Every Sunday you'll get a personalized plan for the week ahead. Pre-commit to your week ahead to crush your goals.
+                </p>
+              </div>
             </div>
-            <h3 className="text-lg font-bold mb-3">Weekly planning</h3>
-            <p className="text-gray-600 text-sm leading-relaxed">
-              Every Sunday you'll get a personalized plan for the week ahead. Pre-commit to your week ahead to crush your goals.
-            </p>
           </div>
 
           <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow w-full max-w-sm">
-            <div className="w-12 h-12 bg-yellow-400 rounded-xl flex items-center justify-center mb-4">
-              <svg className="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-              </svg>
+            <div className="flex items-start space-x-4">
+              <div className="w-12 h-12 bg-yellow-400 rounded-xl flex items-center justify-center flex-shrink-0">
+                <svg className="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-lg font-bold mb-3">Community</h3>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  Give and get support in the vibrant BrezCode community, a place to cultivate a positive mindset every day.
+                </p>
+              </div>
             </div>
-            <h3 className="text-lg font-bold mb-3">Community</h3>
-            <p className="text-gray-600 text-sm leading-relaxed">
-              Give and get support in the vibrant BrezCode community, a place to cultivate a positive mindset every day.
-            </p>
           </div>
 
           <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
-            <div className="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center mb-4">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-              </svg>
+            <div className="flex items-start space-x-4">
+              <div className="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center flex-shrink-0">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-lg font-bold mb-3">Resources</h3>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  Exercises, videos, and resources are available on-demand to help you stay motivated when you need it.
+                </p>
+              </div>
             </div>
-            <h3 className="text-lg font-bold mb-3">Resources</h3>
-            <p className="text-gray-600 text-sm leading-relaxed">
-              Exercises, videos, and resources are available on-demand to help you stay motivated when you need it.
-            </p>
           </div>
 
           <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
-            <div className="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center mb-4">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-              </svg>
+            <div className="flex items-start space-x-4">
+              <div className="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center flex-shrink-0">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-lg font-bold mb-3">24/7 Coaching</h3>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  If you want any support or query, our AI coach trained by medical experts is always just a text message away, 24x7.
+                </p>
+              </div>
             </div>
-            <h3 className="text-lg font-bold mb-3">24/7 Coaching</h3>
-            <p className="text-gray-600 text-sm leading-relaxed">
-              If you want any support or query, our AI coach trained by medical experts is always just a text message away, 24x7.
-            </p>
           </div>
 
           <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow w-full max-w-sm">
-            <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center mb-4">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-              </svg>
+            <div className="flex items-start space-x-4">
+              <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center flex-shrink-0">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-lg font-bold mb-3">Progress Tracking</h3>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  Whether it's sleep, exercise, stress, or drinks cut, BrezCode shows you your progress in the terms that matter most to you.
+                </p>
+              </div>
             </div>
-            <h3 className="text-lg font-bold mb-3">Progress Tracking</h3>
-            <p className="text-gray-600 text-sm leading-relaxed">
-              Whether it's sleep, exercise, stress, or drinks cut, BrezCode shows you your progress in the terms that matter most to you.
-            </p>
           </div>
 
           <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow w-full max-w-sm">
-            <div className="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center mb-4">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-              </svg>
+            <div className="flex items-start space-x-4">
+              <div className="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center flex-shrink-0">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-lg font-bold mb-3">Smart Alerts</h3>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  Tracking your drinks and diets will become the foundation of your habit change. BrezCode makes it simple and fun!
+                </p>
+              </div>
             </div>
-            <h3 className="text-lg font-bold mb-3">Smart Alerts</h3>
-            <p className="text-gray-600 text-sm leading-relaxed">
-              Tracking your drinks and diets will become the foundation of your habit change. BrezCode makes it simple and fun!
-            </p>
           </div>
         </div>
       </div>
@@ -530,7 +726,7 @@ function Features({ onTakeQuiz }: { onTakeQuiz: () => void }) {
     {
       title: 'Daily 5mins breathing exercise',
       description: 'Lower Chronic stress',
-      reduction: '-15% risk',
+      reduction: '-15%',
       icon: "🫁",
       bgColor: "bg-blue-50",
       borderColor: "border-blue-200"
@@ -538,7 +734,7 @@ function Features({ onTakeQuiz }: { onTakeQuiz: () => void }) {
     {
       title: 'Daily 10mins mindfulness exercise',
       description: 'Increase positivity',
-      reduction: '-5% risk',
+      reduction: '-5%',
       icon: "🧘‍♀️",
       bgColor: "bg-purple-50",
       borderColor: "border-purple-200"
@@ -546,7 +742,7 @@ function Features({ onTakeQuiz }: { onTakeQuiz: () => void }) {
     {
       title: '3x/weekly Self Breast Massage',
       description: 'Lower Chronic inflammation',
-      reduction: '-20% risk',
+      reduction: '-20%',
       icon: "💆‍♀️",
       bgColor: "bg-pink-50",
       borderColor: "border-pink-200"
@@ -554,7 +750,7 @@ function Features({ onTakeQuiz }: { onTakeQuiz: () => void }) {
     {
       title: 'Personalized dietary management',
       description: 'Lower Carcinogen',
-      reduction: '-20% risk',
+      reduction: '-20%',
       icon: "🥗",
       bgColor: "bg-green-50",
       borderColor: "border-green-200"
@@ -562,7 +758,7 @@ function Features({ onTakeQuiz }: { onTakeQuiz: () => void }) {
     {
       title: 'Daily Physical exercise tracking',
       description: 'Lower oxidative stress',
-      reduction: '-40% risk',
+      reduction: '-40%',
       icon: "🏃‍♀️",
       bgColor: "bg-orange-50",
       borderColor: "border-orange-200"
@@ -570,7 +766,7 @@ function Features({ onTakeQuiz }: { onTakeQuiz: () => void }) {
     {
       title: 'Monthly Self Breast Exam',
       description: 'Early Symptom Detection',
-      reduction: '-20% risk',
+      reduction: '-20%',
       icon: "🔍",
       bgColor: "bg-teal-50",
       borderColor: "border-teal-200"
@@ -578,7 +774,7 @@ function Features({ onTakeQuiz }: { onTakeQuiz: () => void }) {
     {
       title: 'Daily educational content and tips',
       description: 'Increase awareness',
-      reduction: '-5% risk',
+      reduction: '-5%',
       icon: "📚",
       bgColor: "bg-indigo-50",
       borderColor: "border-indigo-200"
@@ -586,7 +782,7 @@ function Features({ onTakeQuiz }: { onTakeQuiz: () => void }) {
     {
       title: 'AI-Risk Monitoring system',
       description: 'Early detection',
-      reduction: '-50% risk',
+      reduction: '-50%',
       icon: "🤖",
       bgColor: "bg-yellow-50",
       borderColor: "border-yellow-200"
@@ -607,21 +803,22 @@ function Features({ onTakeQuiz }: { onTakeQuiz: () => void }) {
 
         <RiskReductionChart />
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 justify-items-center">
+        <div className="grid grid-cols-2 gap-4 justify-items-center">
           {activities.map((activity, index) => (
-            <div key={index} className="bg-white border-2 border-blue-100 p-6 rounded-2xl hover:shadow-xl transition-shadow hover:border-blue-200 w-full max-w-sm">
-              <div className="text-3xl mb-4">{activity.icon}</div>
-              <h3 className="text-lg font-bold mb-3 text-gray-900">{activity.title}</h3>
-              <p className="text-gray-600 text-sm mb-4">{activity.description}</p>
-              <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-2 rounded-full text-sm font-semibold inline-block">
-                {activity.reduction}
+            <div key={index} className="bg-white border-2 border-blue-100 p-4 rounded-2xl hover:shadow-xl transition-shadow hover:border-blue-200 w-full">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-bold text-gray-900 flex-1 pr-2">{activity.title}</h3>
+                <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap">
+                  {activity.reduction}
+                </div>
               </div>
+              <p className="text-gray-600 text-xs leading-relaxed">{activity.description}</p>
             </div>
           ))}
         </div>
 
         {/* Benefits Summary */}
-        <div className="mt-20 bg-gradient-to-r from-blue-50 to-blue-100 rounded-3xl p-12">
+        <div className="mt-20 bg-gradient-to-r from-blue-50 to-blue-100 rounded-3xl p-12" style={{ marginTop: '80px' }}>
           <div className="grid md:grid-cols-2 gap-12 items-center justify-items-center">
             {/* Left side - Content */}
             <div className="text-center md:text-left">
@@ -828,54 +1025,63 @@ function ReviewsAndTestimonials() {
           <div className="bg-white p-8 rounded-3xl shadow-xl">
             <div className="flex items-center mb-6">
               <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-xl mr-4">
-                S
+                M
               </div>
               <div>
-                <h3 className="font-bold text-lg">Sarah Chen</h3>
-                <p className="text-gray-600">Age 34, Marketing Director</p>
+                <h3 className="font-bold text-lg">Mia</h3>
+                <p className="text-gray-600">Age 26, College Student</p>
               </div>
             </div>
             <p className="text-gray-700 mb-4">
-              "I was skeptical about health apps, but BrezCode changed everything. The personalized recommendations helped me reduce my diabetes risk by 40% in just 6 months."
+              "As a young woman, I ignored breast health. This app's fun, quick lessons taught me to listen to my body and act early!"
             </p>
-            <div className="flex text-yellow-400">
-              ⭐⭐⭐⭐⭐
+            <div className="flex items-center justify-between">
+              <div className="flex text-yellow-400">
+                ⭐⭐⭐⭐⭐
+              </div>
+              <span className="text-sm text-gray-500">Real BrezCode Customer</span>
             </div>
           </div>
           
           <div className="bg-white p-8 rounded-3xl shadow-xl">
             <div className="flex items-center mb-6">
               <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center text-white font-bold text-xl mr-4">
-                M
+                E
               </div>
               <div>
-                <h3 className="font-bold text-lg">Michael Torres</h3>
-                <p className="text-gray-600">Age 42, Teacher</p>
+                <h3 className="font-bold text-lg">Emily</h3>
+                <p className="text-gray-600">Age 31, Working Mother</p>
               </div>
             </div>
             <p className="text-gray-700 mb-4">
-              "The evidence-based approach convinced me. Following BrezCode's plan, I lowered my heart disease risk by 35% and lost 25 pounds. My doctor was amazed!"
+              "I found a lump and panicked. The app guided me through self-exams and screening info, helping me stay calm and get answers fast."
             </p>
-            <div className="flex text-yellow-400">
-              ⭐⭐⭐⭐⭐
+            <div className="flex items-center justify-between">
+              <div className="flex text-yellow-400">
+                ⭐⭐⭐⭐⭐
+              </div>
+              <span className="text-sm text-gray-500">Real BrezCode Customer</span>
             </div>
           </div>
           
           <div className="bg-white p-8 rounded-3xl shadow-xl">
             <div className="flex items-center mb-6">
               <div className="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold text-xl mr-4">
-                L
+                A
               </div>
               <div>
-                <h3 className="font-bold text-lg">Lisa Rodriguez</h3>
-                <p className="text-gray-600">Age 38, Nurse</p>
+                <h3 className="font-bold text-lg">Aisha</h3>
+                <p className="text-gray-600">Age 35, High-Risk Patient</p>
               </div>
             </div>
             <p className="text-gray-700 mb-4">
-              "As a healthcare professional, I appreciate BrezCode's scientific foundation. It helped me achieve a 45% reduction in my cancer risk through lifestyle changes."
+              "My sister had breast cancer, so I'm high-risk. The app's risk scoring and check-in reminders help me feel in control of my health!"
             </p>
-            <div className="flex text-yellow-400">
-              ⭐⭐⭐⭐⭐
+            <div className="flex items-center justify-between">
+              <div className="flex text-yellow-400">
+                ⭐⭐⭐⭐⭐
+              </div>
+              <span className="text-sm text-gray-500">Real BrezCode Customer</span>
             </div>
           </div>
         </div>
@@ -1040,17 +1246,6 @@ function SignUp({ onTakeQuiz }: { onTakeQuiz: () => void }) {
               <p className="text-center text-sm text-gray-500 mb-4">
                 Complete our 23-question assessment to get personalized insights
               </p>
-              
-              <div className="border-t pt-4">
-                <button 
-                  className="w-full bg-orange-600 hover:bg-orange-700 text-white text-lg py-3 px-6 rounded-lg border-none cursor-pointer transition-all"
-                >
-                  🔍 Skin Lesion Test
-                </button>
-                <p className="text-center text-sm text-gray-500 mt-2">
-                  Quick AI-powered skin lesion analysis using your camera
-                </p>
-              </div>
             </div>
           </div>
         </div>

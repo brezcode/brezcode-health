@@ -9,7 +9,7 @@ let adminUsers = [
   {
     id: 1,
     email: 'leedennyps@gmail.com',
-    password: '$2a$10$CwTycUXWue0Thq9StjUM0uBUcjZUiHtQKDdOPP01vEqX.H/P7FRKO', // hashed '11111111'
+    password: '$2b$10$JKGR.ftU6PIPBgSOhk7j8.XTeIJOIJXUGgdHPDdLP2GRBQuFGcnPe', // hashed '11111111'
     firstName: 'Denny',
     lastName: 'Lee',
     role: 'admin',

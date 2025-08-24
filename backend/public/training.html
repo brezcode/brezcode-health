@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dr. Sakura AI Training - BrezCode Health</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .conversation-message { scroll-margin-bottom: 20px; }
+        .animate-spin { animation: spin 1s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <button onclick="goBack()" class="flex items-center text-gray-600 hover:text-gray-900">
+                        ← Back to Dashboard
+                    </button>
+                    <h1 class="text-xl font-semibold text-gray-900">Dr. Sakura AI Training Center</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-500">🤖 REAL AI-to-AI Conversations</span>
+                    <button onclick="logout()" class="text-sm text-red-600 hover:text-red-700">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto p-6">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-4xl font-bold text-gray-900 mb-2">
+                🧠 REAL AI-to-AI Conversation Training
+            </h1>
+            <p class="text-gray-600">
+                Watch REAL AI patients interact with Dr. Sakura using Claude/OpenAI APIs - no simulation
+            </p>
+        </div>
+
+        <div class="grid lg:grid-cols-12 gap-6">
+            <!-- Setup Panel -->
+            <div class="lg:col-span-4">
+                <div class="bg-white rounded-lg shadow-sm border">
+                    <div class="p-6 border-b">
+                        <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                            ⚙️ Training Setup
+                        </h3>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <!-- Session Status -->
+                        <div id="sessionStatus" class="p-3 bg-gray-50 rounded-lg">
+                            <div class="text-sm font-medium">Status: <span id="statusText" class="text-gray-600">Ready to start</span></div>
+                            <div class="text-xs text-gray-500 mt-1">Session ID: <span id="sessionId">None</span></div>
+                        </div>
+
+                        <!-- Training Configuration -->
+                        <div>
+                            <label class="text-sm font-medium mb-2 block">Avatar</label>
+                            <select id="avatarSelect" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                                <option value="dr_sakura">Dr. Sakura (Health Coach)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="text-sm font-medium mb-2 block">Scenario</label>
+                            <select id="scenarioSelect" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                                <option value="health_consultation">Breast Health Consultation</option>
+                                <option value="risk_assessment">Risk Assessment Discussion</option>
+                                <option value="screening_guidance">Screening Guidance</option>
+                            </select>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="space-y-2">
+                            <button id="startButton" onclick="startTraining()" 
+                                class="w-full bg-green-600 text-white px-4 py-3 rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                                🚀 Start REAL AI Training
+                            </button>
+                            <button id="continueButton" onclick="continueTraining()" 
+                                class="w-full bg-purple-600 text-white px-4 py-3 rounded-lg hover:bg-purple-700 hidden">
+                                ▶️ Continue AI Conversation
+                            </button>
+                            <button id="stopButton" onclick="stopTraining()" 
+                                class="w-full bg-red-600 text-white px-4 py-3 rounded-lg hover:bg-red-700 hidden">
+                                ⏹️ Stop Training
+                            </button>
+                        </div>
+
+                        <!-- AI Status -->
+                        <div id="aiStatus" class="hidden p-3 bg-blue-50 rounded-lg border-l-4 border-blue-500">
+                            <div class="flex items-center gap-2">
+                                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                                <span class="text-sm font-medium text-blue-800">AI Processing...</span>
+                            </div>
+                            <div class="text-xs text-blue-600 mt-1">Claude/OpenAI generating real responses</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Performance Metrics -->
+                <div id="performanceCard" class="bg-white rounded-lg shadow-sm border mt-4 hidden">
+                    <div class="p-6 border-b">
+                        <h3 class="text-lg font-semibold text-gray-900">📊 Live Performance</h3>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <div class="grid grid-cols-2 gap-4 text-center">
+                            <div class="p-3 bg-green-50 rounded-lg">
+                                <div class="text-2xl font-bold text-green-600" id="qualityScore">--</div>
+                                <div class="text-xs text-gray-600">Response Quality</div>
+                            </div>
+                            <div class="p-3 bg-blue-50 rounded-lg">
+                                <div class="text-2xl font-bold text-blue-600" id="satisfactionScore">--</div>
+                                <div class="text-xs text-gray-600">Customer Satisfaction</div>
+                            </div>
+                        </div>
+                        <div class="text-center p-2 bg-gray-50 rounded">
+                            <div class="text-lg font-semibold" id="messageCount">0</div>
+                            <div class="text-xs text-gray-500">Total Messages</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Conversation View -->
+            <div class="lg:col-span-8">
+                <div class="bg-white rounded-lg shadow-sm border">
+                    <div class="p-6 border-b">
+                        <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                            👁️ REAL AI-to-AI Conversation Observer
+                        </h3>
+                        <div class="text-sm text-gray-600 mt-2">
+                            <div class="flex items-center gap-4">
+                                <span>🤖 Dr. Sakura (Claude/OpenAI)</span>
+                                <span>👤 AI Patient (Claude Generated)</span>
+                                <span class="px-2 py-1 bg-green-100 text-green-800 rounded text-xs">LIVE API</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="h-96 overflow-y-auto p-4" id="conversationContainer">
+                        <div id="emptyState" class="h-full flex items-center justify-center text-center">
+                            <div>
+                                <div class="text-6xl mb-4">🧠</div>
+                                <h3 class="text-lg font-semibold text-gray-600 mb-2">
+                                    REAL AI Training System
+                                </h3>
+                                <p class="text-gray-500 max-w-md">
+                                    This system uses actual Claude/OpenAI APIs for REAL AI-to-AI conversations.
+                                    No simulations - watch authentic AI interactions between Dr. Sakura and AI patients.
+                                </p>
+                                <div class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded">
+                                    <div class="text-sm text-yellow-800">
+                                        <strong>Note:</strong> Requires valid ANTHROPIC_API_KEY or OPENAI_API_KEY in environment
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="messagesContainer" class="space-y-4 hidden">
+                            <!-- REAL AI messages will appear here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSessionId = null;
+        let isTraining = false;
+        let messageCount = 0;
+
+        // Start REAL AI training session
+        async function startTraining() {
+            const avatarId = document.getElementById('avatarSelect').value;
+            const scenario = document.getElementById('scenarioSelect').value;
+            
+            console.log('🚀 Starting REAL AI training session...');
+            
+            try {
+                showAIStatus(true);
+                updateStatus('Starting AI session...', 'text-blue-600');
+                
+                const response = await fetch('/direct-api/training/start', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        avatarId: avatarId,
+                        customerId: 'ai_patient',
+                        scenario: scenario
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const session = await response.json();
+                console.log('✅ Training session started:', session);
+                
+                currentSessionId = session.id;
+                isTraining = true;
+                messageCount = 0;
+                
+                updateUI();
+                updateStatus('AI session active', 'text-green-600');
+                updateSessionId(currentSessionId);
+                
+                // Show conversation area
+                document.getElementById('emptyState').classList.add('hidden');
+                document.getElementById('messagesContainer').classList.remove('hidden');
+                document.getElementById('performanceCard').classList.remove('hidden');
+                
+                showAIStatus(false);
+                
+            } catch (error) {
+                console.error('❌ Failed to start training:', error);
+                alert('Failed to start AI training: ' + error.message);
+                showAIStatus(false);
+                updateStatus('Error starting session', 'text-red-600');
+            }
+        }
+
+        // Continue REAL AI conversation
+        async function continueTraining() {
+            if (!currentSessionId || !isTraining) {
+                alert('No active training session');
+                return;
+            }
+            
+            console.log('🔄 Continuing REAL AI conversation...');
+            
+            try {
+                showAIStatus(true);
+                updateStatus('AI generating conversation...', 'text-blue-600');
+                
+                const response = await fetch(`/direct-api/training/${currentSessionId}/continue`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const result = await response.json();
+                console.log('✅ AI conversation continued:', result);
+                
+                if (result.success && result.session) {
+                    displayMessages(result.session.messages);
+                    updatePerformanceMetrics(result.session.performance_metrics);
+                    messageCount = result.session.messages.length;
+                    updateStatus('AI conversation active', 'text-green-600');
+                } else {
+                    throw new Error('Invalid response format');
+                }
+                
+                showAIStatus(false);
+                
+            } catch (error) {
+                console.error('❌ Failed to continue conversation:', error);
+                alert('Failed to continue AI conversation: ' + error.message);
+                showAIStatus(false);
+                updateStatus('Error in conversation', 'text-red-600');
+            }
+        }
+
+        // Stop REAL AI training
+        async function stopTraining() {
+            if (!currentSessionId) {
+                alert('No active training session');
+                return;
+            }
+            
+            console.log('🛑 Stopping REAL AI training...');
+            
+            try {
+                showAIStatus(true);
+                updateStatus('Stopping session...', 'text-orange-600');
+                
+                const response = await fetch(`/direct-api/training/${currentSessionId}/stop`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const result = await response.json();
+                console.log('✅ Training session stopped:', result);
+                
+                currentSessionId = null;
+                isTraining = false;
+                
+                updateUI();
+                updateStatus('Session completed', 'text-gray-600');
+                updateSessionId('None');
+                
+                showAIStatus(false);
+                
+            } catch (error) {
+                console.error('❌ Failed to stop training:', error);
+                alert('Failed to stop training: ' + error.message);
+                showAIStatus(false);
+            }
+        }
+
+        // Display REAL AI messages
+        function displayMessages(messages) {
+            const container = document.getElementById('messagesContainer');
+            container.innerHTML = '';
+            
+            messages.forEach(message => {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `conversation-message flex gap-3 ${message.role === 'avatar' ? 'justify-end' : 'justify-start'}`;
+                
+                const isAvatar = message.role === 'avatar';
+                const bgColor = isAvatar ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-900';
+                const icon = isAvatar ? '🤖' : '👤';
+                const name = isAvatar ? 'Dr. Sakura' : 'AI Patient';
+                const badge = isAvatar ? 'AI Coach (Real Claude/OpenAI)' : 'Patient (Real Claude Generated)';
+                
+                messageDiv.innerHTML = `
+                    <div class="flex gap-2 max-w-[80%] ${isAvatar ? 'flex-row-reverse' : 'flex-row'}">
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center ${isAvatar ? 'bg-blue-500' : 'bg-gray-500'} text-white text-sm">
+                            ${icon}
+                        </div>
+                        <div class="rounded-lg p-3 ${bgColor}">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-xs font-medium opacity-80">${name}</span>
+                                <span class="text-xs ${isAvatar ? 'bg-white bg-opacity-20' : 'bg-green-500 text-white'} px-1 rounded">${badge}</span>
+                            </div>
+                            <p class="whitespace-pre-wrap">${message.content}</p>
+                            <div class="text-xs mt-1 opacity-70 flex justify-between">
+                                <span>${new Date(message.timestamp).toLocaleTimeString()}</span>
+                                ${message.quality_score ? `<span>Quality: ${message.quality_score}%</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(messageDiv);
+            });
+            
+            // Scroll to bottom
+            const conversationContainer = document.getElementById('conversationContainer');
+            conversationContainer.scrollTop = conversationContainer.scrollHeight;
+        }
+
+        // Update performance metrics
+        function updatePerformanceMetrics(metrics) {
+            document.getElementById('qualityScore').textContent = metrics.response_quality || '--';
+            document.getElementById('satisfactionScore').textContent = metrics.customer_satisfaction || '--';
+            document.getElementById('messageCount').textContent = messageCount.toString();
+        }
+
+        // Update UI state
+        function updateUI() {
+            const startBtn = document.getElementById('startButton');
+            const continueBtn = document.getElementById('continueButton');
+            const stopBtn = document.getElementById('stopButton');
+            
+            if (isTraining) {
+                startBtn.classList.add('hidden');
+                continueBtn.classList.remove('hidden');
+                stopBtn.classList.remove('hidden');
+            } else {
+                startBtn.classList.remove('hidden');
+                continueBtn.classList.add('hidden');
+                stopBtn.classList.add('hidden');
+            }
+        }
+
+        // Update status display
+        function updateStatus(text, colorClass = 'text-gray-600') {
+            const statusEl = document.getElementById('statusText');
+            statusEl.textContent = text;
+            statusEl.className = colorClass;
+        }
+
+        // Update session ID display
+        function updateSessionId(id) {
+            document.getElementById('sessionId').textContent = id;
+        }
+
+        // Show/hide AI processing status
+        function showAIStatus(show) {
+            const statusEl = document.getElementById('aiStatus');
+            if (show) {
+                statusEl.classList.remove('hidden');
+            } else {
+                statusEl.classList.add('hidden');
+            }
+        }
+
+        function goBack() {
+            window.location.href = '/backend/dashboard';
+        }
+
+        function logout() {
+            fetch('/api/business/auth/logout', { method: 'POST' })
+                .then(() => {
+                    window.location.href = '/backend';
+                })
+                .catch(() => {
+                    window.location.href = '/backend';
+                });
+        }
+
+        // Initialize page
+        updateUI();
+    </script>
+</body>
+</html>
