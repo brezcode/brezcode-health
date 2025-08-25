@@ -9,30 +9,46 @@ export default function ReportPage() {
       let quizAnswers = {};
       let userData = JSON.parse(localStorage.getItem('brezcode_user') || '{}');
       
-      // Try to get quiz session ID and fetch from database first
-      const sessionId = localStorage.getItem('brezcode_quiz_session_id');
+      console.log('👤 Current user data:', userData);
       
-      if (sessionId) {
-        try {
-          console.log('🔍 Fetching quiz results from database:', sessionId);
-          const response = await fetch(`/api/quiz/${sessionId}`);
-          const result = await response.json();
-          
-          if (result.success && result.quiz_result) {
-            console.log('✅ Quiz results loaded from database');
-            quizAnswers = result.quiz_result.answers || {};
-          } else {
-            console.log('⚠️ Database fetch failed, falling back to localStorage');
+      // Check if user has quiz answers stored directly in user object (test mode)
+      if (userData.quizAnswers && Object.keys(userData.quizAnswers).length > 0) {
+        console.log('✅ Found quiz answers in user data:', userData.quizAnswers);
+        quizAnswers = userData.quizAnswers;
+      } else {
+        // Try to get quiz session ID and fetch from database first
+        const sessionId = localStorage.getItem('brezcode_quiz_session_id');
+        
+        if (sessionId) {
+          try {
+            console.log('🔍 Fetching quiz results from database:', sessionId);
+            const response = await fetch(`/api/quiz/${sessionId}`);
+            const result = await response.json();
+            
+            if (result.success && result.quiz_result) {
+              console.log('✅ Quiz results loaded from database');
+              quizAnswers = result.quiz_result.answers || {};
+            } else {
+              console.log('⚠️ Database fetch failed, falling back to localStorage');
+              quizAnswers = JSON.parse(localStorage.getItem('brezcode_quiz_answers') || '{}');
+            }
+          } catch (error) {
+            console.error('❌ Error fetching quiz results from database:', error);
+            console.log('⚠️ Falling back to localStorage');
             quizAnswers = JSON.parse(localStorage.getItem('brezcode_quiz_answers') || '{}');
           }
-        } catch (error) {
-          console.error('❌ Error fetching quiz results from database:', error);
-          console.log('⚠️ Falling back to localStorage');
+        } else {
+          // No session ID, use localStorage
           quizAnswers = JSON.parse(localStorage.getItem('brezcode_quiz_answers') || '{}');
         }
-      } else {
-        // No session ID, use localStorage
-        quizAnswers = JSON.parse(localStorage.getItem('brezcode_quiz_answers') || '{}');
+      }
+      
+      console.log('📊 Final quiz answers for report:', quizAnswers);
+      
+      // Check if we have meaningful quiz data
+      if (Object.keys(quizAnswers).length === 0) {
+        console.log('⚠️ No quiz data found - user may need to complete the quiz first');
+        // You can add a message or redirect here if needed
       }
       
       // Calculate comprehensive scores based on quiz answers
