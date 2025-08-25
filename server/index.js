@@ -1006,6 +1006,86 @@ app.get('/api/debug-env', (req, res) => {
   });
 });
 
+// Database initialization endpoint - executes full SQL schema
+app.post('/api/init-database', async (req, res) => {
+  try {
+    const { query } = await import('../backend/config/database.js');
+    
+    console.log('🚀 Initializing complete database schema...');
+    
+    // Execute full database initialization SQL
+    const initSQL = `
+      -- Create users table
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        phone VARCHAR(20),
+        whatsapp_phone VARCHAR(20),
+        name VARCHAR(255),
+        age INTEGER,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        email_verified BOOLEAN DEFAULT FALSE,
+        phone_verified BOOLEAN DEFAULT FALSE,
+        last_login TIMESTAMP WITH TIME ZONE
+      );
+
+      -- Create quiz_results table
+      CREATE TABLE IF NOT EXISTS quiz_results (
+        id SERIAL PRIMARY KEY,
+        user_id VARCHAR(255) NOT NULL,
+        session_id VARCHAR(255) UNIQUE NOT NULL,
+        answers JSONB NOT NULL,
+        risk_score INTEGER,
+        risk_level VARCHAR(50),
+        recommendations JSONB,
+        completed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      );
+
+      -- Create ai_training_sessions table
+      CREATE TABLE IF NOT EXISTS ai_training_sessions (
+        id SERIAL PRIMARY KEY,
+        session_id VARCHAR(255) UNIQUE NOT NULL,
+        avatar_id VARCHAR(100) NOT NULL,
+        customer_id VARCHAR(100),
+        scenario VARCHAR(100) NOT NULL,
+        status VARCHAR(50) DEFAULT 'running',
+        messages JSONB DEFAULT '[]',
+        performance_metrics JSONB DEFAULT '{}',
+        started_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        completed_at TIMESTAMP WITH TIME ZONE,
+        duration INTEGER DEFAULT 0,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      );
+
+      -- Create indexes for performance
+      CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+      CREATE INDEX IF NOT EXISTS idx_quiz_results_user_id ON quiz_results(user_id);
+      CREATE INDEX IF NOT EXISTS idx_quiz_results_session_id ON quiz_results(session_id);
+      CREATE INDEX IF NOT EXISTS idx_ai_training_sessions_session_id ON ai_training_sessions(session_id);
+    `;
+
+    await query(initSQL);
+    console.log('✅ Database initialization completed successfully!');
+    
+    res.json({
+      status: 'success',
+      message: 'Database tables initialized successfully',
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('❌ Database initialization failed:', error);
+    res.status(500).json({
+      status: 'error',
+      error_message: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 // Create database tables endpoint
 app.post('/api/create-tables', async (req, res) => {
   try {
