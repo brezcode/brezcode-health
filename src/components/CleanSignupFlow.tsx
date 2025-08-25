@@ -10,7 +10,8 @@ import {
   Divider,
   Alert,
   Row,
-  Col
+  Col,
+  Switch
 } from "antd";
 import { 
   EyeInvisibleOutlined, 
@@ -42,8 +43,9 @@ export default function CleanSignupFlow({ quizAnswers, onComplete }: CleanSignup
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [isResending, setIsResending] = useState(false);
+  const [testMode, setTestMode] = useState(false);
 
-  // Real signup API call
+  // Real signup API call with test mode support
   const handleSignup = async (values: any) => {
     if (values.password !== values.confirmPassword) {
       setError("Passwords do not match");
@@ -61,6 +63,36 @@ export default function CleanSignupFlow({ quizAnswers, onComplete }: CleanSignup
       password: values.password,
       confirmPassword: values.confirmPassword || ""
     });
+    
+    // TEST MODE: Skip email verification and create user directly
+    if (testMode) {
+      try {
+        const testUser = {
+          id: Date.now(),
+          firstName: values.firstName,
+          lastName: values.lastName,
+          email: values.email,
+          quizAnswers,
+          isTestUser: true,
+          isEmailVerified: true, // Skip verification
+          verifiedAt: new Date().toISOString(),
+          createdAt: new Date().toISOString()
+        };
+        
+        // Store verified test user
+        localStorage.setItem('brezcode_user', JSON.stringify(testUser));
+        
+        console.log(`✅ TEST MODE: Created user ${values.email} without verification`);
+        
+        // Complete registration immediately
+        onComplete();
+        return;
+      } catch (error: any) {
+        setError("Failed to create test user");
+        setIsLoading(false);
+        return;
+      }
+    }
     
     try {
       const response = await fetch('http://localhost:3002/api/auth/signup', {
@@ -317,6 +349,45 @@ export default function CleanSignupFlow({ quizAnswers, onComplete }: CleanSignup
               />
             )}
 
+            {/* Test Mode Toggle */}
+            <Form.Item style={{ marginBottom: 16 }}>
+              <div style={{ 
+                background: '#f8f9fa', 
+                padding: '12px 16px', 
+                borderRadius: '8px', 
+                border: '1px dashed #d0d7de'
+              }}>
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'space-between' 
+                }}>
+                  <div>
+                    <Text strong style={{ fontSize: '14px', color: '#24292f' }}>
+                      🧪 Test Mode
+                    </Text>
+                    <br />
+                    <Text style={{ fontSize: '12px', color: '#656d76' }}>
+                      Skip email verification for testing (user1, user2, etc.)
+                    </Text>
+                  </div>
+                  <Switch 
+                    checked={testMode}
+                    onChange={setTestMode}
+                    size="default"
+                  />
+                </div>
+                {testMode && (
+                  <Alert 
+                    message="Test mode: Email verification will be bypassed" 
+                    type="info" 
+                    showIcon 
+                    style={{ marginTop: 8, fontSize: '12px' }}
+                  />
+                )}
+              </div>
+            </Form.Item>
+
             <Form.Item style={{ marginBottom: 0 }}>
               <Button 
                 type="primary" 
@@ -331,7 +402,10 @@ export default function CleanSignupFlow({ quizAnswers, onComplete }: CleanSignup
                   border: 'none'
                 }}
               >
-                {isLoading ? "Creating Account..." : "Create Account"}
+                {isLoading 
+                  ? (testMode ? "Creating Test User..." : "Creating Account...") 
+                  : (testMode ? "🧪 Create Test User" : "Create Account")
+                }
               </Button>
             </Form.Item>
           </Form>
