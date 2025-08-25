@@ -389,6 +389,30 @@ app.get('/api/quiz/user/:userId/latest', async (req, res) => {
   }
 });
 
+// DATABASE INITIALIZATION ENDPOINT - For Railway PostgreSQL setup
+app.post('/api/admin/init-database', async (req, res) => {
+  try {
+    console.log('🚀 Manual database initialization requested...');
+    
+    // Call our initialization function
+    await initializeDatabase();
+    
+    res.json({
+      success: true,
+      message: 'Database initialized successfully',
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    console.error('❌ Manual database initialization failed:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Database initialization failed: ' + error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 // API Routes
 
 // Dr. Sakura Avatar routes
