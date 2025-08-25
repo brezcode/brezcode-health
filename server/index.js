@@ -4,7 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import session from 'express-session';
-import pgSession from 'connect-pg-simple';
+import { connectMongoDB, testMongoConnection } from '../backend/config/mongodb.js';
 
 // Load environment variables FIRST
 dotenv.config();
@@ -953,9 +953,10 @@ app.get('/api/health', (req, res) => {
     timestamp: new Date(),
     environment: process.env.NODE_ENV || 'development',
     database: {
-      has_url: !!process.env.DATABASE_URL,
-      url_prefix: process.env.DATABASE_URL ? process.env.DATABASE_URL.substring(0, 25) + '***' : 'NOT_SET',
-      pg_host: process.env.PGHOST || 'NOT_SET'
+      type: 'MongoDB',
+      has_mongo_url: !!process.env.MONGO_URL,
+      has_local_uri: !!process.env.MONGODB_URI,
+      mongo_url_prefix: process.env.MONGO_URL ? process.env.MONGO_URL.substring(0, 25) + '***' : 'NOT_SET'
     }
   });
 });
@@ -1324,14 +1325,13 @@ if (process.env.NODE_ENV === 'production') {
 app.listen(PORT, async () => {
   console.log(`🚀 BrezCode Health API server running on port ${PORT}`);
   
-  // Test database connection and initialize tables on startup
-  console.log(`🗄️ Testing database connection...`);
+  // Test MongoDB connection on startup
+  console.log(`🗄️ Testing MongoDB connection...`);
   try {
-    const { testConnection } = await import('../backend/config/database.js');
-    const dbConnected = await testConnection();
+    const mongoResult = await testMongoConnection();
     
-    if (dbConnected) {
-      console.log('✅ Database: Connected and tables initialized');
+    if (mongoResult.success) {
+      console.log(`✅ MongoDB: Connected to ${mongoResult.database}`);
     } else {
       console.log('⚠️ Database: Not available - using fallback storage mode');
     }
