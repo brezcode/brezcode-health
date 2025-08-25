@@ -959,20 +959,115 @@ app.get('/api/health', (req, res) => {
 app.get('/api/db-test', async (req, res) => {
   try {
     const { query } = await import('../../backend/config/database.js');
-    const result = await query('SELECT NOW() as current_time, version() as db_version');
+    
+    // Test basic connection
+    const timeResult = await query('SELECT NOW() as current_time');
+    console.log('✅ Database connection successful');
+    
+    // Check what tables exist
+    const tablesResult = await query(`
+      SELECT table_name FROM information_schema.tables 
+      WHERE table_schema = 'public'
+      ORDER BY table_name
+    `);
+    
+    const existingTables = tablesResult.rows.map(row => row.table_name);
+    console.log('📋 Existing tables:', existingTables);
+    
     res.json({
       status: 'success',
       database_connected: true,
-      current_time: result.rows[0].current_time,
-      database_version: result.rows[0].db_version,
+      current_time: timeResult.rows[0].current_time,
+      existing_tables: existingTables,
+      tables_needed: ['users', 'quiz_results', 'ai_training_sessions'],
+      tables_missing: ['users', 'quiz_results', 'ai_training_sessions'].filter(t => !existingTables.includes(t)),
       environment: process.env.NODE_ENV || 'development'
     });
   } catch (error) {
+    console.error('❌ Database test failed:', error.message);
     res.json({
       status: 'error',
       database_connected: false,
       error_message: error.message,
       environment: process.env.NODE_ENV || 'development'
+    });
+  }
+});
+
+// Create database tables endpoint
+app.post('/api/create-tables', async (req, res) => {
+  try {
+    const { query } = await import('../../backend/config/database.js');
+    
+    console.log('🚀 Creating database tables...');
+    
+    await query(`
+      -- Create users table
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        phone VARCHAR(20),
+        whatsapp_phone VARCHAR(20),
+        name VARCHAR(255),
+        age INTEGER,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        email_verified BOOLEAN DEFAULT FALSE,
+        phone_verified BOOLEAN DEFAULT FALSE,
+        last_login TIMESTAMP WITH TIME ZONE
+      );
+
+      -- Create quiz_results table
+      CREATE TABLE IF NOT EXISTS quiz_results (
+        id SERIAL PRIMARY KEY,
+        user_id VARCHAR(255) NOT NULL,
+        session_id VARCHAR(255) UNIQUE NOT NULL,
+        answers JSONB NOT NULL,
+        risk_score INTEGER,
+        risk_level VARCHAR(50),
+        recommendations JSONB,
+        ai_analysis JSONB,
+        completed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      );
+
+      -- Create ai_training_sessions table
+      CREATE TABLE IF NOT EXISTS ai_training_sessions (
+        id SERIAL PRIMARY KEY,
+        session_id VARCHAR(255) UNIQUE NOT NULL,
+        avatar_id VARCHAR(100) NOT NULL,
+        customer_id VARCHAR(100),
+        scenario VARCHAR(100) NOT NULL,
+        status VARCHAR(50) DEFAULT 'running',
+        messages JSONB DEFAULT '[]',
+        performance_metrics JSONB DEFAULT '{}',
+        started_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        completed_at TIMESTAMP WITH TIME ZONE,
+        duration INTEGER DEFAULT 0,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      );
+
+      -- Create indexes
+      CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+      CREATE INDEX IF NOT EXISTS idx_quiz_results_session_id ON quiz_results(session_id);
+      CREATE INDEX IF NOT EXISTS idx_quiz_results_user_id ON quiz_results(user_id);
+      CREATE INDEX IF NOT EXISTS idx_ai_training_sessions_session_id ON ai_training_sessions(session_id);
+    `);
+    
+    console.log('✅ Database tables created successfully');
+    
+    res.json({
+      status: 'success',
+      message: 'Database tables created successfully',
+      tables_created: ['users', 'quiz_results', 'ai_training_sessions']
+    });
+    
+  } catch (error) {
+    console.error('❌ Error creating tables:', error.message);
+    res.status(500).json({
+      status: 'error',
+      error_message: error.message
     });
   }
 });
