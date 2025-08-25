@@ -1010,8 +1010,85 @@ app.get('/api/debug-env', (req, res) => {
     DATABASE_URL_PREFIX: process.env.DATABASE_URL ? process.env.DATABASE_URL.substring(0, 20) + '***' : 'NOT_SET',
     PGHOST: process.env.PGHOST,
     PGDATABASE: process.env.PGDATABASE,
+    PGUSER: process.env.PGUSER,
+    PGPORT: process.env.PGPORT,
+    HAS_DATABASE_PUBLIC_URL: !!process.env.DATABASE_PUBLIC_URL,
     timestamp: new Date().toISOString()
   });
+});
+
+// Detailed database connection test
+app.get('/api/debug-db-detailed', async (req, res) => {
+  try {
+    console.log('🔍 Starting detailed database debug...');
+    
+    // Check environment variables
+    const envCheck = {
+      NODE_ENV: process.env.NODE_ENV,
+      DATABASE_URL: !!process.env.DATABASE_URL,
+      DATABASE_PUBLIC_URL: !!process.env.DATABASE_PUBLIC_URL,
+      PGHOST: process.env.PGHOST,
+      PGUSER: process.env.PGUSER,
+      PGDATABASE: process.env.PGDATABASE,
+      PGPORT: process.env.PGPORT
+    };
+    
+    console.log('Environment variables:', envCheck);
+    
+    // Try to import database module
+    let dbModule;
+    try {
+      dbModule = await import('../backend/config/database.js');
+      console.log('✅ Database module imported successfully');
+    } catch (importError) {
+      console.error('❌ Database module import failed:', importError.message);
+      return res.json({
+        status: 'error',
+        step: 'module_import',
+        error: importError.message,
+        environment: envCheck
+      });
+    }
+    
+    // Try to get a connection
+    try {
+      const client = await dbModule.getClient();
+      console.log('✅ Database client obtained');
+      
+      // Try a simple query
+      const result = await client.query('SELECT NOW() as current_time, version() as db_version');
+      console.log('✅ Database query successful');
+      
+      client.release();
+      
+      res.json({
+        status: 'success',
+        connection: 'working',
+        current_time: result.rows[0].current_time,
+        db_version: result.rows[0].db_version.substring(0, 50) + '...',
+        environment: envCheck
+      });
+      
+    } catch (connectionError) {
+      console.error('❌ Database connection failed:', connectionError.message);
+      res.json({
+        status: 'error',
+        step: 'connection',
+        error: connectionError.message,
+        error_code: connectionError.code,
+        environment: envCheck
+      });
+    }
+    
+  } catch (error) {
+    console.error('❌ Debug test failed:', error.message);
+    res.status(500).json({
+      status: 'error',
+      step: 'general',
+      error: error.message,
+      environment: process.env.NODE_ENV
+    });
+  }
 });
 
 // Database initialization endpoint - executes full SQL schema
