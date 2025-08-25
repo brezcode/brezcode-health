@@ -322,26 +322,30 @@ app.post('/direct-api/training/:sessionId/stop', async (req, res) => {
   }
 });
 
-// QUIZ RESULT ENDPOINTS - Database Integration
-// Save quiz results to database
+// QUIZ RESULT ENDPOINTS - Database Integration with AI Analysis
+// Save quiz results to database with AI-generated insights
 app.post('/api/quiz/submit', async (req, res) => {
   try {
     const { answers, risk_score, risk_level, recommendations } = req.body;
     
-    console.log('📝 Saving quiz results to database');
+    console.log('📝 Saving quiz results to database with AI analysis');
     
     // For now, use a default user_id since we don't have user authentication fully implemented
     const user_id = req.body.user_id || 'anonymous_user';
+    
+    // Generate AI-powered detailed analysis
+    const aiAnalysis = await generateAIHealthAnalysis(answers, risk_score, risk_level);
     
     const quizResult = await QuizResult.create({
       user_id,
       answers,
       risk_score,
       risk_level,
-      recommendations
+      recommendations,
+      ai_analysis: aiAnalysis // Store AI insights
     });
     
-    console.log(`✅ Quiz result saved with session_id: ${quizResult.session_id}`);
+    console.log(`✅ Quiz result saved with AI analysis, session_id: ${quizResult.session_id}`);
     
     res.json({
       success: true,
@@ -353,6 +357,137 @@ app.post('/api/quiz/submit', async (req, res) => {
     res.status(500).json({ error: 'Failed to save quiz results' });
   }
 });
+
+// AI-powered health analysis generator
+async function generateAIHealthAnalysis(answers, riskScore, riskLevel) {
+  try {
+    console.log('🤖 Generating AI health analysis...');
+    
+    // Create comprehensive prompt for AI analysis
+    const prompt = `As a medical AI assistant specializing in breast health, provide a detailed, personalized analysis based on these assessment results:
+
+PATIENT DATA:
+- Risk Score: ${riskScore}/100
+- Risk Level: ${riskLevel}
+- Age: ${answers.age || 'Not specified'}
+- Family History: ${answers.family_history || 'Not specified'}
+- Symptoms: ${answers.breast_symptoms || 'None reported'}
+- Exercise: ${answers.exercise || 'Not specified'}
+- BMI: ${answers.bmi || 'Not specified'}
+- Screening History: Mammogram - ${answers.mammogram || 'Not specified'}, Self-exam - ${answers.self_exam || 'Not specified'}
+
+Please provide:
+1. A 2-3 sentence personalized risk summary
+2. 3-4 specific, actionable recommendations based on their profile
+3. Timeline for next steps (immediate, 1 month, 3 months, 1 year)
+4. Educational points about their specific risk factors
+
+Keep responses professional, evidence-based, and encouraging. Focus on actionable steps they can take.`;
+
+    // Use Claude Sonnet (same model powering this conversation)
+    if (process.env.ANTHROPIC_API_KEY) {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': process.env.ANTHROPIC_API_KEY,
+          'anthropic-version': '2023-06-01'
+        },
+        body: JSON.stringify({
+          model: 'claude-3-5-sonnet-20241022',
+          max_tokens: 1000,
+          messages: [{
+            role: 'user',
+            content: prompt
+          }]
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const analysis = data.content[0].text;
+        console.log('✅ AI analysis generated successfully');
+        return {
+          generated_by: 'claude-3-sonnet',
+          timestamp: new Date().toISOString(),
+          analysis: analysis,
+          prompt_used: 'breast_health_assessment_v1'
+        };
+      } else {
+        console.error('❌ Claude API error:', response.statusText);
+      }
+    }
+    
+    // Fallback to enhanced template-based analysis if AI not available
+    console.log('⚠️ Using enhanced template analysis (AI not configured)');
+    return generateEnhancedTemplateAnalysis(answers, riskScore, riskLevel);
+    
+  } catch (error) {
+    console.error('❌ AI analysis error:', error);
+    // Fallback to template
+    return generateEnhancedTemplateAnalysis(answers, riskScore, riskLevel);
+  }
+}
+
+// Enhanced template-based analysis as fallback
+function generateEnhancedTemplateAnalysis(answers, riskScore, riskLevel) {
+  const age = answers.age || 25;
+  const hasSymptoms = answers.breast_symptoms && answers.breast_symptoms !== "No, I don't have any symptoms";
+  const hasFamilyHistory = answers.family_history === "Yes";
+  const needsScreening = answers.mammogram === "Never" && age > 40;
+  
+  let riskSummary = "";
+  if (riskLevel === 'high') {
+    riskSummary = `Your assessment indicates a higher risk profile (score: ${riskScore}/100) based on several contributing factors. `;
+    if (hasSymptoms) riskSummary += "The presence of symptoms requires immediate medical attention. ";
+    if (hasFamilyHistory) riskSummary += "Family history significantly contributes to your risk profile. ";
+    riskSummary += "With proper monitoring and preventive measures, many risk factors can be managed effectively.";
+  } else if (riskLevel === 'moderate') {
+    riskSummary = `Your assessment shows a moderate risk profile (score: ${riskScore}/100) with some areas for improvement. `;
+    riskSummary += "Regular monitoring and lifestyle adjustments can help maintain and improve your health status. ";
+    riskSummary += "You're in a good position to take proactive steps for your breast health.";
+  } else {
+    riskSummary = `Your assessment indicates a lower risk profile (score: ${riskScore}/100), which is encouraging. `;
+    riskSummary += "Continue your current healthy practices while maintaining regular screening schedules. ";
+    riskSummary += "This is an excellent foundation for long-term breast health.";
+  }
+  
+  const recommendations = [];
+  if (hasSymptoms) {
+    recommendations.push("Schedule an immediate consultation with your healthcare provider to evaluate any breast symptoms");
+  }
+  if (hasFamilyHistory) {
+    recommendations.push("Discuss genetic counseling with your doctor, especially if multiple family members were affected");
+  }
+  if (needsScreening) {
+    recommendations.push("Schedule your first mammogram - early detection is key for women over 40");
+  }
+  if (answers.exercise === "No, little or no regular exercise") {
+    recommendations.push("Start with 150 minutes of moderate exercise per week - even walking makes a significant difference");
+  }
+  
+  const timeline = {
+    immediate: hasSymptoms ? "Medical consultation for symptoms" : "Continue monthly self-exams",
+    "1_month": needsScreening ? "Schedule and complete mammogram" : "Establish regular exercise routine",
+    "3_months": "Review and adjust lifestyle changes with healthcare provider",
+    "1_year": "Complete annual health assessment and screening updates"
+  };
+  
+  return {
+    generated_by: 'enhanced_template',
+    timestamp: new Date().toISOString(),
+    analysis: {
+      risk_summary: riskSummary,
+      personalized_recommendations: recommendations,
+      timeline: timeline,
+      educational_points: [
+        "Monthly self-examinations help you become familiar with normal breast tissue changes",
+        "Regular exercise can reduce breast cancer risk by up to 20%",
+        "Maintaining a healthy weight helps regulate hormone levels that influence breast cancer risk"
+      ]
+    }
+  };
+}
 
 // Get quiz results by session ID
 app.get('/api/quiz/:sessionId', async (req, res) => {
