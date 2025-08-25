@@ -904,6 +904,28 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Database connection test endpoint
+app.get('/api/db-test', async (req, res) => {
+  try {
+    const { query } = await import('./backend/config/database.js');
+    const result = await query('SELECT NOW() as current_time, version() as db_version');
+    res.json({
+      status: 'success',
+      database_connected: true,
+      current_time: result.rows[0].current_time,
+      database_version: result.rows[0].db_version,
+      environment: process.env.NODE_ENV || 'development'
+    });
+  } catch (error) {
+    res.json({
+      status: 'error',
+      database_connected: false,
+      error_message: error.message,
+      environment: process.env.NODE_ENV || 'development'
+    });
+  }
+});
+
 // Get user stats (for demo)
 app.get('/api/stats', (req, res) => {
   res.json({
