@@ -6,11 +6,8 @@ import dotenv from 'dotenv';
 import session from 'express-session';
 import pgSession from 'connect-pg-simple';
 
-// Load environment variables FIRST - use production env file if in production
-if (process.env.NODE_ENV === 'production') {
-  dotenv.config({ path: '.env.production' });
-}
-dotenv.config(); // Fallback to .env
+// Load environment variables FIRST
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
