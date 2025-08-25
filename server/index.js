@@ -958,7 +958,7 @@ app.get('/api/health', (req, res) => {
 // Database connection test endpoint
 app.get('/api/db-test', async (req, res) => {
   try {
-    const { query } = await import('./backend/config/database.js');
+    const { query } = await import('../backend/config/database.js');
     
     // Test basic connection
     const timeResult = await query('SELECT NOW() as current_time');
@@ -997,7 +997,7 @@ app.get('/api/db-test', async (req, res) => {
 // Create database tables endpoint
 app.post('/api/create-tables', async (req, res) => {
   try {
-    const { query } = await import('./backend/config/database.js');
+    const { query } = await import('../backend/config/database.js');
     
     console.log('🚀 Creating database tables...');
     
@@ -1153,7 +1153,7 @@ app.listen(PORT, async () => {
   // Test database connection and initialize tables on startup
   console.log(`🗄️ Testing database connection...`);
   try {
-    const { testConnection } = await import('./backend/config/database.js');
+    const { testConnection } = await import('../backend/config/database.js');
     const dbConnected = await testConnection();
     
     if (dbConnected) {
