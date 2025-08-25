@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import session from 'express-session';
 import { connectMongoDB, testMongoConnection } from '../backend/config/mongodb.js';
+import { QuizResultMongoService } from '../backend/models/QuizResultMongo.js';
 
 // Load environment variables FIRST
 dotenv.config();
@@ -332,20 +333,26 @@ app.post('/api/quiz/submit', async (req, res) => {
     let sessionId = null;
     
     try {
-      // Try to save to database first
-      console.log('🗄️ Trying database storage...');
+      // Try to connect to MongoDB and save
+      console.log('🗄️ Trying MongoDB storage...');
+      const mongoConnected = await connectMongoDB();
       
-      // Generate AI-powered detailed analysis
-      aiAnalysis = await generateAIHealthAnalysis(answers, risk_score, risk_level);
-      
-      quizResult = await QuizResult.create({
-        user_id,
-        answers,
-        risk_score,
-        risk_level,
-        recommendations,
-        ai_analysis: aiAnalysis
-      });
+      if (mongoConnected) {
+        // Skip AI analysis for testing - focus on database
+        console.log('🔍 Skipping AI analysis for database testing');
+        aiAnalysis = { test: 'AI analysis skipped for testing' };
+        
+        quizResult = await QuizResultMongoService.create({
+          user_id,
+          answers,
+          risk_score: risk_score || 50,
+          risk_level: risk_level || 'moderate',
+          recommendations: recommendations || {},
+          ai_analysis: aiAnalysis
+        });
+      } else {
+        throw new Error('MongoDB not available');
+      }
       
       sessionId = quizResult.session_id;
       console.log(`✅ Quiz result saved to database, session_id: ${sessionId}`);
@@ -354,7 +361,7 @@ app.post('/api/quiz/submit', async (req, res) => {
         success: true,
         session_id: sessionId,
         quiz_result: quizResult,
-        storage_type: 'database',
+        storage_type: 'mongodb',
         ai_analysis: aiAnalysis
       });
       
