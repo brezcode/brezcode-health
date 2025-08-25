@@ -389,29 +389,6 @@ app.get('/api/quiz/user/:userId/latest', async (req, res) => {
   }
 });
 
-// DATABASE INITIALIZATION ENDPOINT - For Railway PostgreSQL setup
-app.post('/api/admin/init-database', async (req, res) => {
-  try {
-    console.log('🚀 Manual database initialization requested...');
-    
-    // Call our initialization function
-    await initializeDatabase();
-    
-    res.json({
-      success: true,
-      message: 'Database initialized successfully',
-      timestamp: new Date().toISOString()
-    });
-    
-  } catch (error) {
-    console.error('❌ Manual database initialization failed:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Database initialization failed: ' + error.message,
-      timestamp: new Date().toISOString()
-    });
-  }
-});
 
 // API Routes
 
@@ -863,13 +840,8 @@ if (process.env.NODE_ENV === 'production') {
 app.listen(PORT, async () => {
   console.log(`🚀 BrezCode Health API server running on port ${PORT}`);
   
-  // Initialize database on server startup
-  try {
-    await initializeDatabase();
-    console.log(`🗄️ Database: Initialized successfully`);
-  } catch (error) {
-    console.log(`⚠️ Database: Initialization failed, using fallback storage:`, error.message);
-  }
+  // Database auto-initializes on first connection
+  console.log(`🗄️ Database: Auto-initialization enabled`);
   
   if (process.env.SENDGRID_API_KEY && process.env.FROM_EMAIL) {
     console.log(`📧 Email service: Twilio/SendGrid ✅`);
