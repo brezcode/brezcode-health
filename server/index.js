@@ -15,14 +15,8 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3003;
 
-// Session configuration for business dashboard with PostgreSQL store
-const PgStore = pgSession(session);
+// Session configuration - using memory store for now (will upgrade to MongoDB sessions later)
 app.use(session({
-  store: new PgStore({
-    conString: process.env.DATABASE_URL,
-    tableName: 'session', // Will be auto-created
-    createTableIfMissing: true
-  }),
   secret: process.env.SESSION_SECRET || 'brezcode-health-session-secret-2024',
   resave: false,
   saveUninitialized: false,
