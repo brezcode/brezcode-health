@@ -994,6 +994,18 @@ app.get('/api/db-test', async (req, res) => {
   }
 });
 
+// Debug environment endpoint
+app.get('/api/debug-env', (req, res) => {
+  res.json({
+    NODE_ENV: process.env.NODE_ENV,
+    HAS_DATABASE_URL: !!process.env.DATABASE_URL,
+    DATABASE_URL_PREFIX: process.env.DATABASE_URL ? process.env.DATABASE_URL.substring(0, 20) + '***' : 'NOT_SET',
+    PGHOST: process.env.PGHOST,
+    PGDATABASE: process.env.PGDATABASE,
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Create database tables endpoint
 app.post('/api/create-tables', async (req, res) => {
   try {
