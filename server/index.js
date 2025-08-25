@@ -951,7 +951,12 @@ app.get('/api/health', (req, res) => {
     status: 'ok', 
     message: 'BrezCode Health API is running',
     timestamp: new Date(),
-    environment: process.env.NODE_ENV || 'development'
+    environment: process.env.NODE_ENV || 'development',
+    database: {
+      has_url: !!process.env.DATABASE_URL,
+      url_prefix: process.env.DATABASE_URL ? process.env.DATABASE_URL.substring(0, 25) + '***' : 'NOT_SET',
+      pg_host: process.env.PGHOST || 'NOT_SET'
+    }
   });
 });
 
