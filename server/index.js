@@ -958,7 +958,7 @@ app.get('/api/health', (req, res) => {
 // Database connection test endpoint
 app.get('/api/db-test', async (req, res) => {
   try {
-    const { query } = await import('../backend/config/database.js');
+    const { query } = await import('../../backend/config/database.js');
     const result = await query('SELECT NOW() as current_time, version() as db_version');
     res.json({
       status: 'success',
@@ -1058,7 +1058,7 @@ app.listen(PORT, async () => {
   // Test database connection and initialize tables on startup
   console.log(`🗄️ Testing database connection...`);
   try {
-    const { testConnection } = await import('../backend/config/database.js');
+    const { testConnection } = await import('../../backend/config/database.js');
     const dbConnected = await testConnection();
     
     if (dbConnected) {
