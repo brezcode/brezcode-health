@@ -85,6 +85,11 @@ if (pool && typeof pool.on === 'function') {
 // Test database connection and auto-initialize if needed
 async function testConnection() {
   try {
+    if (!pool || typeof pool.connect !== 'function') {
+      console.log('⚠️ Database pool not available - skipping connection test');
+      return false;
+    }
+    
     const client = await pool.connect();
     const result = await client.query('SELECT NOW() as current_time');
     console.log('✅ Database connected successfully at:', result.rows[0].current_time);
@@ -96,6 +101,7 @@ async function testConnection() {
     return true;
   } catch (err) {
     console.error('❌ Database connection failed:', err.message);
+    console.log('💡 Will use fallback storage for this session');
     return false;
   }
 }
@@ -103,14 +109,19 @@ async function testConnection() {
 // Automatically create tables if they don't exist
 async function autoInitializeTables(client) {
   try {
+    console.log('🔍 Checking database table status...');
+    
     // Check if tables exist
     const tablesCheck = await client.query(`
       SELECT table_name FROM information_schema.tables 
       WHERE table_schema = 'public' AND table_name IN ('users', 'quiz_results', 'ai_training_sessions')
     `);
     
+    const existingTables = tablesCheck.rows.map(row => row.table_name);
+    console.log('📋 Existing tables:', existingTables);
+    
     if (tablesCheck.rows.length < 3) {
-      console.log('🚀 Auto-initializing database tables...');
+      console.log('🚀 Creating missing database tables...');
       
       // Create all tables automatically
       await client.query(`
