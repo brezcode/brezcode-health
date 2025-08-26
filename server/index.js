@@ -904,7 +904,7 @@ function generateComprehensiveReport(answers, quizResult) {
   if (answers.exercise === "No, little or no regular exercise") realRiskFactors.push("Sedentary lifestyle");
   if (answers.smoke === "Yes") realRiskFactors.push("Current smoking");
   
-  // Create section breakdown using real data
+  // Create section breakdown using real data - ALL 6 SECTIONS
   const sectionBreakdown = [
     {
       name: "Demographics", 
@@ -926,6 +926,27 @@ function generateComprehensiveReport(answers, quizResult) {
       factorCount: countLifestyleRiskFactors(answers),
       riskLevel: calculateLifestyleRiskLevel(answers),
       riskFactors: getLifestyleRiskFactors(answers)
+    },
+    {
+      name: "Medical History",
+      score: calculateMedicalHistoryScore(answers),
+      factorCount: countMedicalHistoryRiskFactors(answers),
+      riskLevel: calculateMedicalHistoryRiskLevel(answers),
+      riskFactors: getMedicalHistoryRiskFactors(answers)
+    },
+    {
+      name: "Hormonal Factors",
+      score: calculateHormonalScore(answers),
+      factorCount: countHormonalRiskFactors(answers),
+      riskLevel: calculateHormonalRiskLevel(answers),
+      riskFactors: getHormonalRiskFactors(answers)
+    },
+    {
+      name: "Physical Characteristics",
+      score: calculatePhysicalScore(answers),
+      factorCount: countPhysicalRiskFactors(answers),
+      riskLevel: calculatePhysicalRiskLevel(answers),
+      riskFactors: getPhysicalRiskFactors(answers)
     }
   ];
   
@@ -1004,6 +1025,128 @@ function getLifestyleRiskFactors(answers) {
   if (answers.exercise === "No, little or no regular exercise") factors.push("Sedentary lifestyle");
   if (answers.western_diet === "Yes, Western diet") factors.push("Western diet pattern");
   if (answers.chronic_stress === "Yes, chronic high stress") factors.push("Chronic high stress");
+  return factors;
+}
+
+// Medical History Section Functions
+function calculateMedicalHistoryScore(answers) {
+  let score = 100;
+  if (answers.cancer_history === "Yes, I am a Breast Cancer Patient currently undergoing treatment") score -= 40;
+  if (answers.cancer_history && answers.cancer_history.includes("survivor")) score -= 25;
+  if (answers.benign_condition && answers.benign_condition.includes("Yes")) score -= 15;
+  if (answers.chest_radiation === "Yes") score -= 20;
+  if (answers.previous_biopsy === "Yes") score -= 10;
+  return Math.max(20, score);
+}
+
+function countMedicalHistoryRiskFactors(answers) {
+  let count = 0;
+  if (answers.cancer_history === "Yes, I am a Breast Cancer Patient currently undergoing treatment") count++;
+  if (answers.cancer_history && answers.cancer_history.includes("survivor")) count++;
+  if (answers.benign_condition && answers.benign_condition.includes("Yes")) count++;
+  if (answers.chest_radiation === "Yes") count++;
+  if (answers.previous_biopsy === "Yes") count++;
+  return count;
+}
+
+function calculateMedicalHistoryRiskLevel(answers) {
+  const score = calculateMedicalHistoryScore(answers);
+  if (score >= 80) return 'low';
+  if (score >= 60) return 'moderate';
+  return 'high';
+}
+
+function getMedicalHistoryRiskFactors(answers) {
+  const factors = [];
+  if (answers.cancer_history === "Yes, I am a Breast Cancer Patient currently undergoing treatment") factors.push("Current breast cancer treatment");
+  if (answers.cancer_history && answers.cancer_history.includes("survivor")) factors.push("Breast cancer survivor");
+  if (answers.benign_condition && answers.benign_condition.includes("Yes")) factors.push("History of benign breast conditions");
+  if (answers.chest_radiation === "Yes") factors.push("Previous chest radiation");
+  if (answers.previous_biopsy === "Yes") factors.push("Previous breast biopsy");
+  return factors;
+}
+
+// Hormonal Factors Section Functions
+function calculateHormonalScore(answers) {
+  let score = 100;
+  if (answers.hormone_therapy === "Yes, more than 5 years") score -= 20;
+  if (answers.hormone_therapy === "Yes, less than 5 years") score -= 10;
+  if (answers.birth_control === "Yes, more than 10 years") score -= 15;
+  if (answers.birth_control === "Yes, less than 10 years") score -= 5;
+  if (answers.menopause === "Yes, at age 55 or older") score -= 10;
+  if (answers.first_period && parseInt(answers.first_period) < 12) score -= 10;
+  if (answers.first_pregnancy && parseInt(answers.first_pregnancy) > 30) score -= 10;
+  if (answers.breastfeeding === "No") score -= 5;
+  return Math.max(20, score);
+}
+
+function countHormonalRiskFactors(answers) {
+  let count = 0;
+  if (answers.hormone_therapy === "Yes, more than 5 years") count++;
+  if (answers.hormone_therapy === "Yes, less than 5 years") count++;
+  if (answers.birth_control === "Yes, more than 10 years") count++;
+  if (answers.birth_control === "Yes, less than 10 years") count++;
+  if (answers.menopause === "Yes, at age 55 or older") count++;
+  if (answers.first_period && parseInt(answers.first_period) < 12) count++;
+  if (answers.first_pregnancy && parseInt(answers.first_pregnancy) > 30) count++;
+  if (answers.breastfeeding === "No") count++;
+  return count;
+}
+
+function calculateHormonalRiskLevel(answers) {
+  const score = calculateHormonalScore(answers);
+  if (score >= 80) return 'low';
+  if (score >= 60) return 'moderate';
+  return 'high';
+}
+
+function getHormonalRiskFactors(answers) {
+  const factors = [];
+  if (answers.hormone_therapy === "Yes, more than 5 years") factors.push("Long-term hormone replacement therapy");
+  if (answers.hormone_therapy === "Yes, less than 5 years") factors.push("Hormone replacement therapy");
+  if (answers.birth_control === "Yes, more than 10 years") factors.push("Long-term hormonal birth control");
+  if (answers.birth_control === "Yes, less than 10 years") factors.push("Hormonal birth control use");
+  if (answers.menopause === "Yes, at age 55 or older") factors.push("Late menopause (after 55)");
+  if (answers.first_period && parseInt(answers.first_period) < 12) factors.push("Early menarche (before 12)");
+  if (answers.first_pregnancy && parseInt(answers.first_pregnancy) > 30) factors.push("First pregnancy after 30");
+  if (answers.breastfeeding === "No") factors.push("Never breastfed");
+  return factors;
+}
+
+// Physical Characteristics Section Functions
+function calculatePhysicalScore(answers) {
+  let score = 100;
+  if (answers.dense_breast === "Yes") score -= 15;
+  if (answers.bmi && parseFloat(answers.bmi) > 25) score -= 10;
+  if (answers.bmi && parseFloat(answers.bmi) > 30) score -= 20;
+  if (answers.height_weight && answers.height_weight.includes("overweight")) score -= 10;
+  if (answers.height_weight && answers.height_weight.includes("obese")) score -= 20;
+  return Math.max(20, score);
+}
+
+function countPhysicalRiskFactors(answers) {
+  let count = 0;
+  if (answers.dense_breast === "Yes") count++;
+  if (answers.bmi && parseFloat(answers.bmi) > 25) count++;
+  if (answers.height_weight && answers.height_weight.includes("overweight")) count++;
+  if (answers.height_weight && answers.height_weight.includes("obese")) count++;
+  return count;
+}
+
+function calculatePhysicalRiskLevel(answers) {
+  const score = calculatePhysicalScore(answers);
+  if (score >= 80) return 'low';
+  if (score >= 60) return 'moderate';
+  return 'high';
+}
+
+function getPhysicalRiskFactors(answers) {
+  const factors = [];
+  if (answers.dense_breast === "Yes") factors.push("Dense breast tissue");
+  if (answers.bmi && parseFloat(answers.bmi) > 30) factors.push("Obesity (BMI > 30)");
+  else if (answers.bmi && parseFloat(answers.bmi) > 25) factors.push("Overweight (BMI > 25)");
+  if (answers.height_weight && answers.height_weight.includes("obese")) factors.push("Obesity");
+  else if (answers.height_weight && answers.height_weight.includes("overweight")) factors.push("Overweight");
   return factors;
 }
 
