@@ -219,14 +219,18 @@ app.post('/api/quiz/submit', async (req, res) => {
       const mongoConnected = await connectMongoDB();
       
       if (mongoConnected) {
+        // Calculate scientific risk score using Gail Model
+        const scientificRiskScore = calculateGailModelRiskScore(answers);
+        const scientificRiskLevel = determineRiskCategory(scientificRiskScore);
+        
         // Generate AI analysis for comprehensive health insights
-        aiAnalysis = await generateAIHealthAnalysis(answers, risk_score, risk_level);
+        aiAnalysis = await generateAIHealthAnalysis(answers, scientificRiskScore, scientificRiskLevel);
         
         quizResult = await QuizResultMongoService.create({
           user_id,
           answers,
-          risk_score: risk_score || 50,
-          risk_level: risk_level || 'moderate',
+          risk_score: scientificRiskScore,
+          risk_level: scientificRiskLevel,
           recommendations: recommendations || {},
           ai_analysis: aiAnalysis
         });

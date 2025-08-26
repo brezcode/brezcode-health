@@ -4,7 +4,11 @@
       "Bash(git commit:*)",
       "Bash(git push:*)",
       "Bash(git add:*)",
-      "Bash(npm start)"
+      "Bash(npm start)",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:bcrisktool.cancer.gov)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []
