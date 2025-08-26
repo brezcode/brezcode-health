@@ -248,10 +248,12 @@ app.post('/api/quiz/submit', async (req, res) => {
         });
         console.log('✅ User session created:', userSession.session_id);
         
-        // Health report will be generated on demand via /api/reports/:sessionId endpoint
+        // Generate health report for dashboard metrics calculation
+        console.log('🔄 Generating health report for dashboard metrics...');
+        const reportData = generateComprehensiveReport(answers, quizResult);
         
-        // Generate dashboard metrics from quiz results
-        const dashboardMetrics = await DashboardMetricsService.generateFromQuizResult(quizResult, null);
+        // Generate dashboard metrics from quiz results with health report data
+        const dashboardMetrics = await DashboardMetricsService.generateFromQuizResult(quizResult, reportData);
         console.log('✅ Dashboard metrics generated:', dashboardMetrics.metric_id);
         
         // Generate default activities for the user
@@ -748,11 +750,11 @@ app.get('/api/dashboard/latest', async (req, res) => {
       
       // Format the data for the frontend
       const dashboardData = {
-        overallScore: latestMetrics.total_health_score || 'N/A',
-        riskLevel: latestMetrics.risk_category || 'Unknown',
+        overallScore: latestMetrics.overall_score || 'N/A',
+        riskLevel: latestMetrics.risk_level || 'Unknown',
         activeDays: Math.floor(Math.random() * 15) + 5, // Placeholder
         assessmentDate: latestMetrics.created_at ? new Date(latestMetrics.created_at).toLocaleDateString() : 'Not completed',
-        nextCheckup: latestMetrics.risk_category === 'high' ? 'Within 1 month' : 'In 6 months',
+        nextCheckup: latestMetrics.risk_level === 'high' ? 'Within 1 month' : 'In 6 months',
         streakDays: Math.floor(Math.random() * 10) + 1, // Placeholder
         completedActivities: Math.floor(Math.random() * 30) + 70 // Placeholder
       };

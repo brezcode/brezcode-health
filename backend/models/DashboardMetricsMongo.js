@@ -263,7 +263,7 @@ export class DashboardMetricsService {
       const metricsData = {
         user_id: quizResult.user_id,
         session_id: quizResult.session_id,
-        overall_score: healthReport?.reportData?.summary?.totalHealthScore || quizResult.risk_score || 85,
+        overall_score: healthReport?.reportData?.summary?.totalHealthScore || (100 - (quizResult.risk_score || 15)) || 85,
         risk_level: healthReport?.reportData?.summary?.overallRiskCategory || quizResult.risk_level || 'low',
         active_days: 1, // First day
         streak_days: 1, // Starting streak
