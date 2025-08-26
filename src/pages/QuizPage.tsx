@@ -192,20 +192,19 @@ export default function QuizPage() {
       const result = await response.json();
       
       if (result.success) {
-        console.log('✅ Quiz results saved to database:', result.session_id);
-        // Store session ID for later retrieval
+        console.log('✅ Quiz results saved to MongoDB database:', result.session_id);
+        // Store session ID to fetch report from database later
         localStorage.setItem('brezcode_quiz_session_id', result.session_id);
-        // Keep answers in localStorage for immediate access during signup flow
-        localStorage.setItem('brezcode_quiz_answers', JSON.stringify(answers));
       } else {
-        console.error('❌ Failed to save quiz results');
-        // Fallback to localStorage only
-        localStorage.setItem('brezcode_quiz_answers', JSON.stringify(answers));
+        console.error('❌ Failed to save quiz results to database');
+        // No fallback - database is required
+        throw new Error('Database save failed');
       }
     } catch (error) {
-      console.error('❌ Error submitting quiz results:', error);
-      // Fallback to localStorage only
-      localStorage.setItem('brezcode_quiz_answers', JSON.stringify(answers));
+      console.error('❌ Error submitting quiz to database:', error);
+      // No fallback storage - show error to user
+      alert('Unable to save quiz results to database. Please try again.');
+      return;
     }
     
     // Start the proper flow: quiz → transition → signup → dashboard

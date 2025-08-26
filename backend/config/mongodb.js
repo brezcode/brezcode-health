@@ -28,7 +28,7 @@ let isConnected = false;
 export const connectMongoDB = async () => {
   if (isConnected) {
     console.log('📦 MongoDB already connected');
-    return;
+    return true;
   }
 
   const mongoURI = getMongoURI();
@@ -39,10 +39,7 @@ export const connectMongoDB = async () => {
   }
 
   try {
-    await mongoose.connect(mongoURI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    await mongoose.connect(mongoURI);
     
     isConnected = true;
     console.log('✅ MongoDB connected successfully');

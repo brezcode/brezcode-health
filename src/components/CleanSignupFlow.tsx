@@ -82,7 +82,7 @@ export default function CleanSignupFlow({ quizAnswers, onComplete }: CleanSignup
         // Store verified test user
         localStorage.setItem('brezcode_user', JSON.stringify(testUser));
         
-        console.log(`✅ TEST MODE: Created user ${values.email} without verification`);
+        // Test mode: Skip verification for development
         
         // Complete registration immediately
         onComplete();

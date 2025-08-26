@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test localStorage for Dashboard/Report</title>
+</head>
+<body>
+    <h1>Test Dashboard & Report with Real Data</h1>
+    
+    <h2>Available Sessions:</h2>
+    <ul>
+        <li><button onclick="setSession('session_1756194722432_clz33j1np')">Session 1 (Latest with AI)</button></li>
+        <li><button onclick="setSession('session_1756193990356_ui3tzbbif')">Session 2 (Full Quiz)</button></li>
+        <li><button onclick="setSession('session_1756193268552_hjtrh8usd')">Session 3 (Health Report)</button></li>
+    </ul>
+    
+    <h2>Navigation:</h2>
+    <ul>
+        <li><a href="http://localhost:5173/dashboard" target="_blank">🏠 Dashboard</a></li>
+        <li><a href="http://localhost:5173/report" target="_blank">📊 Report</a></li>
+        <li><a href="http://localhost:5173/quiz" target="_blank">📝 Quiz</a></li>
+    </ul>
+    
+    <h2>Current localStorage:</h2>
+    <pre id="localStorage-content">Loading...</pre>
+    
+    <script>
+        function setSession(sessionId) {
+            localStorage.setItem('brezcode_quiz_session_id', sessionId);
+            updateDisplay();
+            alert('Session ID set to: ' + sessionId + '\nNow click Dashboard or Report links to test with real data!');
+        }
+        
+        function updateDisplay() {
+            const content = document.getElementById('localStorage-content');
+            content.textContent = JSON.stringify(localStorage, null, 2);
+        }
+        
+        // Update display on load
+        updateDisplay();
+    </script>
+</body>
+</html>

@@ -30,15 +30,22 @@ export default function QuizResultsTable({ sessionId }: QuizResultsTableProps) {
           return;
         }
 
-        console.log('🔍 Fetching simplified quiz results for session:', quizSessionId);
-        const response = await fetch(`/api/quiz/report/${quizSessionId}`);
+        console.log('🔍 Fetching quiz results from MongoDB for session:', quizSessionId);
+        const response = await fetch(`/api/quiz/${quizSessionId}`);
         const result = await response.json();
         
-        if (result.success && result.simplified_quiz) {
-          console.log('✅ Quiz results loaded for table display');
-          setQuizData(result.simplified_quiz);
+        if (result.success && result.quiz_result) {
+          console.log('✅ Quiz results loaded from MongoDB');
+          // Convert MongoDB quiz result to table format
+          const tableData = [{
+            category: 'Health Assessment',
+            score: result.quiz_result.risk_score,
+            status: result.quiz_result.risk_level,
+            date: new Date(result.quiz_result.created_at).toLocaleDateString()
+          }];
+          setQuizData(tableData);
         } else {
-          console.log('⚠️ No simplified quiz data available');
+          console.log('⚠️ No quiz data found in MongoDB');
           setQuizData([]);
         }
         

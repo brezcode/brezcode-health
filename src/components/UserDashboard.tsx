@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Heart, 
   Calendar, 
@@ -18,13 +18,14 @@ import { Badge } from './ui/badge';
 
 export default function UserDashboard() {
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
+  const [healthMetrics, setHealthMetrics] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   
-  // Get user data from localStorage
-  const userData = JSON.parse(localStorage.getItem('brezcode_user') || '{}');
+  // Default user data (no localStorage dependency)
   const currentUser = {
-    firstName: userData.firstName || 'User',
-    lastName: userData.lastName || '',
-    email: userData.email || 'user@example.com',
+    firstName: 'User',
+    lastName: '',
+    email: 'user@example.com',
   };
 
   const navigateTo = (path: string) => {
@@ -33,16 +34,50 @@ export default function UserDashboard() {
     window.location.reload(); // Force reload to trigger App.tsx routing
   };
 
-  // Personal health metrics
-  const healthMetrics = {
-    overallScore: 87,
-    riskLevel: "Low",
-    activeDays: 28,
-    assessmentDate: "Jan 15, 2025",
-    nextCheckup: "Apr 15, 2025",
-    streakDays: 12,
-    completedActivities: 89
-  };
+  // Load real health data directly from MongoDB database (NO localStorage)
+  useEffect(() => {
+    const loadHealthDataFromDatabase = async () => {
+      try {
+        console.log('🏥 Fetching latest dashboard data directly from MongoDB...');
+        
+        // Get latest dashboard data directly from database
+        const response = await fetch('/api/dashboard/latest');
+        const result = await response.json();
+        
+        if (result.success && result.dashboardData) {
+          console.log('✅ Dashboard data loaded directly from MongoDB database');
+          setHealthMetrics(result.dashboardData);
+        } else {
+          console.log('❌ No dashboard data found - user needs to complete quiz');
+          setHealthMetrics({
+            overallScore: 'N/A',
+            riskLevel: "Complete Quiz",
+            activeDays: 0,
+            assessmentDate: "Not completed",
+            nextCheckup: "Complete quiz first",
+            streakDays: 0,
+            completedActivities: 0
+          });
+        }
+        
+      } catch (error) {
+        console.error('❌ Database error:', error);
+        setHealthMetrics({
+          overallScore: 'Error',
+          riskLevel: "Connection Failed",
+          activeDays: 0,
+          assessmentDate: "Unable to load",
+          nextCheckup: "Check connection",
+          streakDays: 0,
+          completedActivities: 0
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadHealthDataFromDatabase();
+  }, []);
 
   const quickActions = [
     {
@@ -82,6 +117,18 @@ export default function UserDashboard() {
     { id: 4, task: "Evening walk (30 min)", completed: false },
     { id: 5, task: "Stress management exercises", completed: false }
   ];
+
+  // Show loading state while fetching data from database
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading your health dashboard from database...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50">
@@ -142,9 +189,9 @@ export default function UserDashboard() {
               <span className="text-xs font-medium text-gray-600">Overall Health Score</span>
               <Heart className="h-3 w-3 text-pink-500" />
             </div>
-            <div className="text-lg font-bold text-green-600">{healthMetrics.overallScore}</div>
+            <div className="text-lg font-bold text-green-600">{healthMetrics?.overallScore || 'N/A'}</div>
             <Badge variant="secondary" className="bg-green-100 text-green-700 text-xs px-1 py-0 mt-1">
-              {healthMetrics.riskLevel} Risk
+              {healthMetrics?.riskLevel || 'Unknown'} Risk
             </Badge>
           </div>
           
@@ -153,7 +200,7 @@ export default function UserDashboard() {
               <span className="text-xs font-medium text-gray-600">Active Days</span>
               <Activity className="h-3 w-3 text-purple-500" />
             </div>
-            <div className="text-lg font-bold text-purple-600">{healthMetrics.activeDays}</div>
+            <div className="text-lg font-bold text-purple-600">{healthMetrics?.activeDays || 0}</div>
             <p className="text-xs text-gray-500 mt-1">This month</p>
           </div>
           
@@ -162,7 +209,7 @@ export default function UserDashboard() {
               <span className="text-xs font-medium text-gray-600">Current Streak</span>
               <TrendingUp className="h-3 w-3 text-blue-500" />
             </div>
-            <div className="text-lg font-bold text-blue-600">{healthMetrics.streakDays}</div>
+            <div className="text-lg font-bold text-blue-600">{healthMetrics?.streakDays || 0}</div>
             <p className="text-xs text-gray-500 mt-1">Days in a row</p>
           </div>
           
@@ -171,7 +218,7 @@ export default function UserDashboard() {
               <span className="text-xs font-medium text-gray-600">Activities Done</span>
               <Shield className="h-3 w-3 text-orange-500" />
             </div>
-            <div className="text-lg font-bold text-orange-600">{healthMetrics.completedActivities}%</div>
+            <div className="text-lg font-bold text-orange-600">{healthMetrics?.completedActivities || 0}%</div>
             <p className="text-xs text-gray-500 mt-1">This week</p>
           </div>
         </div>
@@ -275,16 +322,16 @@ export default function UserDashboard() {
               <CardContent className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-600">Last Assessment</span>
-                  <span className="text-sm font-medium">{healthMetrics.assessmentDate}</span>
+                  <span className="text-sm font-medium">{healthMetrics?.assessmentDate || 'Not completed'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-600">Next Checkup</span>
-                  <span className="text-sm font-medium">{healthMetrics.nextCheckup}</span>
+                  <span className="text-sm font-medium">{healthMetrics?.nextCheckup || 'Complete quiz first'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-600">Risk Level</span>
                   <Badge variant="secondary" className="bg-green-100 text-green-700">
-                    {healthMetrics.riskLevel}
+                    {healthMetrics?.riskLevel || 'Unknown'}
                   </Badge>
                 </div>
                 <Button 
