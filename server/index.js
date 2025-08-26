@@ -746,19 +746,23 @@ app.get('/api/dashboard/latest', async (req, res) => {
       });
     }
     
-    // Get the most recent dashboard metrics
-    const latestMetrics = await DashboardMetricsService.getLatest();
+    // Get the latest quiz result and calculate scores in real-time
+    const latestQuiz = await QuizResultMongoService.getLatestByUserId('anonymous_user');
     
-    if (latestMetrics) {
-      console.log('✅ Dashboard data loaded directly from MongoDB database');
+    if (latestQuiz) {
+      console.log('✅ Latest quiz found, calculating dashboard data with scientific scores');
       
-      // Format the data for the frontend
+      // Generate comprehensive report to get proper health scores
+      const reportData = generateComprehensiveReport(latestQuiz.answers, latestQuiz);
+      const healthScore = reportData.reportData.summary.totalHealthScore;
+      
+      // Format the data for the frontend with scientific calculations
       const dashboardData = {
-        overallScore: latestMetrics.overall_score || 'N/A',
-        riskLevel: latestMetrics.risk_level || 'Unknown',
+        overallScore: healthScore || latestQuiz.risk_score || 'N/A',
+        riskLevel: reportData.riskCategory || latestQuiz.risk_level || 'Unknown',
         activeDays: Math.floor(Math.random() * 15) + 5, // Placeholder
-        assessmentDate: latestMetrics.created_at ? new Date(latestMetrics.created_at).toLocaleDateString() : 'Not completed',
-        nextCheckup: latestMetrics.risk_level === 'high' ? 'Within 1 month' : 'In 6 months',
+        assessmentDate: latestQuiz.created_at ? new Date(latestQuiz.created_at).toLocaleDateString() : 'Not completed',
+        nextCheckup: (reportData.riskCategory === 'high' || reportData.riskCategory === 'very-high') ? 'Within 1 month' : 'In 6 months',
         streakDays: Math.floor(Math.random() * 10) + 1, // Placeholder
         completedActivities: Math.floor(Math.random() * 30) + 70 // Placeholder
       };
@@ -766,7 +770,7 @@ app.get('/api/dashboard/latest', async (req, res) => {
       res.json({ 
         success: true, 
         dashboardData,
-        source: 'mongodb'
+        source: 'scientific_calculation'
       });
     } else {
       console.log('❌ No dashboard data found - user needs to complete quiz');
