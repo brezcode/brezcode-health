@@ -38,6 +38,9 @@ app.use(session({
 app.use(cors());
 app.use(express.json());
 
+// Serve static files from the dist directory (built frontend)
+app.use(express.static(path.join(__dirname, '../dist')));
+
 // Import avatar routes
 import avatarRoutes from '../backend/routes/avatarRoutes.js';
 
@@ -1127,6 +1130,11 @@ function generateFollowUpTimeline(userProfile, riskCategory) {
     };
   }
 }
+
+// Catch-all handler: send back React's index.html file for client-side routing
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../dist/index.html'));
+});
 
 app.listen(PORT, async () => {
   console.log(`🚀 BrezCode Health API server running on port ${PORT}`);
