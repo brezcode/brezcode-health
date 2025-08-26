@@ -1462,6 +1462,27 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
 
+// Debug endpoint to clear dashboard cache and force regeneration
+app.delete('/api/dashboard/clear', async (req, res) => {
+  try {
+    const mongoConnected = await connectMongoDB();
+    if (!mongoConnected) {
+      return res.status(500).json({ error: 'MongoDB connection failed' });
+    }
+    
+    // Clear all dashboard metrics
+    await DashboardMetricsService.clearAll();
+    
+    res.json({ 
+      success: true, 
+      message: 'Dashboard cache cleared. Next quiz submission will generate new metrics with scientific calculations.' 
+    });
+  } catch (error) {
+    console.error('❌ Error clearing dashboard cache:', error);
+    res.status(500).json({ error: 'Failed to clear dashboard cache' });
+  }
+});
+
 app.listen(PORT, async () => {
   console.log(`🚀 BrezCode Health API server running on port ${PORT}`);
   

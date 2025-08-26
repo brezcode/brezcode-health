@@ -245,6 +245,17 @@ export class DashboardMetricsService {
     }
   }
 
+  static async clearAll() {
+    try {
+      const result = await DashboardMetrics.deleteMany({});
+      console.log(`✅ Cleared ${result.deletedCount} dashboard metrics records`);
+      return result;
+    } catch (error) {
+      console.error('❌ Error clearing dashboard metrics:', error);
+      throw error;
+    }
+  }
+
   static async generateFromQuizResult(quizResult, healthReport) {
     try {
       // Calculate next checkup date (3 months from assessment)
