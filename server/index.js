@@ -953,6 +953,11 @@ function generateComprehensiveReport(answers, quizResult) {
   // Generate recommendations based on actual risk factors and AI analysis
   const recommendations = generateRealRecommendations(riskCategory, realRiskFactors, userProfile, aiAnalysis);
   
+  // Calculate controllable vs uncontrollable health scores properly
+  const controllableScore = calculateControllableScore(sectionBreakdown);
+  const uncontrollableScore = calculateUncontrollableScore(sectionBreakdown);
+  const totalHealthScore = Math.round((controllableScore + uncontrollableScore) / 2);
+
   // Create the comprehensive report using real data
   return {
     id: quizResult.id || quizResult.session_id,
@@ -965,8 +970,9 @@ function generateComprehensiveReport(answers, quizResult) {
     reportData: {
       summary: {
         totalRiskScore: actualRiskScore.toString(),
-        totalHealthScore: (100 - actualRiskScore).toString(),
-        uncontrollableHealthScore: (100 - actualRiskScore).toString(),
+        totalHealthScore: totalHealthScore.toString(),
+        controllableHealthScore: controllableScore.toString(),
+        uncontrollableHealthScore: uncontrollableScore.toString(),
         overallRiskCategory: riskCategory,
         userProfile,
         profileDescription: getUserProfileDescription(userProfile),
@@ -1148,6 +1154,35 @@ function getPhysicalRiskFactors(answers) {
   if (answers.height_weight && answers.height_weight.includes("obese")) factors.push("Obesity");
   else if (answers.height_weight && answers.height_weight.includes("overweight")) factors.push("Overweight");
   return factors;
+}
+
+// Health Score Calculation Functions
+function calculateControllableScore(sectionBreakdown) {
+  // Controllable sections: Lifestyle, some Hormonal Factors, Physical Characteristics
+  const controllableSections = sectionBreakdown.filter(section => 
+    section.name === "Lifestyle" || 
+    section.name === "Hormonal Factors" || 
+    section.name === "Physical Characteristics"
+  );
+  
+  if (controllableSections.length === 0) return 80; // Default if no controllable sections
+  
+  const totalScore = controllableSections.reduce((sum, section) => sum + section.score, 0);
+  return Math.round(totalScore / controllableSections.length);
+}
+
+function calculateUncontrollableScore(sectionBreakdown) {
+  // Uncontrollable sections: Demographics, Family History & Genetics, Medical History
+  const uncontrollableSections = sectionBreakdown.filter(section => 
+    section.name === "Demographics" || 
+    section.name === "Family History & Genetics" || 
+    section.name === "Medical History"
+  );
+  
+  if (uncontrollableSections.length === 0) return 85; // Default if no uncontrollable sections
+  
+  const totalScore = uncontrollableSections.reduce((sum, section) => sum + section.score, 0);
+  return Math.round(totalScore / uncontrollableSections.length);
 }
 
 function generateRealRecommendations(riskCategory, riskFactors, userProfile, aiAnalysis) {
