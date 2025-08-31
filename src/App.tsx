@@ -4,6 +4,10 @@ import Quiz from './components/Quiz'
 import QuizPage from './pages/QuizPage'
 import UserDashboard from './components/UserDashboard'
 import ReportPage from './pages/ReportPage'
+import EnhancedReportDemo from './pages/EnhancedReportDemo'
+import EnhancedReportPageLive from './pages/EnhancedReportPageLive'
+import EnhancedDashboardLive from './pages/EnhancedDashboardLive'
+import PWAInstallPrompt from './components/PWAInstallPrompt'
 import { 
   Button, 
   Layout, 
@@ -1335,12 +1339,17 @@ function App() {
 
   // Route to dashboard page
   if (currentPath === '/dashboard') {
-    return <UserDashboard />;
+    return <EnhancedDashboardLive />;
   }
 
   // Route to report page
   if (currentPath === '/report') {
-    return <ReportPage />;
+    return <EnhancedReportPageLive />;
+  }
+
+  // Route to enhanced demo page
+  if (currentPath === '/enhanced-demo') {
+    return <EnhancedReportDemo />;
   }
 
   // Main landing page
@@ -1358,6 +1367,7 @@ function App() {
         <SignUp onTakeQuiz={navigateToQuiz} />
         <Pricing onTakeQuiz={navigateToQuiz} />
         <Footer />
+        <PWAInstallPrompt />
       </div>
     </ConfigProvider>
   )

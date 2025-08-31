@@ -13,15 +13,13 @@ const userSessionSchema = new mongoose.Schema({
   // User Information
   user_id: {
     type: String,
-    required: true,
-    index: true
+    required: true
   },
   
   // Session Data
   quiz_session_id: {
     type: String,
-    required: true,
-    index: true
+    required: true
   },
   
   current_step: {

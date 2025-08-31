@@ -1,0 +1,204 @@
+{
+  "nutrition": [
+    {
+      "expert": "Dr. David Katz",
+      "title": "The Truth About Food and Disease Prevention",
+      "video_url": "https://www.youtube.com/watch?v=example1",
+      "ted_talk": true,
+      "duration": "18:30",
+      "difficulty": "beginner",
+      "key_takeaways": [
+        "Food is medicine - every meal is a chance to heal or harm",
+        "Mediterranean diet reduces cancer risk by 15-20%",
+        "Small changes sustained over time beat dramatic short-term diets"
+      ],
+      "action_items": [
+        "Add olive oil to your daily routine",
+        "Eat fish twice per week",
+        "Include nuts as snacks"
+      ],
+      "relevant_for": ["poor_diet", "family_history"]
+    },
+    {
+      "expert": "Dr. Michael Greger",
+      "title": "How Not to Die: Preventing Disease with Food",
+      "video_url": "https://www.youtube.com/watch?v=example2",
+      "ted_talk": false,
+      "duration": "22:40", 
+      "difficulty": "intermediate",
+      "key_takeaways": [
+        "Plant foods contain natural compounds that fight cancer",
+        "Berries are particularly powerful against breast cancer cells",
+        "Cruciferous vegetables boost your body's detox systems"
+      ],
+      "action_items": [
+        "Eat a handful of berries daily",
+        "Include broccoli or cauliflower 3x per week",
+        "Try green tea instead of coffee"
+      ],
+      "relevant_for": ["poor_diet", "high_stress"]
+    }
+  ],
+  "exercise": [
+    {
+      "expert": "Dr. Kerry Courneya",
+      "title": "Exercise as Medicine: Cancer Prevention Through Movement",
+      "video_url": "https://www.youtube.com/watch?v=example3",
+      "ted_talk": true,
+      "duration": "16:45",
+      "difficulty": "beginner",
+      "key_takeaways": [
+        "150 minutes per week reduces breast cancer risk by 25%",
+        "Exercise improves immune function",
+        "Even walking counts as protective exercise"
+      ],
+      "action_items": [
+        "Start with 20-minute walks 3x per week",
+        "Take stairs instead of elevators",
+        "Park further away to add steps"
+      ],
+      "relevant_for": ["low_exercise", "high_stress"]
+    },
+    {
+      "expert": "Dr. Wendy Suzuki",
+      "title": "The Brain-Changing Benefits of Exercise",
+      "video_url": "https://www.youtube.com/watch?v=example4",
+      "ted_talk": true,
+      "duration": "13:15",
+      "difficulty": "beginner",
+      "key_takeaways": [
+        "Exercise immediately improves mood and reduces anxiety",
+        "Physical activity strengthens the mind-body connection",
+        "You don't need intense workouts to see benefits"
+      ],
+      "action_items": [
+        "Try 10 minutes of morning movement",
+        "Dance to 3 songs while cooking",
+        "Do bodyweight exercises during TV commercials"
+      ],
+      "relevant_for": ["low_exercise", "high_stress", "poor_sleep"]
+    }
+  ],
+  "stress_management": [
+    {
+      "expert": "Dr. Sara Lazar",
+      "title": "How Meditation Changes Your Brain and Body",
+      "video_url": "https://www.youtube.com/watch?v=example5",
+      "ted_talk": true,
+      "duration": "12:20",
+      "difficulty": "beginner",
+      "key_takeaways": [
+        "8 weeks of meditation physically changes brain structure",
+        "Reduces inflammation throughout the body",
+        "Just 5 minutes daily provides measurable benefits"
+      ],
+      "action_items": [
+        "Try 5 minutes of guided breathing daily",
+        "Use a meditation app for consistency",
+        "Practice mindful eating at one meal per day"
+      ],
+      "relevant_for": ["high_stress", "poor_sleep"]
+    },
+    {
+      "expert": "Dr. Andrew Weil",
+      "title": "Breathing Techniques for Instant Calm",
+      "video_url": "https://www.youtube.com/watch?v=example6", 
+      "ted_talk": false,
+      "duration": "15:30",
+      "difficulty": "beginner",
+      "key_takeaways": [
+        "Proper breathing activates the relaxation response",
+        "4-7-8 breathing technique reduces anxiety in minutes",
+        "Breathing exercises work anywhere, anytime"
+      ],
+      "action_items": [
+        "Practice 4-7-8 breathing before bed",
+        "Use deep breathing during stressful moments",
+        "Set reminders for breathing breaks"
+      ],
+      "relevant_for": ["high_stress", "poor_sleep"]
+    }
+  ],
+  "medical_experts": [
+    {
+      "expert": "Dr. Susan Love",
+      "title": "Taking Charge of Your Breast Health",
+      "video_url": "https://www.youtube.com/watch?v=example7",
+      "ted_talk": false,
+      "duration": "25:10",
+      "difficulty": "intermediate",
+      "key_takeaways": [
+        "Early detection saves lives but prevention is better",
+        "Know your personal risk factors",
+        "Advocate for yourself in healthcare settings"
+      ],
+      "action_items": [
+        "Schedule overdue screenings",
+        "Learn proper self-exam technique",
+        "Discuss family history with your doctor"
+      ],
+      "relevant_for": ["overdue_screening", "family_history", "dense_breast"]
+    },
+    {
+      "expert": "Dr. Wendie Berg",
+      "title": "Dense Breasts: What Every Woman Should Know",
+      "video_url": "https://www.youtube.com/watch?v=example8",
+      "ted_talk": false,
+      "duration": "18:30",
+      "difficulty": "intermediate",
+      "key_takeaways": [
+        "40% of women have dense breast tissue",
+        "Dense tissue requires additional screening methods",
+        "Ultrasound and MRI can detect cancers mammograms miss"
+      ],
+      "action_items": [
+        "Ask about breast density at your next mammogram",
+        "Discuss additional screening options",
+        "Understand your insurance coverage for supplemental screening"
+      ],
+      "relevant_for": ["dense_breast", "overdue_screening"]
+    }
+  ],
+  "sleep_health": [
+    {
+      "expert": "Dr. Michael Breus",
+      "title": "The Sleep Doctor's Guide to Better Rest",
+      "video_url": "https://www.youtube.com/watch?v=example9",
+      "ted_talk": false,
+      "duration": "19:45",
+      "difficulty": "beginner",
+      "key_takeaways": [
+        "Quality sleep is when your body repairs DNA damage",
+        "Blue light exposure disrupts natural sleep cycles",
+        "Consistent sleep schedule is more important than total hours"
+      ],
+      "action_items": [
+        "Set a consistent bedtime and wake time",
+        "Avoid screens 1 hour before bed",
+        "Keep bedroom cool and dark"
+      ],
+      "relevant_for": ["poor_sleep", "high_stress"]
+    }
+  ],
+  "inspiration": [
+    {
+      "expert": "Tig Notaro",
+      "title": "Finding Humor and Strength After Cancer",
+      "video_url": "https://www.youtube.com/watch?v=example10",
+      "ted_talk": true,
+      "duration": "14:25",
+      "difficulty": "beginner",
+      "key_takeaways": [
+        "Humor and positivity are powerful healing tools",
+        "Taking control of your health journey empowers you",
+        "Support systems are crucial for success"
+      ],
+      "action_items": [
+        "Find one thing to laugh about each day",
+        "Connect with supportive friends or family",
+        "Celebrate small health victories"
+      ],
+      "relevant_for": ["family_history", "high_stress", "overdue_screening"]
+    }
+  ]
+}

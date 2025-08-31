@@ -1,0 +1,90 @@
+{
+  "LOW_EXERCISE": {
+    "pain": "I don't have time for long workouts",
+    "micro_action": "Take a 10-minute walk during lunch break",
+    "talk_track": "Even small amounts of movement add up to big health benefits",
+    "expert_video": {
+      "title": "The Power of 10-Minute Movement",
+      "expert": "Dr. Kerry Courneya",
+      "url": "https://youtube.com/watch?v=example1",
+      "duration": "12:30"
+    }
+  },
+  "ALCOHOL_HIGH": {
+    "pain": "I use wine to relax after stressful days",
+    "micro_action": "Replace one drink per week with herbal tea",
+    "talk_track": "Finding new ways to unwind protects your health without sacrificing relaxation",
+    "expert_video": {
+      "title": "Healthy Ways to Manage Stress",
+      "expert": "Dr. Sara Lazar",
+      "url": "https://youtube.com/watch?v=example2", 
+      "duration": "16:45"
+    }
+  },
+  "OVERDUE_SCREENING": {
+    "pain": "I keep putting off scheduling appointments",
+    "micro_action": "Set a 15-minute calendar reminder to call your doctor",
+    "talk_track": "Taking charge of your screening schedule puts you back in control",
+    "expert_video": {
+      "title": "Why Early Detection Saves Lives",
+      "expert": "Dr. Susan Love",
+      "url": "https://youtube.com/watch?v=example3",
+      "duration": "14:20"
+    }
+  },
+  "DENSE_BREAST": {
+    "pain": "I'm confused about what screening I actually need",
+    "micro_action": "Write down 3 questions to ask your doctor about dense breasts",
+    "talk_track": "Understanding your body helps you make the best health decisions",
+    "expert_video": {
+      "title": "Dense Breasts: What You Need to Know",
+      "expert": "Dr. Wendie Berg",
+      "url": "https://youtube.com/watch?v=example4",
+      "duration": "18:30"
+    }
+  },
+  "FAMILY_HISTORY": {
+    "pain": "I worry I'm destined to get cancer like my relatives",
+    "micro_action": "Research one new healthy habit your family member didn't know about",
+    "talk_track": "You have knowledge and options your family didn't have access to",
+    "expert_video": {
+      "title": "Genetics vs. Lifestyle: You Have More Control Than You Think",
+      "expert": "Dr. David Katz",
+      "url": "https://youtube.com/watch?v=example5",
+      "duration": "20:15"
+    }
+  },
+  "POOR_DIET": {
+    "pain": "Healthy eating feels overwhelming and expensive",
+    "micro_action": "Add one serving of berries to your day",
+    "talk_track": "Small, simple changes are more powerful than dramatic diet overhauls",
+    "expert_video": {
+      "title": "Simple Nutrition Changes That Prevent Disease",
+      "expert": "Dr. Michael Greger",
+      "url": "https://youtube.com/watch?v=example6",
+      "duration": "22:40"
+    }
+  },
+  "HIGH_STRESS": {
+    "pain": "I feel overwhelmed and don't know how to relax",
+    "micro_action": "Try a 3-minute breathing exercise before bed",
+    "talk_track": "Your body has natural relaxation responses you can learn to activate",
+    "expert_video": {
+      "title": "The Science of Calm: Quick Stress Relief",
+      "expert": "Dr. Andrew Weil",
+      "url": "https://youtube.com/watch?v=example7",
+      "duration": "15:30"
+    }
+  },
+  "POOR_SLEEP": {
+    "pain": "My mind races when I try to fall asleep",
+    "micro_action": "Put your phone away 30 minutes before bedtime",
+    "talk_track": "Good sleep is like a reset button for your body's healing systems",
+    "expert_video": {
+      "title": "The Sleep Doctor's Guide to Better Rest",
+      "expert": "Dr. Michael Breus",
+      "url": "https://youtube.com/watch?v=example8",
+      "duration": "19:45"
+    }
+  }
+}

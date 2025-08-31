@@ -1,0 +1,66 @@
+{
+  "FAMILY_HISTORY": {
+    "simple_label": "Family history increases your risk",
+    "evidence": "Large studies show family history doubles your chances of breast health issues",
+    "source": "Studies following 50,302 women across 30 countries",
+    "strength": "Strong evidence",
+    "what_it_means": "Your genetics play a role, but lifestyle choices still matter most",
+    "hope_message": "You can take steps your family members didn't know about"
+  },
+  "LOW_EXERCISE": {
+    "simple_label": "Not getting enough exercise raises risk",
+    "evidence": "Women who walk 150 minutes per week reduce their risk by 20-25%",
+    "source": "Meta-analysis of 47 studies worldwide", 
+    "strength": "Strong evidence",
+    "what_it_means": "Your body needs movement to stay healthy and fight disease",
+    "hope_message": "Even 20 minutes of walking 3 times a week makes a difference"
+  },
+  "ALCOHOL_HIGH": {
+    "simple_label": "Drinking alcohol increases risk",
+    "evidence": "Each daily drink increases breast cancer risk by 7-10%",
+    "source": "Research following 1.2 million women",
+    "strength": "Strong evidence", 
+    "what_it_means": "Alcohol affects hormones and damages cells over time",
+    "hope_message": "Cutting back to 3-4 drinks per week significantly reduces risk"
+  },
+  "OVERDUE_SCREENING": {
+    "simple_label": "Skipping checkups delays early detection",
+    "evidence": "Regular screening reduces death rates by 20-40%",
+    "source": "Multiple large-scale screening studies",
+    "strength": "Strong evidence",
+    "what_it_means": "Early detection means simpler treatment and better outcomes",
+    "hope_message": "It's never too late to get back on track with screenings"
+  },
+  "DENSE_BREAST": {
+    "simple_label": "Dense breast tissue makes detection harder",
+    "evidence": "Dense tissue increases risk by 4-6 times and hides tumors on mammograms",
+    "source": "Studies of 200,000+ mammography results",
+    "strength": "Strong evidence",
+    "what_it_means": "You may need additional screening methods beyond regular mammograms",
+    "hope_message": "Knowing this helps you get the right screening for your body"
+  },
+  "POOR_DIET": {
+    "simple_label": "Diet affects your breast health risk",
+    "evidence": "Mediterranean-style eating reduces risk by 15-20%",
+    "source": "Study following 4,152 women for 5 years",
+    "strength": "Good evidence",
+    "what_it_means": "What you eat daily either feeds disease or fights it",
+    "hope_message": "Simple food swaps can make a big difference over time"
+  },
+  "HIGH_STRESS": {
+    "simple_label": "Chronic stress weakens your body's defenses",
+    "evidence": "High stress increases inflammatory markers by 30%",
+    "source": "American Psychological Association research",
+    "strength": "Good evidence",
+    "what_it_means": "Stress hormones can help cancer cells grow and spread",
+    "hope_message": "Stress management techniques really work - even 5 minutes daily helps"
+  },
+  "POOR_SLEEP": {
+    "simple_label": "Not getting enough sleep increases risk",
+    "evidence": "Less than 6 hours of sleep increases breast cancer risk by 50%",
+    "source": "Studies following 100,000+ women",
+    "strength": "Good evidence",
+    "what_it_means": "Your body repairs damaged cells while you sleep",
+    "hope_message": "Better sleep habits can be learned and improved"
+  }
+}

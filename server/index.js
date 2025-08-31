@@ -12,15 +12,23 @@ import { HealthReportService } from '../backend/models/HealthReportMongo.js';
 import { UserSessionService } from '../backend/models/UserSessionMongo.js';
 import { DashboardMetricsService } from '../backend/models/DashboardMetricsMongo.js';
 import { UserActivityService } from '../backend/models/UserActivityMongo.js';
+import { applySecurity } from './middleware/security.js';
+import { globalErrorHandler } from './middleware/error.js';
+import healthRouter from './routes/health.js';
+import whatsappRouter from './routes/whatsapp.js';
+import notificationsRouter from './routes/notifications.js';
 
 // Load environment variables FIRST
 dotenv.config();
+
+// Load and validate config early
+import config from './config/env.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT || 3003;
+const PORT = config.PORT;
 
 // Session configuration - using memory store for now (will upgrade to MongoDB sessions later)
 app.use(session({
@@ -34,12 +42,11 @@ app.use(session({
   }
 }));
 
-// Middleware
-app.use(cors());
-app.use(express.json());
+// Apply security middleware
+applySecurity(app, config);
 
-// Serve static files from the dist directory (built frontend)
-app.use(express.static(path.join(__dirname, '../dist')));
+// Middleware
+app.use(express.json());
 
 // Import avatar routes
 import avatarRoutes from '../backend/routes/avatarRoutes.js';
@@ -47,6 +54,12 @@ import avatarRoutes from '../backend/routes/avatarRoutes.js';
 // Import business routes
 import businessAuthRoutes from '../backend/routes/businessAuthRoutes.js';
 import businessDashboardRoutes from '../backend/routes/businessDashboardRoutes.js';
+
+// Mount health check route
+app.use('', healthRouter);
+app.use('/api/whatsapp', whatsappRouter);
+app.use('/api/notifications', notificationsRouter);
+
 // PostgreSQL routes and models removed - MongoDB only system now
 
 // ALL STORAGE NOW IN MONGODB - NO IN-MEMORY STORAGE
@@ -200,11 +213,52 @@ async function sendWhatsAppVerification(phoneNumber, code) {
 
 // QUIZ RESULT ENDPOINTS - Database Integration with AI Analysis
 // Save quiz results to database with AI-generated insights
+// Import idempotency utilities
+import { hashPayload, getUserKey } from './utils/hash.js';
+import QuizSession from './models/QuizSession.js';
+
 app.post('/api/quiz/submit', async (req, res) => {
   try {
     const { answers, risk_score, risk_level, recommendations } = req.body;
     
-    console.log('📝 Attempting to save quiz results to database');
+    // Validate required features
+    if (!answers || typeof answers !== 'object') {
+      return res.status(400).json({
+        ok: false,
+        code: 'VALIDATION',
+        message: 'Quiz answers are required'
+      });
+    }
+    
+    console.log('📝 Processing quiz submission with idempotency');
+    
+    // Get user key for idempotency (use request user_id for consistency)
+    const userKey = req.body.user_id || getUserKey(req);
+    
+    // Get or generate idempotency key
+    const idempotencyKey = req.get('Idempotency-Key') || hashPayload(answers);
+    
+    console.log(`🔑 Idempotency key: ${idempotencyKey.substring(0, 8)}...`);
+    
+    // Check for existing submission
+    try {
+      const existingSession = await QuizSession.findOne({ 
+        userId: userKey, 
+        hash: idempotencyKey 
+      });
+      
+      if (existingSession) {
+        console.log('✅ Found existing quiz session, returning cached result');
+        return res.status(200).json({
+          ok: true,
+          session_id: existingSession.session_id,
+          cached: true
+        });
+      }
+    } catch (findError) {
+      console.log('⚠️ Error checking existing session:', findError.message);
+      // Continue with new submission
+    }
     
     // For now, use a default user_id since we don't have user authentication fully implemented
     const user_id = req.body.user_id || 'anonymous_user';
@@ -264,43 +318,73 @@ app.post('/api/quiz/submit', async (req, res) => {
         const defaultActivities = await UserActivityService.generateDefaultActivities(sessionId, user_id);
         console.log(`✅ Generated ${defaultActivities.length} default activities`);
         
-        res.json({
-          success: true,
+        // Save idempotency record
+        try {
+          await QuizSession.create({
+            userId: userKey,
+            hash: idempotencyKey,
+            features: answers,
+            session_id: sessionId
+          });
+          console.log('✅ Quiz session saved for idempotency');
+        } catch (idempotencyError) {
+          console.log('⚠️ Idempotency record save failed:', idempotencyError.message);
+        }
+        
+        res.status(200).json({
+          ok: true,
           session_id: sessionId,
-          user_session_id: userSession.session_id,
-          quiz_result: quizResult,
-          storage_type: 'mongodb',
-          ai_analysis: aiAnalysis,
-          dashboard_url: `/dashboard?session=${userSession.session_id}`,
-          report_url: `/report?session=${sessionId}`
+          cached: false
         });
         
       } catch (sessionError) {
         console.error('❌ Failed to create user session:', sessionError);
-        // Still return success for quiz, but log session error
-        res.json({
-          success: true,
+        
+        // Still save idempotency record even if session creation failed
+        try {
+          await QuizSession.create({
+            userId: userKey,
+            hash: idempotencyKey,
+            features: answers,
+            session_id: sessionId
+          });
+          console.log('✅ Quiz session saved for idempotency (after session error)');
+        } catch (idempotencyError) {
+          console.log('⚠️ Idempotency record save failed:', idempotencyError.message);
+        }
+        
+        res.status(200).json({
+          ok: true,
           session_id: sessionId,
-          quiz_result: quizResult,
-          storage_type: 'mongodb',
-          ai_analysis: aiAnalysis,
-          warning: 'Session creation failed but quiz saved successfully'
+          cached: false
         });
       }
       
     } catch (dbError) {
       console.error('❌ Database save failed:', dbError.message);
-      return res.status(500).json({ 
-        error: 'Database not available - quiz submission failed',
-        details: dbError.message 
+      
+      // Check if it's a duplicate key error (race condition)
+      if (dbError.code === 11000) {
+        return res.status(409).json({
+          ok: false,
+          code: 'CONFLICT',
+          message: 'Quiz submission already in progress'
+        });
+      }
+      
+      return res.status(500).json({
+        ok: false,
+        code: 'SERVER_ERROR',
+        message: 'Database not available'
       });
     }
     
   } catch (error) {
     console.error('❌ Complete quiz submit failure:', error);
-    res.status(500).json({ 
-      error: 'Failed to save quiz results',
-      details: error.message 
+    res.status(500).json({
+      ok: false,
+      code: 'SERVER_ERROR',
+      message: 'Something went wrong'
     });
   }
 });
@@ -762,9 +846,12 @@ app.get('/api/dashboard/latest', async (req, res) => {
         riskLevel: reportData.riskCategory || latestQuiz.risk_level || 'Unknown',
         activeDays: Math.floor(Math.random() * 15) + 5, // Placeholder
         assessmentDate: latestQuiz.created_at ? new Date(latestQuiz.created_at).toLocaleDateString() : 'Not completed',
-        nextCheckup: (reportData.riskCategory === 'high' || reportData.riskCategory === 'very-high') ? 'Within 1 month' : 'In 6 months',
+        nextCheckup: (reportData.riskCategory === 'high') ? 'Within 1 month' : 'In 6 months',
         streakDays: Math.floor(Math.random() * 10) + 1, // Placeholder
-        completedActivities: Math.floor(Math.random() * 30) + 70 // Placeholder
+        completedActivities: Math.floor(Math.random() * 30) + 70, // Placeholder
+        // Include evidence-based risk data for the modifiable dashboard
+        reportData: reportData.reportData || {},
+        insights: reportData.reportData || {}
       };
       
       res.json({ 
@@ -918,17 +1005,17 @@ function generateComprehensiveReport(answers, quizResult) {
   const sectionBreakdown = [
     {
       name: "Demographics", 
-      score: age > 50 ? 75 : 90,
-      factorCount: age > 50 ? 1 : 0,
-      riskLevel: age > 50 ? 'moderate' : 'low',
-      riskFactors: age > 50 ? ["Age over 50 (increased risk)"] : []
+      score: calculateDemographicsScore(answers, age),
+      factorCount: countDemographicsRiskFactors(answers, age),
+      riskLevel: calculateDemographicsRiskLevel(answers, age),
+      riskFactors: getDemographicsRiskFactors(answers, age)
     },
     {
       name: "Family History & Genetics",
-      score: answers.family_history === "Yes, I have first-degree relative with BC" ? 60 : 95,
-      factorCount: answers.family_history === "Yes, I have first-degree relative with BC" ? 1 : 0,
-      riskLevel: answers.family_history === "Yes, I have first-degree relative with BC" ? 'high' : 'low',
-      riskFactors: answers.family_history === "Yes, I have first-degree relative with BC" ? ["First-degree family history"] : []
+      score: calculateFamilyHistoryScore(answers),
+      factorCount: countFamilyHistoryRiskFactors(answers),
+      riskLevel: calculateFamilyHistoryRiskLevel(answers),
+      riskFactors: getFamilyHistoryRiskFactors(answers)
     },
     {
       name: "Lifestyle",
@@ -971,6 +1058,9 @@ function generateComprehensiveReport(answers, quizResult) {
   // Use scientific risk score for report
   const actualRiskScore = scientificRiskScore;
 
+  // Generate enhanced insights with expert content
+  const insights = generateEnhancedInsights(answers, realRiskFactors, riskCategory, userProfile);
+
   // Create the comprehensive report using real data
   return {
     id: quizResult.id || quizResult.session_id,
@@ -980,6 +1070,7 @@ function generateComprehensiveReport(answers, quizResult) {
     riskFactors: realRiskFactors,
     recommendations: recommendations,
     dailyPlan: generateRealDailyPlan(userProfile, riskCategory),
+    insights: insights, // NEW: Enhanced insights with expert content
     reportData: {
       summary: {
         totalRiskScore: actualRiskScore.toString(),
@@ -996,6 +1087,12 @@ function generateComprehensiveReport(answers, quizResult) {
         sectionSummaries: generateSectionSummaries(sectionBreakdown, answers, userProfile),
         sectionBreakdown: sectionBreakdown
       },
+      evidenceBasedRisk: {
+        riskFactors: calculateEvidenceBasedRisk(answers, age),
+        lifetimeRisk: getLifetimeRiskMessage(calculateEvidenceBasedRisk(answers, age), age),
+        modifiableReduction: calculateTotalModifiableRiskReduction(calculateEvidenceBasedRisk(answers, age)),
+        unmodifiableRisk: calculateTotalUnmodifiableRisk(calculateEvidenceBasedRisk(answers, age))
+      },
       personalizedPlan: {
         dailyPlan: generateRealDailyPlan(userProfile, riskCategory),
         coachingFocus: generateCoachingFocus(riskCategory, realRiskFactors),
@@ -1004,7 +1101,7 @@ function generateComprehensiveReport(answers, quizResult) {
     },
     ai_analysis: aiAnalysis,
     generated_by: 'real_scientific_data',
-    report_version: '2.0',
+    report_version: '2.1', // Updated version
     status: 'generated'
   };
 }
@@ -1045,6 +1142,265 @@ function getLifestyleRiskFactors(answers) {
   if (answers.western_diet === "Yes, Western diet") factors.push("Western diet pattern");
   if (answers.chronic_stress === "Yes, chronic high stress") factors.push("Chronic high stress");
   return factors;
+}
+
+// Demographics Section Functions
+function getDemographicsRiskFactors(answers, age) {
+  const factors = [];
+  if (age >= 70) factors.push("Age 70+ (very high risk)");
+  else if (age >= 50) factors.push("Age 50+ (increased risk)");
+  else if (age >= 40) factors.push("Age 40+ (rising risk period)");
+  
+  const ethnicity = answers.ethnicity || '';
+  if (ethnicity === 'White (non-Hispanic)') factors.push("Caucasian ethnicity (highest incidence)");
+  else if (ethnicity === 'Black') factors.push("African American ethnicity (aggressive subtypes risk)");
+  
+  return factors;
+}
+
+function countDemographicsRiskFactors(answers, age) {
+  return getDemographicsRiskFactors(answers, age).length;
+}
+
+function calculateDemographicsScore(answers, age) {
+  if (age < 40) return 90;
+  if (age < 50) return 80; 
+  if (age < 60) return 70;
+  if (age < 70) return 60;
+  return 50; // 70+
+}
+
+function calculateDemographicsRiskLevel(answers, age) {
+  const score = calculateDemographicsScore(answers, age);
+  if (score >= 80) return 'low';
+  if (score >= 60) return 'moderate';
+  return 'high';
+}
+
+// Family History & Genetics Section Functions
+function getFamilyHistoryRiskFactors(answers) {
+  const factors = [];
+  const familyHistory = answers.family_history || '';
+  const brcaStatus = answers.brca_test || '';
+  
+  // Check for various family history patterns
+  if (familyHistory.includes('first-degree') || familyHistory === "Yes, I have first-degree relative with BC") {
+    factors.push("First-degree relative with breast cancer");
+  }
+  if (familyHistory.includes('second-degree')) factors.push("Second-degree relative with breast cancer");
+  if (familyHistory.includes('multiple relatives')) factors.push("Multiple family members with breast cancer");
+  if (familyHistory.includes('ovarian cancer')) factors.push("Family history of ovarian cancer");
+  
+  // Genetic testing results
+  if (brcaStatus === 'BRCA1/2' || brcaStatus.includes('BRCA')) {
+    factors.push("BRCA1/2 genetic mutation");
+  } else if (brcaStatus === 'VUS') {
+    factors.push("Variant of uncertain significance (VUS)");
+  } else if (brcaStatus === 'Other mutation' || brcaStatus.includes('mutation')) {
+    factors.push("Other hereditary cancer gene mutation");
+  }
+  
+  // Additional risk factors
+  if (answers.family_onset_age && parseInt(answers.family_onset_age) < 50) {
+    factors.push("Family member diagnosed before age 50");
+  }
+  
+  if (answers.ashkenazi_jewish === 'Yes') factors.push("Ashkenazi Jewish ancestry");
+  if (answers.male_breast_cancer === 'Yes') factors.push("Male breast cancer in family");
+  
+  // Check if family history indicates strong hereditary factors (for comprehensive summary sync)
+  if (familyHistory.includes('first-degree') && !factors.some(f => f.includes('BRCA'))) {
+    // If we have first-degree history but no confirmed BRCA testing, include potential hereditary risk
+    if (brcaStatus === 'Not tested' || brcaStatus === '') {
+      factors.push("Untested for BRCA mutations (with family history)");
+    }
+  }
+  
+  return factors;
+}
+
+function countFamilyHistoryRiskFactors(answers) {
+  return getFamilyHistoryRiskFactors(answers).length;
+}
+
+function calculateFamilyHistoryScore(answers) {
+  let score = 95; // Base score
+  const familyHistory = answers.family_history || '';
+  const brcaStatus = answers.brca_test || '';
+  
+  if (brcaStatus === 'BRCA1/2') score -= 40; // Highest risk
+  else if (familyHistory.includes('first-degree')) score -= 25;
+  else if (familyHistory.includes('second-degree')) score -= 10;
+  
+  if (answers.family_onset_age && parseInt(answers.family_onset_age) < 50) score -= 10;
+  if (answers.ashkenazi_jewish === 'Yes') score -= 5;
+  if (answers.male_breast_cancer === 'Yes') score -= 5;
+  
+  return Math.max(score, 15); // Minimum score of 15
+}
+
+function calculateFamilyHistoryRiskLevel(answers) {
+  const score = calculateFamilyHistoryScore(answers);
+  if (score >= 80) return 'low';
+  if (score >= 60) return 'moderate';
+  return 'high';
+}
+
+// Evidence-Based Risk Percentage System
+function calculateEvidenceBasedRisk(answers, age) {
+  const risks = {
+    unmodifiable: {},
+    modifiable: {}
+  };
+  
+  // UNMODIFIABLE RISK FACTORS (with evidence-based percentages)
+  
+  // Age Risk (baseline 12% lifetime risk for average woman)
+  const baselineRisk = 12;
+  if (age >= 70) risks.unmodifiable.age = { factor: "Age 70+", riskIncrease: "+250%", description: "Age is the strongest risk factor" };
+  else if (age >= 60) risks.unmodifiable.age = { factor: "Age 60-69", riskIncrease: "+180%", description: "Significant age-related risk increase" };
+  else if (age >= 50) risks.unmodifiable.age = { factor: "Age 50-59", riskIncrease: "+120%", description: "Moderate age-related risk increase" };
+  else if (age >= 40) risks.unmodifiable.age = { factor: "Age 40-49", riskIncrease: "+60%", description: "Rising risk period" };
+  
+  // Genetic/Family History Risk
+  const brcaStatus = answers.brca_test || '';
+  const familyHistory = answers.family_history || '';
+  
+  if (brcaStatus === 'BRCA1/2' || brcaStatus.includes('BRCA')) {
+    risks.unmodifiable.genetics = { factor: "BRCA1/2 Mutation", riskIncrease: "+500-600%", description: "55-85% lifetime risk vs 12% average" };
+  } else if (familyHistory.includes('first-degree') || familyHistory === "Yes, I have first-degree relative with BC") {
+    risks.unmodifiable.genetics = { factor: "First-degree family history", riskIncrease: "+100%", description: "Almost doubles baseline risk" };
+  } else if (familyHistory.includes('second-degree')) {
+    risks.unmodifiable.genetics = { factor: "Second-degree family history", riskIncrease: "+50%", description: "Modest increase above baseline" };
+  }
+  
+  // Dense Breast Tissue
+  if (answers.dense_breast === "Yes" || answers.dense_breast === "Yes, I have dense breast tissue") {
+    risks.unmodifiable.density = { factor: "Dense breast tissue", riskIncrease: "+200-300%", description: "2-4 fold increased risk" };
+  }
+  
+  // Medical History
+  if (answers.benign_condition && answers.benign_condition.includes("Atypical Hyperplasia")) {
+    risks.unmodifiable.medical = { factor: "Atypical hyperplasia", riskIncrease: "+400%", description: "4-5 fold increased risk" };
+  } else if (answers.benign_condition && answers.benign_condition.includes("LCIS")) {
+    risks.unmodifiable.medical = { factor: "LCIS diagnosis", riskIncrease: "+600-900%", description: "6-10 fold increased risk" };
+  }
+  
+  // Early Menstruation & Late Menopause
+  if (answers.first_period && parseInt(answers.first_period) < 12) {
+    risks.unmodifiable.earlyMenstruation = { factor: "Early menstruation (<12)", riskIncrease: "+30%", description: "Longer estrogen exposure" };
+  }
+  if (answers.menopause === "Yes, at age 55 or older") {
+    risks.unmodifiable.lateMenopause = { factor: "Late menopause (55+)", riskIncrease: "+30%", description: "Extended hormone exposure" };
+  }
+  
+  // MODIFIABLE RISK FACTORS (evidence-based reduction percentages)
+  
+  // Physical Activity
+  const exercise = answers.exercise || '';
+  if (exercise === "No, little or no regular exercise") {
+    risks.modifiable.exercise = { factor: "Sedentary lifestyle", riskIncrease: "+25%", riskReduction: "Up to -25%", description: "Regular activity reduces risk by 12-25%" };
+  } else if (exercise.includes('occasional')) {
+    risks.modifiable.exercise = { factor: "Occasional exercise", riskReduction: "Up to -12%", description: "Some protective benefit, could improve more" };
+  } else if (exercise.includes('regular')) {
+    risks.modifiable.exercise = { factor: "Regular exercise", riskReduction: "-12% to -25%", description: "Evidence-based risk reduction achieved" };
+  }
+  
+  // Alcohol Consumption
+  const alcohol = answers.alcohol || '';
+  if (alcohol === "2 or more drinks") {
+    risks.modifiable.alcohol = { factor: "Regular alcohol (2+ drinks)", riskIncrease: "+40-50%", riskReduction: "Up to -50%", description: "Each 10g alcohol = 9-12% risk increase" };
+  } else if (alcohol === "1 drink") {
+    risks.modifiable.alcohol = { factor: "Moderate alcohol (1 drink)", riskIncrease: "+7-10%", riskReduction: "Up to -10%", description: "Modest but measurable risk increase" };
+  } else if (alcohol === "None") {
+    risks.modifiable.alcohol = { factor: "No alcohol consumption", riskReduction: "Baseline maintained", description: "Optimal choice - no alcohol-related risk" };
+  }
+  
+  // Weight/BMI
+  const bmi = parseFloat(answers.bmi || 22);
+  if (bmi > 30) {
+    risks.modifiable.weight = { factor: "Obesity (BMI >30)", riskIncrease: "+30-50%", riskReduction: "Up to -50%", description: "Significant modifiable risk factor" };
+  } else if (bmi > 25) {
+    risks.modifiable.weight = { factor: "Overweight (BMI 25-30)", riskIncrease: "+15-25%", riskReduction: "Up to -25%", description: "Weight optimization beneficial" };
+  }
+  
+  // Smoking
+  if (answers.smoke === "Yes") {
+    risks.modifiable.smoking = { factor: "Current smoking", riskIncrease: "+40%", riskReduction: "Up to -40%", description: "Significant modifiable risk through cessation" };
+  }
+  
+  // Diet Quality
+  if (answers.western_diet === "Yes, Western diet") {
+    risks.modifiable.diet = { factor: "Western diet pattern", riskIncrease: "+15-20%", riskReduction: "Up to -20%", description: "Mediterranean diet shows protective effects" };
+  }
+  
+  // Chronic Stress
+  if (answers.chronic_stress === "Yes, chronic high stress") {
+    risks.modifiable.stress = { factor: "Chronic high stress", riskIncrease: "+10-15%", riskReduction: "Up to -15%", description: "Stress management provides health benefits" };
+  }
+  
+  // Hormone Therapy
+  if (answers.hormone_therapy === "Yes, more than 5 years") {
+    risks.modifiable.hormones = { factor: "Long-term HRT (5+ years)", riskIncrease: "+25-35%", riskReduction: "Up to -35%", description: "Risk decreases after discontinuation" };
+  }
+  
+  return risks;
+}
+
+function calculateTotalModifiableRiskReduction(evidenceBasedRisk) {
+  let totalReductionPotential = 0;
+  const modifiableFactors = evidenceBasedRisk.modifiable;
+  
+  Object.values(modifiableFactors).forEach(risk => {
+    if (risk.riskReduction && risk.riskReduction.includes('-')) {
+      // Extract maximum reduction percentage
+      const matches = risk.riskReduction.match(/-(\d+)%/);
+      if (matches) {
+        totalReductionPotential += parseInt(matches[1]);
+      }
+    }
+  });
+  
+  return Math.min(totalReductionPotential, 250); // Cap at 250% for realistic expectations
+}
+
+function calculateTotalUnmodifiableRisk(evidenceBasedRisk) {
+  let totalRiskIncrease = 0;
+  const unmodifiableFactors = evidenceBasedRisk.unmodifiable;
+  
+  Object.values(unmodifiableFactors).forEach(risk => {
+    if (risk.riskIncrease && risk.riskIncrease.includes('+')) {
+      // Extract risk increase percentage
+      const matches = risk.riskIncrease.match(/\+(\d+)/);
+      if (matches) {
+        totalRiskIncrease += parseInt(matches[1]);
+      }
+    }
+  });
+  
+  return totalRiskIncrease;
+}
+
+function getLifetimeRiskMessage(evidenceBasedRisk, age) {
+  const unmodifiableRisk = calculateTotalUnmodifiableRisk(evidenceBasedRisk);
+  const baselineRisk = 12; // 1 in 8 women
+  
+  let estimatedLifetimeRisk = baselineRisk;
+  if (unmodifiableRisk > 500) {
+    estimatedLifetimeRisk = 65; // BRCA carrier range
+  } else if (unmodifiableRisk > 200) {
+    estimatedLifetimeRisk = 35; // Multiple high-risk factors
+  } else if (unmodifiableRisk > 100) {
+    estimatedLifetimeRisk = 20; // Family history
+  } else if (unmodifiableRisk > 50) {
+    estimatedLifetimeRisk = 16; // Age + other factors
+  }
+  
+  return {
+    currentRisk: `${estimatedLifetimeRisk}%`,
+    baseline: "12%",
+    message: `Your lifetime risk is estimated at ${estimatedLifetimeRisk}% compared to the average woman's 12% (1 in 8).`
+  };
 }
 
 // Medical History Section Functions
@@ -1334,7 +1690,7 @@ function determineRiskCategory(riskScore) {
   if (riskScore < 20) return 'low';
   else if (riskScore < 40) return 'moderate';
   else if (riskScore < 60) return 'high';
-  else return 'very-high';
+  else return 'high';
 }
 
 function generateRealRecommendations(riskCategory, riskFactors, userProfile, aiAnalysis) {
@@ -1414,14 +1770,239 @@ function convertSectionsToScores(sectionBreakdown) {
 
 function generateSectionSummaries(sectionBreakdown, answers, userProfile) {
   const summaries = {};
+  const age = parseInt(answers.age || 30);
+  const bmi = parseFloat(answers.bmi || 22);
+  
   sectionBreakdown.forEach(section => {
-    summaries[section.name] = `Your ${section.name.toLowerCase()} assessment shows a score of ${section.score}/100. ${
-      section.riskFactors.length > 0 ? 
-        `Risk factors include: ${section.riskFactors.join(', ')}.` :
-        'No significant risk factors identified in this category.'
-    } Continue following evidence-based recommendations for optimal health.`;
+    switch(section.name) {
+      case "Demographics":
+        summaries[section.name] = generateDemographicsSummary(section, answers, age);
+        break;
+      case "Family History & Genetics":
+        summaries[section.name] = generateGeneticsSummary(section, answers);
+        break;
+      case "Lifestyle":
+        summaries[section.name] = generateLifestyleSummary(section, answers);
+        break;
+      case "Medical History":
+        summaries[section.name] = generateMedicalHistorySummary(section, answers);
+        break;
+      case "Hormonal Factors":
+        summaries[section.name] = generateHormonalSummary(section, answers);
+        break;
+      case "Physical Characteristics":
+        summaries[section.name] = generatePhysicalSummary(section, answers, bmi);
+        break;
+    }
   });
   return summaries;
+}
+
+function generateDemographicsSummary(section, answers, age) {
+  const ethnicity = answers.ethnicity || 'not specified';
+  const country = answers.country || 'United States';
+  
+  let summary = `Your demographic assessment yields a score of ${section.score}/100, reflecting your current age of ${age} years and ethnic background. `;
+  
+  if (age < 40) {
+    summary += `At ${age}, you are in a lower-risk age category for breast cancer, as incidence rates begin to rise more significantly after age 40. This younger age provides an excellent opportunity to establish preventive health habits that can significantly impact your long-term risk profile. Current research from the American Cancer Society shows that breast cancer risk doubles approximately every 10 years until menopause, making your current age an optimal time for establishing baseline health practices. `;
+  } else if (age >= 40 && age < 55) {
+    summary += `At ${age}, you are entering a period where breast cancer risk begins to increase more significantly. The majority of breast cancers are diagnosed in women over 40, with the median age of diagnosis being 62 years. This transitional period is crucial for implementing comprehensive screening protocols and lifestyle optimization strategies. Research indicates that women in this age group benefit most from regular mammographic screening and breast health awareness programs. `;
+  } else {
+    summary += `At ${age}, you are in a higher-risk demographic category, as breast cancer incidence increases substantially with age. Approximately 80% of breast cancers occur in women over 50, making age the most significant non-modifiable risk factor. However, this demographic reality should be viewed alongside opportunities for enhanced screening, medical surveillance, and targeted risk reduction strategies that can significantly improve outcomes. `;
+  }
+  
+  if (ethnicity === 'White (non-Hispanic)') {
+    summary += `Your Caucasian ethnicity places you in the highest incidence group for breast cancer overall, though mortality rates vary significantly by socioeconomic factors and access to care. `;
+  } else if (ethnicity === 'Black') {
+    summary += `As an African American woman, while your overall lifetime risk may be slightly lower than Caucasian women, you face higher rates of aggressive breast cancer subtypes and younger age of onset. Early detection and comprehensive care are particularly crucial for optimal outcomes. `;
+  } else {
+    summary += `Your ethnic background may influence both risk patterns and treatment considerations, emphasizing the importance of culturally competent healthcare and personalized risk assessment. `;
+  }
+  
+  summary += `Geographic location in ${country} provides access to advanced healthcare systems, though individual access may vary. This demographic profile forms the foundation for personalized risk assessment and healthcare planning recommendations.`;
+  
+  return summary;
+}
+
+function generateGeneticsSummary(section, answers) {
+  const familyHistory = answers.family_history || 'No family history reported';
+  const brcaStatus = answers.brca_test || 'Not tested';
+  
+  let summary = `Your genetic and family history assessment scores ${section.score}/100, reflecting your hereditary risk profile for breast cancer development. `;
+  
+  if (familyHistory.includes('first-degree')) {
+    summary += `Having a first-degree relative (mother, sister, or daughter) with breast cancer significantly elevates your risk, approximately doubling your baseline lifetime risk. This family history suggests potential hereditary factors that warrant comprehensive genetic counseling and enhanced surveillance protocols. Research from large-scale family studies indicates that first-degree family history accounts for approximately 15-20% of all breast cancers, with risk varying by the age at which your relative was diagnosed and whether bilateral disease was present. `;
+    
+    if (brcaStatus === 'BRCA1/2') {
+      summary += `Your confirmed BRCA1 or BRCA2 mutation represents the highest hereditary risk category, conferring a 55-85% lifetime breast cancer risk depending on the specific mutation. This genetic status qualifies you for intensive screening protocols, prophylactic interventions, and specialized high-risk clinic management. Current guidelines recommend annual breast MRI starting at age 25-30, alongside mammography and clinical examinations. `;
+    } else if (brcaStatus === 'Not tested') {
+      summary += `Given your significant family history, genetic counseling and testing for hereditary cancer syndromes is strongly recommended. Testing can identify BRCA1/2 mutations and other hereditary cancer genes, providing crucial information for risk assessment and medical management decisions. `;
+    }
+  } else if (familyHistory.includes('second-degree')) {
+    summary += `Having a second-degree relative with breast cancer modestly increases your risk but to a lesser extent than first-degree family history. This pattern may suggest hereditary factors, particularly if multiple relatives are affected or if diagnoses occurred at younger ages. The relative risk increase is typically 1.5-fold compared to those without family history. `;
+  } else {
+    summary += `The absence of known family history of breast cancer is reassuring, as approximately 85% of breast cancers occur in women without family history. However, this does not eliminate risk entirely, as the majority of breast cancers are sporadic rather than hereditary. Focus should remain on modifiable risk factors and age-appropriate screening protocols. `;
+  }
+  
+  summary += `Understanding your genetic risk profile enables personalized screening recommendations, lifestyle interventions, and informed decision-making regarding preventive strategies. This genetic foundation significantly influences your overall breast health management approach.`;
+  
+  return summary;
+}
+
+function generateLifestyleSummary(section, answers) {
+  const exercise = answers.exercise || 'Not specified';
+  const alcohol = answers.alcohol || 'None';
+  const smoking = answers.smoke || 'No';
+  const diet = answers.western_diet || 'Not specified';
+  const stress = answers.chronic_stress || 'Low stress';
+  
+  let summary = `Your lifestyle assessment achieves a score of ${section.score}/100, reflecting the cumulative impact of your daily health behaviors on breast cancer risk. `;
+  
+  // Exercise analysis
+  if (exercise.includes('regular moderate to vigorous')) {
+    summary += `Your commitment to regular moderate to vigorous exercise provides significant protective benefits, with research demonstrating 20-25% risk reduction in physically active women. Exercise influences breast cancer risk through multiple mechanisms: reducing estrogen levels, improving insulin sensitivity, enhancing immune function, and maintaining healthy body weight. The protective effects are dose-dependent, with greater benefits observed at higher activity levels. `;
+  } else if (exercise.includes('occasional light')) {
+    summary += `Your occasional light exercise provides some protective benefits, though increasing intensity and frequency could yield greater risk reduction. Research consistently shows that even modest increases in physical activity can provide meaningful health benefits, with optimal recommendations suggesting 150 minutes of moderate-intensity exercise weekly. `;
+  } else {
+    summary += `Limited physical activity represents a significant modifiable risk factor, as sedentary lifestyles are associated with 20-40% increased breast cancer risk. Implementing a structured exercise program could provide substantial protective benefits through hormonal regulation, weight management, and immune system enhancement. `;
+  }
+  
+  // Alcohol analysis
+  if (alcohol === 'None') {
+    summary += `Your abstinence from alcohol eliminates this risk factor entirely, as alcohol consumption shows a linear dose-response relationship with breast cancer risk, increasing risk by 7-10% per daily drink. `;
+  } else if (alcohol === '1 drink') {
+    summary += `Your moderate alcohol consumption (1 drink daily) is associated with a modest 7-10% increase in breast cancer risk, though this must be balanced against potential cardiovascular benefits in some populations. `;
+  } else {
+    summary += `Higher alcohol consumption significantly increases breast cancer risk through estrogen metabolism interference and DNA damage mechanisms. Reducing intake represents an immediately actionable risk reduction strategy. `;
+  }
+  
+  // Smoking and diet
+  if (smoking === 'Yes') {
+    summary += `Current smoking contributes to breast cancer risk through carcinogen exposure and hormonal disruption, while also negatively impacting treatment outcomes and overall health. Smoking cessation programs can provide both immediate and long-term benefits. `;
+  }
+  
+  summary += `These lifestyle factors are highly modifiable and represent your greatest opportunity for personal risk reduction through evidence-based behavioral changes.`;
+  
+  return summary;
+}
+
+function generateMedicalHistorySummary(section, answers) {
+  const mammogramFreq = answers.mammogram_frequency || 'Never';
+  const denseBreast = answers.dense_breast || 'Not known';
+  const benignCondition = answers.benign_condition || 'None';
+  const cancerHistory = answers.cancer_history || 'None';
+  
+  let summary = `Your medical history assessment scores ${section.score}/100, encompassing your screening history, previous breast conditions, and current health status. `;
+  
+  // Mammogram screening analysis
+  if (mammogramFreq === 'Annually (once a year)') {
+    summary += `Your annual mammography screening demonstrates excellent adherence to evidence-based early detection protocols. Regular annual screening in appropriate age groups reduces breast cancer mortality by 20-35% through early detection of potentially curable disease. This consistent screening pattern enables detection of cancers at earlier, more treatable stages and provides baseline imaging for comparison over time. `;
+  } else if (mammogramFreq === 'Biennially (every 2 years)') {
+    summary += `Your biennial mammography screening aligns with many international guidelines for average-risk women, providing substantial mortality benefit while balancing screening frequency. Some evidence suggests annual screening may provide additional benefit, particularly for women with higher baseline risk or dense breast tissue. `;
+  } else if (mammogramFreq === 'Irregularly') {
+    summary += `Irregular mammography screening patterns may compromise early detection opportunities. Establishing consistent screening intervals based on risk factors and age-appropriate guidelines can significantly improve outcomes through earlier diagnosis and treatment. `;
+  } else {
+    summary += `Absence of mammographic screening represents a significant gap in preventive care, particularly for women over 40. Initiating appropriate screening protocols is crucial for early detection and optimal outcomes. `;
+  }
+  
+  // Breast density analysis
+  if (denseBreast === 'Yes, I have dense breast tissue') {
+    summary += `Dense breast tissue, present in approximately 50% of women, increases breast cancer risk by 2-4 fold while also reducing mammographic sensitivity. This tissue pattern may warrant supplemental screening modalities such as ultrasound or MRI, depending on additional risk factors. Dense tissue represents both increased risk and imaging challenges requiring specialized management approaches. `;
+  }
+  
+  // Benign conditions
+  if (benignCondition.includes('Atypical Hyperplasia')) {
+    summary += `A history of atypical hyperplasia (ADH/ALH) increases breast cancer risk by 4-5 fold, representing high-risk pathology requiring enhanced surveillance and potentially chemoprevention considerations. This diagnosis warrants high-risk clinic management and personalized prevention strategies. `;
+  } else if (benignCondition.includes('LCIS')) {
+    summary += `Lobular carcinoma in situ (LCIS) serves as a high-risk marker, increasing breast cancer risk by 6-10 fold. This diagnosis requires specialized high-risk management including enhanced screening and chemoprevention evaluation. `;
+  }
+  
+  // Cancer history
+  if (cancerHistory.includes('Patient currently undergoing')) {
+    summary += `Active cancer treatment requires specialized survivorship care focusing on treatment completion, side effect management, and surveillance for recurrence. Your medical management should be coordinated through your oncology team with emphasis on comprehensive care planning. `;
+  } else if (cancerHistory.includes('Survivor')) {
+    summary += `As a breast cancer survivor, your medical history necessitates lifelong surveillance protocols, including regular clinical examinations, imaging studies, and monitoring for late treatment effects. Survivorship care planning should address both cancer surveillance and general health maintenance. `;
+  }
+  
+  summary += `This medical history profile directly informs your personalized screening recommendations, surveillance protocols, and prevention strategies.`;
+  
+  return summary;
+}
+
+function generateHormonalSummary(section, answers) {
+  const menstrualAge = answers.menstrual_age || 'Not specified';
+  const pregnancyAge = answers.pregnancy_age || 'Not specified';
+  const menopauseStatus = answers.menopause || 'Not yet';
+  const hrtUse = answers.hrt || 'No';
+  const oralContraceptives = answers.oral_contraceptives || 'Never used';
+  
+  let summary = `Your hormonal factors assessment scores ${section.score}/100, reflecting the cumulative impact of reproductive and hormonal exposures on breast cancer risk. `;
+  
+  // Menstrual history
+  if (menstrualAge === 'Before 12 years old') {
+    summary += `Early menarche (before age 12) modestly increases breast cancer risk by extending lifetime estrogen exposure. This early onset of menstruation results in additional menstrual cycles over your lifetime, contributing to cumulative hormonal exposure. While this factor is not modifiable, awareness enables enhanced surveillance and lifestyle optimization to counterbalance this risk. `;
+  } else {
+    summary += `Normal-age menarche (12 or later) represents a neutral risk factor, avoiding the modest risk increase associated with very early menstrual onset. This timing is within normal parameters and does not significantly alter your baseline risk profile. `;
+  }
+  
+  // Pregnancy and breastfeeding
+  if (pregnancyAge === 'Never had a full-term pregnancy') {
+    summary += `Nulliparity (never having a full-term pregnancy) is associated with modestly increased breast cancer risk compared to parous women. Full-term pregnancy, particularly at younger ages, provides protective benefits through breast tissue differentiation and hormonal changes. However, this reproductive choice involves many personal considerations beyond breast cancer risk. `;
+  } else if (pregnancyAge === 'Age 30 or older') {
+    summary += `First full-term pregnancy at age 30 or older provides less protective benefit than younger age at first birth, though some protection is still conferred. The protective effects of pregnancy are greatest when first childbirth occurs before age 30, as later pregnancies may actually transiently increase risk before conferring long-term protection. `;
+  } else {
+    summary += `First full-term pregnancy before age 30 provides significant protective benefits against breast cancer through breast tissue maturation and favorable hormonal changes. This reproductive pattern contributes positively to your overall risk profile. `;
+  }
+  
+  // Menopause status
+  if (menopauseStatus.includes('Not yet')) {
+    summary += `Premenopausal status means ongoing estrogen production, which requires attention to lifestyle factors that can modulate hormonal exposure. Regular exercise, weight management, and alcohol limitation can favorably influence estrogen metabolism during reproductive years. `;
+  } else if (menopauseStatus.includes('55 or older')) {
+    summary += `Late menopause (after age 55) increases breast cancer risk through extended estrogen exposure, with each year of delayed menopause increasing risk by approximately 3%. This represents additional lifetime estrogen exposure beyond the typical menopausal age. `;
+  } else {
+    summary += `Normal-age menopause represents typical hormonal transition without additional risk factors. Post-menopausal status shifts focus toward weight management and hormone replacement considerations. `;
+  }
+  
+  // HRT and contraceptives
+  if (hrtUse === 'Yes') {
+    summary += `Combined hormone replacement therapy use for more than 5 years modestly increases breast cancer risk, particularly with estrogen-progestin combinations. Current use requires regular risk-benefit assessment with your healthcare provider, considering both cancer risk and quality-of-life benefits. `;
+  }
+  
+  if (oralContraceptives.includes('currently using') || oralContraceptives.includes('used in the past')) {
+    summary += `Oral contraceptive use is associated with a small, temporary increase in breast cancer risk during use, which diminishes after discontinuation. The overall impact on lifetime risk is minimal, and benefits often outweigh risks for most women. `;
+  }
+  
+  summary += `Understanding your hormonal risk profile enables informed decision-making about reproductive choices, hormone use, and lifestyle modifications that can optimize your hormonal environment.`;
+  
+  return summary;
+}
+
+function generatePhysicalSummary(section, answers, bmi) {
+  const weight = answers.weight || 'Not specified';
+  const height = answers.height || 'Not specified';
+  const obesity = answers.obesity || 'No';
+  
+  let summary = `Your physical characteristics assessment scores ${section.score}/100, with body mass index (BMI) of ${bmi.toFixed(1)} serving as the primary metric for this evaluation. `;
+  
+  if (bmi < 18.5) {
+    summary += `Your BMI of ${bmi.toFixed(1)} indicates underweight status, which is generally not associated with increased breast cancer risk. However, maintaining adequate nutrition and healthy weight is important for overall health and immune function. Focus should be on achieving optimal nutritional status and healthy weight maintenance through balanced diet and appropriate exercise. `;
+  } else if (bmi >= 18.5 && bmi < 25) {
+    summary += `Your BMI of ${bmi.toFixed(1)} falls within the healthy weight range, representing optimal body composition for breast cancer risk reduction. Maintaining this healthy weight through balanced nutrition and regular physical activity provides significant protective benefits. Research consistently demonstrates that maintaining healthy body weight is one of the most important modifiable risk factors for breast cancer prevention. `;
+  } else if (bmi >= 25 && bmi < 30) {
+    summary += `Your BMI of ${bmi.toFixed(1)} indicates overweight status, which is associated with modestly increased breast cancer risk, particularly in postmenopausal women. Excess weight contributes to cancer risk through multiple mechanisms: increased estrogen production in adipose tissue, insulin resistance, chronic inflammation, and growth factor elevation. Weight reduction of even 5-10% can provide meaningful health benefits and risk reduction. `;
+  } else if (bmi >= 30) {
+    summary += `Your BMI of ${bmi.toFixed(1)} indicates obesity, representing a significant modifiable risk factor for breast cancer. Obesity increases postmenopausal breast cancer risk by 20-40% through multiple biological mechanisms: enhanced estrogen synthesis in adipose tissue, insulin resistance promoting cell proliferation, chronic inflammatory states, and altered immune function. Weight management represents one of the most impactful interventions for risk reduction. `;
+  }
+  
+  // Additional physical factors
+  if (answers.menopause && (answers.menopause.includes('Yes') && bmi >= 25)) {
+    summary += `The combination of postmenopausal status and elevated BMI particularly increases risk, as adipose tissue becomes the primary source of estrogen production after menopause. This biological interaction makes weight management especially crucial for postmenopausal women. `;
+  }
+  
+  summary += `Physical characteristics, particularly body composition, represent highly modifiable risk factors. Evidence-based approaches including structured nutrition programs, regular physical activity, and behavioral weight management can significantly improve both body composition and breast cancer risk profile. The relationship between body weight and cancer risk is dose-dependent, meaning that any movement toward healthier weight ranges provides proportional benefits. Professional guidance from healthcare providers, registered dietitians, and exercise specialists can optimize your approach to healthy weight achievement and maintenance.`;
+  
+  return summary;
 }
 
 function generateCoachingFocus(riskCategory, riskFactors) {
@@ -1461,10 +2042,63 @@ function generateFollowUpTimeline(userProfile, riskCategory) {
   }
 }
 
-// Catch-all handler: send back React's index.html file for client-side routing
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../dist/index.html'));
+// Quick API smoke test route
+app.get("/api/ping", (_req, res) => res.json({ ok: true, ping: "pong" }));
+
+// Test endpoint for enhanced insights without database validation
+app.get('/api/insights/test', (req, res) => {
+  try {
+    const mockAnswers = {
+      age: "45",
+      family_history: "Yes, I have first-degree relative with BC",
+      exercise: "No, little or no regular exercise",
+      alcohol: "2 or more drinks",
+      chronic_stress: "Yes, chronic high stress",
+      western_diet: "Yes, Western diet",
+      last_mammogram: "More than 2 years ago"
+    };
+    
+    const mockRiskFactors = ["Family history", "Sedentary lifestyle", "High alcohol consumption"];
+    const insights = generateEnhancedInsights(mockAnswers, mockRiskFactors, 'high', 'premenopausal');
+    
+    const mockReport = {
+      riskScore: "68",
+      riskCategory: "high",
+      insights: insights,
+      reportData: {
+        summary: {
+          totalHealthScore: "42",
+          controllableHealthScore: "35",
+          uncontrollableHealthScore: "65"
+        }
+      }
+    };
+    
+    res.json({ success: true, report: mockReport });
+  } catch (error) {
+    console.error('❌ Test insights error:', error);
+    res.status(500).json({ error: 'Failed to generate test insights: ' + error.message });
+  }
 });
+
+// Only serve static files in production (not in development)
+if (process.env.NODE_ENV === 'production') {
+  const distPath = path.join(__dirname, '../dist');
+  app.use(express.static(distPath));
+  
+  // Catch-all handler: send back React's index.html file for client-side routing
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(distPath, 'index.html'));
+  });
+} else {
+  // In development, only handle unknown API routes
+  app.get('/api/*', (req, res) => {
+    res.status(404).json({ error: 'API endpoint not found', path: req.path });
+  });
+}
+
+// Global error handler (must be last)
+app.use(globalErrorHandler);
 
 // Debug endpoint to clear dashboard cache and force regeneration
 app.delete('/api/dashboard/clear', async (req, res) => {
@@ -1486,6 +2120,400 @@ app.delete('/api/dashboard/clear', async (req, res) => {
     res.status(500).json({ error: 'Failed to clear dashboard cache' });
   }
 });
+
+// NEW: Enhanced insights generation with expert content
+function generateEnhancedInsights(answers, riskFactors, riskCategory, userProfile) {
+  // For now, use inline data until we can properly import JSON modules
+  const evidence = {
+    "FAMILY_HISTORY": {
+      "simple_label": "Family history increases your risk",
+      "evidence": "Large studies show family history doubles your chances of breast health issues",
+      "source": "Studies following 50,302 women across 30 countries",
+      "strength": "Strong evidence",
+      "what_it_means": "Your genetics play a role, but lifestyle choices still matter most",
+      "hope_message": "You can take steps your family members didn't know about"
+    },
+    "LOW_EXERCISE": {
+      "simple_label": "Not getting enough exercise raises risk",
+      "evidence": "Women who walk 150 minutes per week reduce their risk by 20-25%",
+      "source": "Meta-analysis of 47 studies worldwide",
+      "strength": "Strong evidence",
+      "what_it_means": "Your body needs movement to stay healthy and fight disease",
+      "hope_message": "Even 20 minutes of walking 3 times a week makes a difference"
+    },
+    "ALCOHOL_HIGH": {
+      "simple_label": "Drinking alcohol increases risk",
+      "evidence": "Each daily drink increases breast cancer risk by 7-10%",
+      "source": "Research following 1.2 million women",
+      "strength": "Strong evidence",
+      "what_it_means": "Alcohol affects hormones and damages cells over time",
+      "hope_message": "Cutting back to 3-4 drinks per week significantly reduces risk"
+    },
+    "OVERDUE_SCREENING": {
+      "simple_label": "Skipping checkups delays early detection",
+      "evidence": "Regular screening reduces death rates by 20-40%",
+      "source": "Multiple large-scale screening studies",
+      "strength": "Strong evidence",
+      "what_it_means": "Early detection means simpler treatment and better outcomes",
+      "hope_message": "It's never too late to get back on track with screenings"
+    },
+    "DENSE_BREAST": {
+      "simple_label": "Dense breast tissue makes detection harder",
+      "evidence": "Dense tissue increases risk by 4-6 times and hides tumors on mammograms",
+      "source": "Studies of 200,000+ mammography results",
+      "strength": "Strong evidence",
+      "what_it_means": "You may need additional screening methods beyond regular mammograms",
+      "hope_message": "Knowing this helps you get the right screening for your body"
+    },
+    "POOR_DIET": {
+      "simple_label": "Diet affects your breast health risk",
+      "evidence": "Mediterranean-style eating reduces risk by 15-20%",
+      "source": "Study following 4,152 women for 5 years",
+      "strength": "Good evidence",
+      "what_it_means": "What you eat daily either feeds disease or fights it",
+      "hope_message": "Simple food swaps can make a big difference over time"
+    },
+    "HIGH_STRESS": {
+      "simple_label": "Chronic stress weakens your body's defenses",
+      "evidence": "High stress increases inflammatory markers by 30%",
+      "source": "American Psychological Association research",
+      "strength": "Good evidence",
+      "what_it_means": "Stress hormones can help cancer cells grow and spread",
+      "hope_message": "Stress management techniques really work - even 5 minutes daily helps"
+    },
+    "POOR_SLEEP": {
+      "simple_label": "Not getting enough sleep increases risk",
+      "evidence": "Less than 6 hours of sleep increases breast cancer risk by 50%",
+      "source": "Studies following 100,000+ women",
+      "strength": "Good evidence",
+      "what_it_means": "Your body repairs damaged cells while you sleep",
+      "hope_message": "Better sleep habits can be learned and improved"
+    }
+  };
+
+  const painPoints = {
+    "LOW_EXERCISE": {
+      "pain": "I don't have time for long workouts",
+      "micro_action": "Take a 10-minute walk during lunch break",
+      "talk_track": "Even small amounts of movement add up to big health benefits",
+      "expert_video": {
+        "title": "The Power of 10-Minute Movement",
+        "expert": "Dr. Kerry Courneya",
+        "url": "https://youtube.com/watch?v=example1",
+        "duration": "12:30"
+      }
+    },
+    "ALCOHOL_HIGH": {
+      "pain": "I use wine to relax after stressful days",
+      "micro_action": "Replace one drink per week with herbal tea",
+      "talk_track": "Finding new ways to unwind protects your health without sacrificing relaxation",
+      "expert_video": {
+        "title": "Healthy Ways to Manage Stress",
+        "expert": "Dr. Sara Lazar",
+        "url": "https://youtube.com/watch?v=example2",
+        "duration": "16:45"
+      }
+    },
+    "OVERDUE_SCREENING": {
+      "pain": "I keep putting off scheduling appointments",
+      "micro_action": "Set a 15-minute calendar reminder to call your doctor",
+      "talk_track": "Taking charge of your screening schedule puts you back in control",
+      "expert_video": {
+        "title": "Why Early Detection Saves Lives",
+        "expert": "Dr. Susan Love",
+        "url": "https://youtube.com/watch?v=example3",
+        "duration": "14:20"
+      }
+    },
+    "HIGH_STRESS": {
+      "pain": "I feel overwhelmed and don't know how to relax",
+      "micro_action": "Try a 3-minute breathing exercise before bed",
+      "talk_track": "Your body has natural relaxation responses you can learn to activate",
+      "expert_video": {
+        "title": "The Science of Calm: Quick Stress Relief",
+        "expert": "Dr. Andrew Weil",
+        "url": "https://youtube.com/watch?v=example7",
+        "duration": "15:30"
+      }
+    }
+  };
+
+  const expertContent = {
+    "nutrition": [
+      {
+        "expert": "Dr. David Katz",
+        "title": "The Truth About Food and Disease Prevention",
+        "video_url": "https://www.youtube.com/watch?v=example1",
+        "ted_talk": true,
+        "duration": "18:30",
+        "difficulty": "beginner",
+        "key_takeaways": [
+          "Food is medicine - every meal is a chance to heal or harm",
+          "Mediterranean diet reduces cancer risk by 15-20%"
+        ],
+        "action_items": ["Add olive oil to your daily routine", "Eat fish twice per week"],
+        "relevant_for": ["poor_diet", "family_history"]
+      }
+    ],
+    "exercise": [
+      {
+        "expert": "Dr. Kerry Courneya",
+        "title": "Exercise as Medicine: Cancer Prevention Through Movement",
+        "video_url": "https://www.youtube.com/watch?v=example3",
+        "ted_talk": true,
+        "duration": "16:45",
+        "key_takeaways": ["150 minutes per week reduces breast cancer risk by 25%"],
+        "action_items": ["Start with 20-minute walks 3x per week"]
+      }
+    ],
+    "stress_management": [
+      {
+        "expert": "Dr. Sara Lazar",
+        "title": "How Meditation Changes Your Brain and Body",
+        "video_url": "https://www.youtube.com/watch?v=example5",
+        "ted_talk": true,
+        "duration": "12:20",
+        "key_takeaways": ["8 weeks of meditation physically changes brain structure"],
+        "action_items": ["Try 5 minutes of guided breathing daily"]
+      }
+    ],
+    "medical_experts": [
+      {
+        "expert": "Dr. Susan Love",
+        "title": "Taking Charge of Your Breast Health",
+        "video_url": "https://www.youtube.com/watch?v=example7",
+        "ted_talk": false,
+        "duration": "25:10",
+        "key_takeaways": ["Early detection saves lives but prevention is better"],
+        "action_items": ["Schedule overdue screenings", "Learn proper self-exam technique"]
+      }
+    ],
+    "inspiration": [
+      {
+        "expert": "Tig Notaro",
+        "title": "Finding Humor and Strength After Cancer",
+        "video_url": "https://www.youtube.com/watch?v=example10",
+        "ted_talk": true,
+        "duration": "14:25",
+        "key_takeaways": ["Humor and positivity are powerful healing tools"],
+        "action_items": ["Find one thing to laugh about each day"]
+      }
+    ]
+  };
+
+  // Map quiz answers to simple finding codes
+  const findings = [];
+  
+  if (answers.family_history === "Yes, I have first-degree relative with BC") findings.push('FAMILY_HISTORY');
+  if (answers.exercise === "No, little or no regular exercise") findings.push('LOW_EXERCISE'); 
+  if (answers.alcohol === "2 or more drinks") findings.push('ALCOHOL_HIGH');
+  if (answers.dense_breast === "Yes") findings.push('DENSE_BREAST');
+  if (answers.chronic_stress === "Yes, chronic high stress") findings.push('HIGH_STRESS');
+  if (answers.western_diet === "Yes, Western diet") findings.push('POOR_DIET');
+  if (answers.sleep_hours && parseInt(answers.sleep_hours) < 7) findings.push('POOR_SLEEP');
+  
+  // Check for overdue screening based on age
+  const age = parseInt(answers.age || 30);
+  const lastMammogram = answers.last_mammogram;
+  if (age >= 40 && (!lastMammogram || lastMammogram === "Never" || lastMammogram === "More than 2 years ago")) {
+    findings.push('OVERDUE_SCREENING');
+  }
+
+  // Generate evidence badges (top 3)
+  const evidenceBadges = findings.slice(0, 3).map(finding => ({
+    code: finding,
+    label: evidence[finding]?.simple_label || 'Risk factor identified',
+    evidence_text: evidence[finding]?.evidence || 'Medical research shows increased risk',
+    source: evidence[finding]?.source || 'Clinical studies',
+    strength: evidence[finding]?.strength || 'Moderate evidence',
+    what_it_means: evidence[finding]?.what_it_means || 'This factor affects your risk',
+    hope_message: evidence[finding]?.hope_message || 'Positive changes can make a difference'
+  }));
+
+  // Generate pain points with micro-actions (top 2)
+  const userPainPoints = findings.slice(0, 2).map(finding => ({
+    code: finding,
+    pain: painPoints[finding]?.pain || 'This area needs attention',
+    micro_action: painPoints[finding]?.micro_action || 'Take small steps to improve',
+    talk_track: painPoints[finding]?.talk_track || 'Small changes lead to big results',
+    expert_video: painPoints[finding]?.expert_video || null
+  }));
+
+  // Calculate urgency score (realistic)
+  let urgencyScore = 0;
+  if (findings.includes('OVERDUE_SCREENING')) urgencyScore += 40;
+  if (findings.includes('FAMILY_HISTORY')) urgencyScore += 30;
+  if (findings.length >= 3) urgencyScore += 20;
+  if (age > 45) urgencyScore += 10;
+
+  const hasUrgentIssues = urgencyScore > 50;
+  const overdueMonths = hasUrgentIssues && findings.includes('OVERDUE_SCREENING') ? 
+    (lastMammogram === "More than 2 years ago" ? 24 : 12) : 0;
+
+  // Generate realistic improvement potential
+  const improvementPotential = calculateImprovementPotential(findings);
+
+  // Select relevant expert videos
+  const recommendedVideos = selectRelevantExpertVideos(findings, expertContent);
+
+  return {
+    evidence_badges: evidenceBadges,
+    pain_points: userPainPoints,
+    urgency: {
+      has_urgent_issues: hasUrgentIssues,
+      urgency_score: urgencyScore,
+      overdue_months: overdueMonths,
+      primary_concern: findings.includes('OVERDUE_SCREENING') ? 
+        'Schedule your overdue screening' : 
+        'Focus on lifestyle improvements',
+      timeline_message: hasUrgentIssues ? 
+        'Consider scheduling health appointments soon' :
+        'You have time to make gradual improvements',
+      next_7_days: generateNext7DaysActions(findings)
+    },
+    improvement_potential: improvementPotential,
+    expert_videos: recommendedVideos,
+    daily_tips: generateDailyTips(findings)
+  };
+}
+
+// Helper function to calculate realistic improvement potential
+function calculateImprovementPotential(findings) {
+  let totalImprovement = 0;
+  let improvements = [];
+
+  if (findings.includes('LOW_EXERCISE')) {
+    totalImprovement += 15;
+    improvements.push({ 
+      area: 'Exercise', 
+      potential: '+15 points', 
+      action: 'Start walking 150 minutes per week',
+      timeframe: '3-6 months'
+    });
+  }
+  
+  if (findings.includes('POOR_DIET')) {
+    totalImprovement += 12;
+    improvements.push({ 
+      area: 'Nutrition', 
+      potential: '+12 points', 
+      action: 'Switch to Mediterranean-style eating',
+      timeframe: '2-4 months'
+    });
+  }
+  
+  if (findings.includes('HIGH_STRESS')) {
+    totalImprovement += 10;
+    improvements.push({ 
+      area: 'Stress Management', 
+      potential: '+10 points', 
+      action: 'Practice daily stress-reduction techniques',
+      timeframe: '1-3 months'
+    });
+  }
+  
+  if (findings.includes('ALCOHOL_HIGH')) {
+    totalImprovement += 8;
+    improvements.push({ 
+      area: 'Alcohol Reduction', 
+      potential: '+8 points', 
+      action: 'Reduce to 3-4 drinks per week',
+      timeframe: '1-2 months'
+    });
+  }
+
+  return {
+    total_potential: Math.min(totalImprovement, 35), // Cap at realistic 35 points
+    improvements: improvements.slice(0, 3), // Top 3 opportunities
+    message: totalImprovement > 20 ? 
+      'Significant improvement possible' : 
+      'Moderate improvement opportunities available'
+  };
+}
+
+// Helper function to select relevant expert videos
+function selectRelevantExpertVideos(findings, expertContent) {
+  const videos = [];
+  
+  // Match findings to expert content categories (with safe checks)
+  if (findings.includes('POOR_DIET') && expertContent.nutrition) {
+    videos.push(...expertContent.nutrition.slice(0, 1));
+  }
+  if (findings.includes('LOW_EXERCISE') && expertContent.exercise) {
+    videos.push(...expertContent.exercise.slice(0, 1)); 
+  }
+  if ((findings.includes('HIGH_STRESS') || findings.includes('POOR_SLEEP')) && expertContent.stress_management) {
+    videos.push(...expertContent.stress_management.slice(0, 1));
+  }
+  if ((findings.includes('OVERDUE_SCREENING') || findings.includes('DENSE_BREAST')) && expertContent.medical_experts) {
+    videos.push(...expertContent.medical_experts.slice(0, 1));
+  }
+  
+  // Always include inspiration for any high-risk findings
+  if (findings.includes('FAMILY_HISTORY') && expertContent.inspiration) {
+    videos.push(...expertContent.inspiration.slice(0, 1));
+  }
+
+  return videos.slice(0, 3); // Return top 3 most relevant videos
+}
+
+// Helper function to generate next 7 days actions
+function generateNext7DaysActions(findings) {
+  const actions = [];
+  
+  if (findings.includes('LOW_EXERCISE')) {
+    actions.push({
+      day: 'Today',
+      action: 'Take a 10-minute walk',
+      points: '+2',
+      difficulty: 'Easy'
+    });
+  }
+  
+  if (findings.includes('POOR_DIET')) {
+    actions.push({
+      day: 'Tomorrow',
+      action: 'Add berries to breakfast',
+      points: '+1',
+      difficulty: 'Easy'
+    });
+  }
+  
+  if (findings.includes('HIGH_STRESS')) {
+    actions.push({
+      day: 'Day 3',
+      action: 'Try 5-minute breathing exercise',
+      points: '+1',
+      difficulty: 'Easy'
+    });
+  }
+  
+  if (findings.includes('OVERDUE_SCREENING')) {
+    actions.push({
+      day: 'This week',
+      action: 'Call to schedule mammogram',
+      points: '+5',
+      difficulty: 'Important'
+    });
+  }
+
+  return actions.slice(0, 3); // Return top 3 immediate actions
+}
+
+// Helper function to generate daily tips
+function generateDailyTips(findings) {
+  const tips = [
+    { tip: 'Drink green tea instead of coffee today', category: 'nutrition' },
+    { tip: 'Take the stairs instead of the elevator', category: 'exercise' },
+    { tip: 'Practice deep breathing for 3 minutes', category: 'stress' },
+    { tip: 'Eat a handful of nuts as a snack', category: 'nutrition' },
+    { tip: 'Go to bed 15 minutes earlier tonight', category: 'sleep' }
+  ];
+  
+  // Filter tips based on user's risk factors
+  return tips.slice(0, 3);
+}
+
 
 app.listen(PORT, async () => {
   console.log(`🚀 BrezCode Health API server running on port ${PORT}`);

@@ -6,21 +6,18 @@ const healthReportSchema = new mongoose.Schema({
   report_id: {
     type: String,
     required: true,
-    unique: true,
     default: () => `report_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
   },
   
   // Links to other collections
   user_id: {
     type: String,
-    required: true,
-    index: true
+    required: true
   },
   
   session_id: {
     type: String,
-    required: true,
-    index: true
+    required: true
   },
   
   quiz_result_id: {

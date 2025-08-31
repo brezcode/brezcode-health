@@ -13,14 +13,12 @@ const userActivitySchema = new mongoose.Schema({
   // User and Session Links
   user_id: {
     type: String,
-    required: true,
-    index: true
+    required: true
   },
   
   session_id: {
     type: String,
-    required: true,
-    index: true
+    required: true
   },
   
   // Activity Information

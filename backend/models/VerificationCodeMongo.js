@@ -48,12 +48,6 @@ const verificationCodeSchema = new mongoose.Schema({
     type: Date,
     required: true,
     default: () => new Date(Date.now() + 15 * 60 * 1000) // 15 minutes from now
-  },
-  
-  createdAt: {
-    type: Date,
-    default: Date.now,
-    expires: 3600 // Auto-delete after 1 hour (3600 seconds)
   }
 }, {
   timestamps: true,

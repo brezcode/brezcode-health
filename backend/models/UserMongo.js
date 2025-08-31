@@ -7,7 +7,6 @@ const userSchema = new mongoose.Schema({
   user_id: {
     type: String,
     required: true,
-    unique: true,
     default: () => `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
   },
   
@@ -17,8 +16,6 @@ const userSchema = new mongoose.Schema({
     required: function() {
       return !this.phoneNumber;
     },
-    unique: true,
-    sparse: true,
     lowercase: true,
     trim: true
   },
@@ -28,8 +25,6 @@ const userSchema = new mongoose.Schema({
     required: function() {
       return !this.email;
     },
-    unique: true,
-    sparse: true,
     trim: true
   },
   

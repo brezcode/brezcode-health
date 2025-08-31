@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { postJSON } from "../api/client";
 import Quiz from "../components/Quiz";
 import QuizTransition from "../components/QuizTransition";
 import CleanSignupFlow from "../components/CleanSignupFlow";
@@ -165,48 +166,67 @@ export default function QuizPage() {
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [showTransition, setShowTransition] = useState(false);
   const [quizAnswers, setQuizAnswers] = useState<Record<string, any>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const handleQuizComplete = async (answers: Record<string, any>) => {
     console.log("Quiz completed with answers:", answers);
     setQuizAnswers(answers);
+    setIsSubmitting(true);
+    setSubmitError(null);
     
     try {
+      console.log('🚀 Starting quiz submission process...');
+      console.log('📝 Quiz answers:', Object.keys(answers).length, 'questions answered');
+      
       // Calculate comprehensive risk score based on quiz answers
       const { riskScore, riskLevel, recommendations } = calculateRiskAssessment(answers);
+      console.log('📊 Risk assessment calculated:', { riskScore, riskLevel, recommendationCount: recommendations.length });
       
-      // Submit quiz results to database
-      const response = await fetch('/api/quiz/submit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          answers,
-          risk_score: riskScore,
-          risk_level: riskLevel,
-          recommendations,
-          user_id: 'anonymous_user' // Will be replaced with actual user ID later
-        })
+      const payload = {
+        answers,
+        risk_score: riskScore,
+        risk_level: riskLevel,
+        recommendations,
+        user_id: 'anonymous_user' // Will be replaced with actual user ID later
+      };
+      console.log('📦 Payload prepared for submission');
+      
+      // Submit quiz results using idempotent API client
+      console.log('🌐 Calling API endpoint /api/quiz/submit...');
+      const result = await postJSON('/api/quiz/submit', payload, {
+        timeout: 30000 // 30 second timeout
       });
+      console.log('📬 API response received:', result);
       
-      const result = await response.json();
-      
-      if (result.success) {
-        console.log('✅ Quiz results saved to MongoDB database:', result.session_id);
+      if (result.ok) {
+        console.log('✅ Quiz results saved to database:', result.session_id);
+        if (result.cached) {
+          console.log('✅ Retrieved cached quiz session (duplicate submission prevented)');
+        }
         // Store session ID to fetch report from database later
         localStorage.setItem('brezcode_quiz_session_id', result.session_id);
+        console.log('💾 Session ID stored in localStorage');
       } else {
-        console.error('❌ Failed to save quiz results to database');
-        // No fallback - database is required
-        throw new Error('Database save failed');
+        console.error('❌ API returned error:', result.code, result.message);
+        throw new Error(result.message || 'Database save failed');
       }
     } catch (error) {
-      console.error('❌ Error submitting quiz to database:', error);
-      // No fallback storage - show error to user
-      alert('Unable to save quiz results to database. Please try again.');
+      console.error('❌ Complete error object:', error);
+      console.error('❌ Error submitting quiz:', error);
+      
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        setSubmitError('Network connection failed. Please check your internet connection and try again.');
+      } else if (error instanceof Error && error.message.includes('timeout')) {
+        setSubmitError('Request timed out. Please try again.');
+      } else {
+        setSubmitError(error instanceof Error ? error.message : 'Unable to save quiz results');
+      }
+      setIsSubmitting(false);
       return;
     }
     
+    setIsSubmitting(false);
     // Start the proper flow: quiz → transition → signup → dashboard
     setQuizCompleted(true);
     setShowTransition(true);
@@ -243,7 +263,12 @@ export default function QuizPage() {
   // Show quiz initially
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600">
-      <Quiz onComplete={handleQuizComplete} onClose={handleQuizClose} />
+      <Quiz 
+        onComplete={handleQuizComplete} 
+        onClose={handleQuizClose}
+        isSubmitting={isSubmitting}
+        submitError={submitError}
+      />
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { postJSON } from '../api/client';
 import { 
   Button,
   Card,
@@ -359,9 +360,11 @@ const quizQuestions: QuizQuestion[] = quizSections.flatMap(section =>
 interface QuizProps {
   onComplete: (answers: Record<string, any>) => void;
   onClose: () => void;
+  isSubmitting?: boolean;
+  submitError?: string | null;
 }
 
-export default function Quiz({ onComplete, onClose }: QuizProps) {
+export default function Quiz({ onComplete, onClose, isSubmitting = false, submitError = null }: QuizProps) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, any>>({});
   const [currentAnswer, setCurrentAnswer] = useState<any>("");
@@ -721,6 +724,14 @@ export default function Quiz({ onComplete, onClose }: QuizProps) {
                 </Typography>
               </Paper>
             )}
+            
+            {/* Show submit error */}
+            {submitError && (
+              <Alert severity="error" sx={{ mt: 2 }}>
+                <AlertTitle>Submission Error</AlertTitle>
+                {submitError}. Please try again.
+              </Alert>
+            )}
           </Box>
 
           <Box sx={{ 
@@ -742,10 +753,10 @@ export default function Quiz({ onComplete, onClose }: QuizProps) {
             <Button
               variant="contained"
               onClick={handleNext}
-              disabled={!isAnswerValid()}
+              disabled={!isAnswerValid() || isSubmitting}
               sx={{ px: 4, py: 1.5 }}
             >
-              {isLastQuestion ? "Complete Assessment" : "Next"}
+              {isSubmitting ? "Saving..." : (isLastQuestion ? "Complete Assessment" : "Next")}
             </Button>
           </Box>
         </CardContent>
