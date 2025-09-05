@@ -118,6 +118,7 @@ function Navigation({ onTakeQuiz }: { onTakeQuiz: () => void }) {
           
           <Button 
             type="text" 
+            onClick={() => window.location.pathname = '/dashboard'}
             style={{ 
               color: '#facc15',
               border: 'none',
@@ -212,6 +213,10 @@ function Navigation({ onTakeQuiz }: { onTakeQuiz: () => void }) {
           <Button 
             type="text"
             block
+            onClick={() => {
+              setShowMobileMenu(false);
+              window.location.pathname = '/dashboard';
+            }}
             style={{ 
               textAlign: 'left', 
               height: '48px',
